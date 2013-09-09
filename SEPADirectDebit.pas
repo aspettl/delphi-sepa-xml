@@ -1,6 +1,6 @@
 //
 //   Delphi unit for SEPA direct debit XML file creation
-//   (alpha version 0.0.1, 2013-08-23)
+//   (alpha version 0.0.2, 2013-09-09)
 //
 //   Copyright (C) 2013 by Aaron Spettl
 //
@@ -54,6 +54,7 @@ const
   INITG_PTY_NAME_MAX_LEN    = 70;
   CDTR_NM_MAX_LEN           = 70;
   CDTR_SCHME_ID_MAX_LEN     = 35;
+  END_TO_END_ID_MAX_LEN     = 35;
   DBTR_NM_MAX_LEN           = 70;
   MNDT_ID_MAX_LEN           = 35;
   RMT_INF_USTRD_MAX_LEN     = 140;
@@ -77,13 +78,12 @@ resourcestring
   EMPTY_INSTD_AMT_CCY       = 'TDirectDebitTransactionInformation: InstdAmtCcy required.';
   EMPTY_DBTR_NM             = 'TDirectDebitTransactionInformation: DbtrNm required.';
   EMPTY_RMT_INF_USTRD       = 'TDirectDebitTransactionInformation: RmtInfUstrd required.';
+  INVALID_END_TO_END_ID     = 'TDirectDebitTransactionInformation: PmtIdEndToEndId "%s" not valid.';
   INVALID_INSTD_AMT         = 'TDirectDebitTransactionInformation: InstdAmt "%s" not valid, positive value required.';
   INVALID_DBTR_NM           = 'TDirectDebitTransactionInformation: DbtrNm "%s" not valid.';
   INVALID_ULTMT_DBTR_NM     = 'TDirectDebitTransactionInformation: UltmtDbtrNm "%s" not valid.';
   INVALID_RMT_INF_USTRD     = 'TDirectDebitTransactionInformation: RmtInfUstrd "%s" not valid.';
   EMPTY_PMT_INF_ID          = 'TPaymentInstructionInformation: PmtInfId required.';
-  EMPTY_LCL_INSTRM_CD       = 'TPaymentInstructionInformation: PmtTpInfLclInstrmCd required.';
-  EMPTY_SEQ_TP              = 'TPaymentInstructionInformation: PmtTpInfSeqTp required.';
   EMPTY_CDTR_NM             = 'TPaymentInstructionInformation: CdtrNm required.';
   EMPTY_CDTR_ID             = 'TPaymentInstructionInformation: CdtrSchmeIdIdPrvtIdOthrId required.';
   INVALID_PMT_INF_ID        = 'TPaymentInstructionInformation: PmtInfId "%s" not valid.';
@@ -104,12 +104,16 @@ resourcestring
   INVALID_GRP_HDR_MSG_ID    = 'TDirectDebitInitiation: GrpHdrMsgId "%s" not valid.';
   INVALID_INITG_PTY_NAME    = 'TDirectDebitInitiation: GrpHdrInitgPtyName "%s" not valid.';
   INVALID_NB_OF_TXS         = 'TDirectDebitInitiation: no transactions contained.';
+  INVALID_PMT_INF_ONLY_B2B  = 'TDirectDebitInitiation: one file may only contain payment instructions with either none or only B2B entries.';
 
 type
   // In the following, all necessary classes to create direct debit transactions
   // for a SEPA XML file are introduced.
   //
-  // XML file hierarchy            corresponding class
+  // Short explanation of XML file:
+  //
+  // XML tags                      corresponding class
+  // ---------------------------------------------------------------------------
   // <Document>                    TDirectDebitInitiation
   //   <CstmrDrctDbtInitn>         TDirectDebitInitiation
   //     <PmtInf>                  TPaymentInstructionInformation
@@ -136,7 +140,7 @@ type
 
   TAccountIdentification = class
   private
-    fIdIBAN: String;                                   // account identification: IBAN, max length: 34
+    fIdIBAN: String;                                   // account identification: IBAN
   public
     property IBAN: String read fIdIBAN write fIdIBAN;
 
@@ -191,9 +195,9 @@ type
     fInstdAmt: Double;                                 // instructed amount
     fDrctDbtTxMndtRltdInf: TMandateRelatedInformation;
     fDbtrAgt: TFinancialInstitution;                   // debtor agent
-    fDbtrNm: String;                                   // debtor name, max length: 70
+    fDbtrNm: String;                                   // debtor name
     fDbtrAcct: TAccountIdentification;                 // debtor account identification
-    fUltmtDbtrNm: String;                              // ultimate debtor name, max length: 70
+    fUltmtDbtrNm: String;                              // ultimate debtor name
     fRmtInfUstrd: String;                              // unstructured remittance information
   public
     constructor Create;
@@ -220,7 +224,7 @@ type
     fPmtTpInfLclInstrmCd: String;                      // payment type, local instrument code ("CORE" or "B2B")
     fPmtTpInfSeqTp: String;                            // payment type, sequence type ("FRST", "RCUR", "OOFF" or "FNAL")
     fReqdColltnDt: TDateTime;                          // requested collection date
-    fCdtrNm: String;                                   // creditor name, max length: 70
+    fCdtrNm: String;                                   // creditor name
     fCdtrAcct: TAccountIdentification;                 // creditor account identification
     fCdtrAgt: TFinancialInstitution;                   // creditor agent
     fChrgBr: String;                                   // charge bearer (always "SLEV")
@@ -261,7 +265,7 @@ type
   private
     fGrpHdrMsgId: String;                              // group header: message identification
     fGrpHdrCreDtTm: TDateTime;                         // group header: time of file creation
-    fGrpHdrInitgPtyName: String;                       // group header: initiator name, max length: 70
+    fGrpHdrInitgPtyName: String;                       // group header: initiator name
     fPmtInf: array of TPaymentInstructionInformation;
 
     function GetGrpHdrNbOfTxs: Integer;
@@ -553,6 +557,9 @@ begin
 
   // check for invalid fields
 
+  if not SEPACheckString(PmtIdEndToEndId, END_TO_END_ID_MAX_LEN) then
+    Result.Append(Format(INVALID_END_TO_END_ID, [PmtIdEndToEndId]));
+
   if InstdAmt <= 0.0 then
     Result.Append(Format(INVALID_INSTD_AMT, [SEPAFormatAmount(InstdAmt)]));
 
@@ -653,12 +660,6 @@ begin
   if PmtInfId = '' then
     Result.Append(EMPTY_PMT_INF_ID);
 
-  if PmtTpInfLclInstrmCd = '' then
-    Result.Append(EMPTY_LCL_INSTRM_CD);
-
-  if PmtTpInfSeqTp = '' then
-    Result.Append(EMPTY_SEQ_TP);
-
   if CdtrNm = '' then
     Result.Append(EMPTY_CDTR_NM);
 
@@ -687,9 +688,9 @@ begin
      (PmtTpInfSeqTp <> SEQ_TP_FNAL) then
     Result.Append(Format(INVALID_SEQ_TP, [PmtTpInfSeqTp]));
 
-  // compute earliest possible date for collection (not precise: no holidays etc.; ask your bank for deadlines)
+  // compute earliest possible date for collection (not precise: e.g. no holidays; always ask your bank for deadlines)
   possible_reqd_colltn_dt := Trunc(Today);
-  if LCL_INSTRM_CD_CORE = PmtTpInfLclInstrmCd then
+  if PmtTpInfLclInstrmCd = LCL_INSTRM_CD_CORE then
   begin
     if PmtTpInfSeqTp <> SEQ_TP_FRST then
       add_days := 5
@@ -738,7 +739,7 @@ begin
     begin
       if DrctDbtTxInfEntry[i].DrctDbtTxMndtRltdInf.AmdmntInd then
       begin
-        if DrctDbtTxInfEntry[i].DrctDbtTxMndtRltdInf.AmdmntInfDtls.OrgnlCdtrSchmeIdIdPrvtIdOthrId <> ORGNL_DBTR_AGT_SMNDA then
+        if DrctDbtTxInfEntry[i].DrctDbtTxMndtRltdInf.AmdmntInfDtls.OrgnlDbtrAgtFinInstIdOthrId <> ORGNL_DBTR_AGT_SMNDA then
           Result.Append(INVALID_SEQ_TP_FRST_SMNDA1);
       end;
     end;
@@ -749,7 +750,7 @@ begin
     begin
       if DrctDbtTxInfEntry[i].DrctDbtTxMndtRltdInf.AmdmntInd then
       begin
-        if DrctDbtTxInfEntry[i].DrctDbtTxMndtRltdInf.AmdmntInfDtls.OrgnlCdtrSchmeIdIdPrvtIdOthrId = ORGNL_DBTR_AGT_SMNDA then
+        if DrctDbtTxInfEntry[i].DrctDbtTxMndtRltdInf.AmdmntInfDtls.OrgnlDbtrAgtFinInstIdOthrId = ORGNL_DBTR_AGT_SMNDA then
           Result.Append(INVALID_SEQ_TP_FRST_SMNDA2);
       end;
     end;
@@ -839,7 +840,7 @@ end;
 
 function TDirectDebitInitiation.Validate: TStringList;
 var
-  i: Integer;
+  PmtInfEntriesB2B, i: Integer;
 begin
   Result := TStringList.Create;
 
@@ -868,6 +869,13 @@ begin
 
   if GrpHdrNbOfTxs = 0 then
     Result.Append(INVALID_NB_OF_TXS);
+
+  PmtInfEntriesB2B := 0;
+  for i := 0 to PmtInfCount-1 do
+    if (PmtInfEntry[i].PmtTpInfLclInstrmCd = LCL_INSTRM_CD_B2B) then
+      Inc(PmtInfEntriesB2B);
+  if (PmtInfEntriesB2B > 0) and (PmtInfEntriesB2B < PmtInfCount) then
+    Result.Append(INVALID_PMT_INF_ONLY_B2B);
 end;
 
 procedure TDirectDebitInitiation.SaveToStream(const stream: TStream);
