@@ -3,7 +3,7 @@ object ExampleForm: TExampleForm
   Top = 114
   BorderStyle = bsDialog
   Caption = 'SEPA XML file example'
-  ClientHeight = 607
+  ClientHeight = 631
   ClientWidth = 915
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -18,31 +18,31 @@ object ExampleForm: TExampleForm
   TextHeight = 13
   object Bevel1: TBevel
     Left = 32
-    Top = 80
+    Top = 104
     Width = 2
     Height = 25
   end
   object Bevel2: TBevel
     Left = 32
-    Top = 105
+    Top = 129
     Width = 17
     Height = 2
   end
   object Bevel3: TBevel
     Left = 64
-    Top = 304
+    Top = 336
     Width = 2
     Height = 25
   end
   object Bevel4: TBevel
     Left = 64
-    Top = 329
+    Top = 361
     Width = 17
     Height = 2
   end
   object Bevel5: TBevel
     Left = 472
-    Top = 329
+    Top = 361
     Width = 17
     Height = 2
   end
@@ -50,29 +50,50 @@ object ExampleForm: TExampleForm
     Left = 24
     Top = 16
     Width = 377
-    Height = 57
-    Caption = 'Group header'
+    Height = 81
+    Caption = 'XML file / group header'
     TabOrder = 0
     object Label1: TLabel
       Left = 8
-      Top = 24
+      Top = 48
       Width = 103
       Height = 13
       Caption = 'Initiating party (name):'
     end
+    object Label23: TLabel
+      Left = 8
+      Top = 24
+      Width = 61
+      Height = 13
+      Caption = 'ISO schema:'
+    end
     object InitiatingPartyNameEdit: TEdit
+      Left = 128
+      Top = 48
+      Width = 225
+      Height = 21
+      MaxLength = 70
+      TabOrder = 1
+      Text = 'My name'
+    end
+    object ISOSchemaComboBox: TComboBox
       Left = 128
       Top = 24
       Width = 225
       Height = 21
-      MaxLength = 70
+      Style = csDropDownList
+      ItemHeight = 13
+      ItemIndex = 0
       TabOrder = 0
-      Text = 'My name'
+      Text = 'pain.008.002.02'
+      Items.Strings = (
+        'pain.008.002.02'
+        'pain.008.003.02')
     end
   end
   object SaveButton: TButton
     Left = 376
-    Top = 560
+    Top = 592
     Width = 91
     Height = 25
     Caption = 'Save XML file...'
@@ -81,9 +102,9 @@ object ExampleForm: TExampleForm
   end
   object GroupBox2: TGroupBox
     Left = 56
-    Top = 88
+    Top = 112
     Width = 377
-    Height = 209
+    Height = 217
     Caption = 'Payment instruction'
     TabOrder = 1
     object Label2: TLabel
@@ -130,7 +151,7 @@ object ExampleForm: TExampleForm
     end
     object Label8: TLabel
       Left = 8
-      Top = 168
+      Top = 188
       Width = 81
       Height = 13
       Caption = 'Creditor identifier:'
@@ -164,11 +185,11 @@ object ExampleForm: TExampleForm
     end
     object CreditorIdentifierEdit: TEdit
       Left = 128
-      Top = 168
+      Top = 188
       Width = 225
       Height = 21
       MaxLength = 35
-      TabOrder = 6
+      TabOrder = 7
       Text = 'DE98ZZZ09999999999'
     end
     object RequestedCollectionDateEdit: TDateTimePicker
@@ -216,12 +237,20 @@ object ExampleForm: TExampleForm
         'OOFF'
         'FNAL')
     end
+    object CreditorAccountNOTPROVIDEDCheckBox: TCheckBox
+      Left = 128
+      Top = 168
+      Width = 225
+      Height = 17
+      Caption = 'NOTPROVIDED (IBAN-only)'
+      TabOrder = 6
+    end
   end
   object GroupBox3: TGroupBox
     Left = 88
-    Top = 312
+    Top = 344
     Width = 377
-    Height = 225
+    Height = 233
     Caption = 'Direct debit transaction'
     TabOrder = 2
     object Label9: TLabel
@@ -254,7 +283,7 @@ object ExampleForm: TExampleForm
     end
     object Label15: TLabel
       Left = 8
-      Top = 144
+      Top = 164
       Width = 111
       Height = 26
       Caption = 'Remittance information (unstructured):'
@@ -324,22 +353,30 @@ object ExampleForm: TExampleForm
     end
     object RemittanceInformationMemo: TMemo
       Left = 128
-      Top = 144
+      Top = 164
       Width = 225
       Height = 57
       Lines.Strings = (
         'Customer number 123, invoice number 456')
       MaxLength = 140
       ScrollBars = ssVertical
-      TabOrder = 5
+      TabOrder = 6
       WantReturns = False
+    end
+    object DebtorNOTPROVIDEDCheckBox: TCheckBox
+      Left = 128
+      Top = 144
+      Width = 225
+      Height = 17
+      Caption = 'NOTPROVIDED (IBAN-only)'
+      TabOrder = 5
     end
   end
   object GroupBox4: TGroupBox
     Left = 496
-    Top = 312
+    Top = 344
     Width = 377
-    Height = 225
+    Height = 233
     Caption = 'Mandate related information'
     TabOrder = 3
     object Label17: TLabel
@@ -469,6 +506,6 @@ object ExampleForm: TExampleForm
     Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
     Title = 'Save XML file'
     Left = 472
-    Top = 560
+    Top = 592
   end
 end

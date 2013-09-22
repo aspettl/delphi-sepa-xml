@@ -1,6 +1,6 @@
 //
 //   Delphi unit for SEPA direct debit XML file creation - example
-//   (alpha version 0.0.2, 2013-09-09)
+//   (alpha version 0.0.3, 2013-09-22)
 //
 //   Copyright (C) 2013 by Aaron Spettl
 //
@@ -30,7 +30,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, SEPADirectDebit, Mask, ComCtrls, ExtCtrls, StrUtils,
+  Dialogs, StdCtrls, SEPADirectDebit, Mask, ComCtrls, ExtCtrls, StrUtils, Math,
   DateUtils;
 
 type
@@ -90,6 +90,10 @@ type
     OriginalCreditorNameEdit: TEdit;
     Label21: TLabel;
     OriginalCreditorIdentifierEdit: TEdit;
+    CreditorAccountNOTPROVIDEDCheckBox: TCheckBox;
+    DebtorNOTPROVIDEDCheckBox: TCheckBox;
+    Label23: TLabel;
+    ISOSchemaComboBox: TComboBox;
     procedure FormCreate(Sender: TObject);
     procedure SaveButtonClick(Sender: TObject);
   private
@@ -108,7 +112,8 @@ implementation
 procedure TExampleForm.FormCreate(Sender: TObject);
 begin
   DecimalSeparator := '.';
-  
+
+  ISOSchemaComboBox.ItemIndex := IfThen(Now > EncodeDate(2013, 11, 4), 1, 0);
   RequestedCollectionDateEdit.Date := Today;
   MandateDateOfSignatureEdit.Date  := Today-1;
 end;
@@ -122,6 +127,7 @@ var
 begin
   // XML file
   ddi := TDirectDebitInitiation.Create;
+  ddi.Schema             := ISOSchemaComboBox.Text;
   ddi.GrpHdrInitgPtyName := InitiatingPartyNameEdit.Text;
 
   // payment instruction
@@ -132,6 +138,7 @@ begin
   pii.CdtrNm                    := CreditorNameEdit.Text;
   pii.CdtrAcct.IBAN             := CreditorAccountIBANEdit.Text;
   pii.CdtrAgt.BIC               := CreditorAccountBICEdit.Text;
+  pii.CdtrAgt.OthrID            := IfThen(CreditorAccountNOTPROVIDEDCheckBox.Checked, FIN_INSTN_NOTPROVIDED, '');
   pii.CdtrSchmeIdIdPrvtIdOthrId := CreditorIdentifierEdit.Text;
   ddi.AppendPmtInfEntry(pii);
 
@@ -142,6 +149,7 @@ begin
   ddti.DbtrNm          := DebtorNameEdit.Text;
   ddti.DbtrAcct.IBAN   := DebtorIBANEdit.Text;
   ddti.DbtrAgt.BIC     := DebtorBICEdit.Text;
+  ddti.DbtrAgt.OthrID  := IfThen(DebtorNOTPROVIDEDCheckBox.Checked, FIN_INSTN_NOTPROVIDED, '');
   ddti.RmtInfUstrd     := Trim(RemittanceInformationMemo.Text);
   ddti.DrctDbtTxMndtRltdInf.MndtId    := MandateIdEdit.Text;
   ddti.DrctDbtTxMndtRltdInf.DtOfSgntr := MandateDateOfSignatureEdit.Date;

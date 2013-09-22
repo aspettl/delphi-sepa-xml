@@ -1,6 +1,6 @@
 //
 //   Delphi unit for SEPA direct debit XML file creation
-//   (alpha version 0.0.2, 2013-09-09)
+//   (alpha version 0.0.3, 2013-09-22)
 //
 //   Copyright (C) 2013 by Aaron Spettl
 //
@@ -32,7 +32,11 @@ uses
   SysUtils, StrUtils, Math, Classes, DateUtils;
 
 const
+  SCHEMA_PAIN_008_002_02    = 'pain.008.002.02';
+  SCHEMA_PAIN_008_003_02    = 'pain.008.003.02';
+
   SEPA                      = 'SEPA';
+  FIN_INSTN_NOTPROVIDED     = 'NOTPROVIDED';
   END_TO_END_ID_NOTPROVIDED = 'NOTPROVIDED';
   CCY_EUR                   = 'EUR';
   PMT_MTD_DIRECT_DEBIT      = 'DD';
@@ -60,8 +64,11 @@ const
   RMT_INF_USTRD_MAX_LEN     = 140;
 
 resourcestring
-  EMPTY_BIC                 = 'TFinancialInstitution: BIC required.';
+  EMPTY_BIC_OTHR_ID         = 'TFinancialInstitution: BIC required (or OthrID must be given).';
+  BOTH_BIC_OTHR_ID          = 'TFinancialInstitution: BIC and OthrID must not be both given.';
   INVALID_BIC               = 'TFinancialInstitution: BIC "%s" not valid.';
+  INVALID_OTHR_ID           = 'TFinancialInstitution: OthrID "%s" not valid (valid: empty or NOTPROVIDED).';
+  INVALID_OTHR_ID_NONEMPTY  = 'TFinancialInstitution: OthrID has to be empty when a BIC is supplied (or before February 1st, 2014).';
   EMPTY_IBAN                = 'TAccountIdentification: IBAN required.';
   INVALID_IBAN              = 'TAccountIdentification: IBAN "%s" not valid.';
   EMPTY_AMDMNT_INF_DTLS     = 'TAmendmentInformationDetails: not all fields may be empty at once.';
@@ -89,7 +96,7 @@ resourcestring
   INVALID_PMT_INF_ID        = 'TPaymentInstructionInformation: PmtInfId "%s" not valid.';
   INVALID_PMT_MTD           = 'TPaymentInstructionInformation: PmtMtd "%s" not valid (valid: DD).';
   INVALID_LCL_INSTRM_CD     = 'TPaymentInstructionInformation: PmtTpInfLclInstrmCd "%s" not valid (valid: CORE, COR1, B2B).';
-  INVALID_LCL_INSTRM_CD_COR1= 'TPaymentInstructionInformation: PmtTpInfLclInstrmCd "COR1" (only Germany) not valid before November 4th, 2013.';
+  INVALID_LCL_INSTRM_CD_COR1= 'TPaymentInstructionInformation: PmtTpInfLclInstrmCd "COR1" only valid with schema "pain.008.003.02".';
   INVALID_SEQ_TP            = 'TPaymentInstructionInformation: PmtTpInfSeqTp "%s" not valid (valid: FRST, RCUR, OOFF, FNAL).';
   INVALID_REQD_COLLTN_DT    = 'TPaymentInstructionInformation: ReqdColltnDt "%s" too early.';
   INVALID_SVC_LVL_CD        = 'TPaymentInstructionInformation: PmtTpInfSvcLvlCd "%s" not valid (valid: SEPA).';
@@ -99,12 +106,14 @@ resourcestring
   INVALID_CDTR_PRTRY        = 'TPaymentInstructionInformation: CdtrSchmeIdIdPrvtIdOthrSchmeNmPrtry "%s" not valid (valid: SEPA).';
   INVALID_SEQ_TP_FRST_SMNDA1= 'TPaymentInstructionInformation: PmtTpInfSeqTp is "FRST", but there is a transaction with mandate amendment details, which is not marked "SMNDA" (same mandate, new debtor agent).';
   INVALID_SEQ_TP_FRST_SMNDA2= 'TPaymentInstructionInformation: PmtTpInfSeqTp is not "FRST", but there is a transaction with mandate amendment details marked "SMNDA" (same mandate, new debtor agent), which implies "FRST".';
+  UNKNOWN_SCHEMA            = 'TDirectDebitInitiation: ISO schema "%s" not known.';
+  SCHEMA_NOT_YET_VALID      = 'TDirectDebitInitiation: ISO schema "%s" not yet valid.';
   EMPTY_GRP_HDR_MSG_ID      = 'TDirectDebitInitiation: GrpHdrMsgId required.';
   EMPTY_INITG_PTY_NAME      = 'TDirectDebitInitiation: GrpHdrInitgPtyName required.';
   INVALID_GRP_HDR_MSG_ID    = 'TDirectDebitInitiation: GrpHdrMsgId "%s" not valid.';
   INVALID_INITG_PTY_NAME    = 'TDirectDebitInitiation: GrpHdrInitgPtyName "%s" not valid.';
   INVALID_NB_OF_TXS         = 'TDirectDebitInitiation: no transactions contained.';
-  INVALID_PMT_INF_ONLY_B2B  = 'TDirectDebitInitiation: one file may only contain payment instructions with either none or only B2B entries.';
+  INVALID_PMT_INF_MIXING    = 'TDirectDebitInitiation: one file may only contain payment instructions with the same PmtTpInfLclInstrmCd.';
 
 type
   // In the following, all necessary classes to create direct debit transactions
@@ -131,11 +140,13 @@ type
   TFinancialInstitution = class
   private
     fIdBIC: String;                                    // financial institution identification: BIC (8 or 11 characters)
+    fOthrID: String;                                   // other identification: used for IBAN-only ("NOTPROVIDED")
   public
     property BIC: String read fIdBIC write fIdBIC;
+    property OthrID: String read fOthrID write fOthrID;
 
-    function Validate: TStringList;
-    procedure SaveToStream(const stream: TStream);
+    function Validate(const schema: String): TStringList;
+    procedure SaveToStream(const stream: TStream; const schema: String);
   end;
 
   TAccountIdentification = class
@@ -144,8 +155,8 @@ type
   public
     property IBAN: String read fIdIBAN write fIdIBAN;
 
-    function Validate: TStringList;
-    procedure SaveToStream(const stream: TStream);
+    function Validate(const schema: String): TStringList;
+    procedure SaveToStream(const stream: TStream; const schema: String);
   end;
 
   TAmendmentInformationDetails = class
@@ -166,8 +177,8 @@ type
     property OrgnlDbtrAcct: TAccountIdentification read fOrgnlDbtrAcct;
     property OrgnlDbtrAgtFinInstIdOthrId: String read fOrgnlDbtrAgtFinInstIdOthrId write fOrgnlDbtrAgtFinInstIdOthrId;
 
-    function Validate: TStringList;
-    procedure SaveToStream(const stream: TStream);
+    function Validate(const schema: String): TStringList;
+    procedure SaveToStream(const stream: TStream; const schema: String);
   end;
 
   TMandateRelatedInformation = class
@@ -184,8 +195,8 @@ type
     property AmdmntInd: Boolean read fAmdmntInd write fAmdmntInd;
     property AmdmntInfDtls: TAmendmentInformationDetails read fAmdmntInfDtls;
 
-    function Validate: TStringList;
-    procedure SaveToStream(const stream: TStream);
+    function Validate(const schema: String): TStringList;
+    procedure SaveToStream(const stream: TStream; const schema: String);
   end;
 
   TDirectDebitTransactionInformation = class
@@ -197,7 +208,7 @@ type
     fDbtrAgt: TFinancialInstitution;                   // debtor agent
     fDbtrNm: String;                                   // debtor name
     fDbtrAcct: TAccountIdentification;                 // debtor account identification
-    fUltmtDbtrNm: String;                              // ultimate debtor name
+    fUltmtDbtrNm: String;                              // ultimate debtor name (optional)
     fRmtInfUstrd: String;                              // unstructured remittance information
   public
     constructor Create;
@@ -212,8 +223,8 @@ type
     property UltmtDbtrNm: String read fUltmtDbtrNm write fUltmtDbtrNm;
     property RmtInfUstrd: String read fRmtInfUstrd write fRmtInfUstrd;
 
-    function Validate: TStringList;
-    procedure SaveToStream(const stream: TStream);
+    function Validate(const schema: String): TStringList;
+    procedure SaveToStream(const stream: TStream; const schema: String);
   end;
 
   TPaymentInstructionInformation = class
@@ -257,12 +268,13 @@ type
     property DrctDbtTxInfEntry[const i: Integer]: TDirectDebitTransactionInformation read GetDrctDbtTxInfEntry;
     property DrctDbtTxInfCount: Integer read GetDrctDbtTxInfCount;
 
-    function Validate: TStringList;
-    procedure SaveToStream(const stream: TStream);
+    function Validate(const schema: String): TStringList;
+    procedure SaveToStream(const stream: TStream; const schema: String);
   end;
 
   TDirectDebitInitiation = class
   private
+    fSchema: String;                                   // ISO schema, e.g. "pain.008.002.02"
     fGrpHdrMsgId: String;                              // group header: message identification
     fGrpHdrCreDtTm: TDateTime;                         // group header: time of file creation
     fGrpHdrInitgPtyName: String;                       // group header: initiator name
@@ -273,6 +285,8 @@ type
     function GetPmtInfCount: Integer;
   public
     constructor Create;
+
+    property Schema: String read fSchema write fSchema;
 
     property GrpHdrMsgId: String read fGrpHdrMsgId write fGrpHdrMsgId;
     property GrpHdrCreDtTm: TDateTime read fGrpHdrCreDtTm write fGrpHdrCreDtTm;
@@ -371,25 +385,53 @@ end;
 
 // TFinancialInstitution
 
-function TFinancialInstitution.Validate: TStringList;
+function TFinancialInstitution.Validate(const schema: String): TStringList;
 begin
   Result := TStringList.Create;
 
-  if BIC = '' then
-    Result.Append(EMPTY_BIC);
+  if (schema = SCHEMA_PAIN_008_002_02) or
+     ((schema = SCHEMA_PAIN_008_003_02) and (Now < EncodeDate(2014, 2, 1))) then
+  begin
+    // IBAN-only not allowed:
 
-  if not SEPACheckString(BIC, BIC_MAX_LEN) then
-    Result.Append(Format(INVALID_BIC, [BIC]));
+    if BIC = '' then
+      Result.Append(EMPTY_BIC_OTHR_ID);
+
+    if OthrID <> '' then
+      Result.Append(INVALID_OTHR_ID_NONEMPTY);
+
+    if not SEPACheckString(BIC, BIC_MAX_LEN) then
+      Result.Append(Format(INVALID_BIC, [BIC]));
+  end
+  else
+  begin
+    // IBAN-only allowed:
+
+    if (BIC = '') and (OthrID = '') then
+      Result.Append(EMPTY_BIC_OTHR_ID);
+
+    if (BIC <> '') and (OthrID <> '') then
+      Result.Append(BOTH_BIC_OTHR_ID);
+
+    if not SEPACheckString(BIC, BIC_MAX_LEN) then
+      Result.Append(Format(INVALID_BIC, [BIC]));
+
+    if (OthrID <> '') and (OthrID <> FIN_INSTN_NOTPROVIDED) then
+      Result.Append(INVALID_OTHR_ID);
+  end;
 end;
 
-procedure TFinancialInstitution.SaveToStream(const stream: TStream);
+procedure TFinancialInstitution.SaveToStream(const stream: TStream; const schema: String);
 begin
-  WriteLine(stream, '<FinInstnId><BIC>'+SEPACleanString(BIC, BIC_MAX_LEN)+'</BIC></FinInstnId>');
+  if (BIC = '') and (OthrID <> '') then
+    WriteLine(stream, '<FinInstnId><Othr><Id>'+SEPACleanString(OthrID)+'</Id></Othr></FinInstnId>')
+  else
+    WriteLine(stream, '<FinInstnId><BIC>'+SEPACleanString(BIC, BIC_MAX_LEN)+'</BIC></FinInstnId>');
 end;
 
 // TAccountIdentification
 
-function TAccountIdentification.Validate: TStringList;
+function TAccountIdentification.Validate(const schema: String): TStringList;
 begin
   Result := TStringList.Create;
 
@@ -400,7 +442,7 @@ begin
     Result.Append(Format(INVALID_IBAN, [IBAN]));
 end;
 
-procedure TAccountIdentification.SaveToStream(const stream: TStream);
+procedure TAccountIdentification.SaveToStream(const stream: TStream; const schema: String);
 begin
   WriteLine(stream, '<Id><IBAN>'+SEPACleanString(IBAN, IBAN_MAX_LEN)+'</IBAN></Id>');
 end;
@@ -414,7 +456,7 @@ begin
   fOrgnlDbtrAcct                            := TAccountIdentification.Create;
 end;
 
-function TAmendmentInformationDetails.Validate: TStringList;
+function TAmendmentInformationDetails.Validate(const schema: String): TStringList;
 begin
   Result := TStringList.Create;
 
@@ -444,10 +486,10 @@ begin
   // delegate validations where possible
 
   if (OrgnlDbtrAcct.IBAN <> '') then
-    Result.AddStrings(OrgnlDbtrAcct.Validate);
+    Result.AddStrings(OrgnlDbtrAcct.Validate(schema));
 end;
 
-procedure TAmendmentInformationDetails.SaveToStream(const stream: TStream);
+procedure TAmendmentInformationDetails.SaveToStream(const stream: TStream; const schema: String);
 begin
   WriteLine(stream, '<AmdmntInfDtls>');
 
@@ -470,7 +512,7 @@ begin
   if OrgnlDbtrAcct.IBAN <> '' then
   begin
     WriteLine(stream, '<OrgnlDbtrAcct>');
-    OrgnlDbtrAcct.SaveToStream(stream);
+    OrgnlDbtrAcct.SaveToStream(stream, schema);
     WriteLine(stream, '</OrgnlDbtrAcct>');
   end;
 
@@ -488,7 +530,7 @@ begin
   fAmdmntInfDtls := TAmendmentInformationDetails.Create;
 end;
 
-function TMandateRelatedInformation.Validate: TStringList;
+function TMandateRelatedInformation.Validate(const schema: String): TStringList;
 begin
   Result := TStringList.Create;
 
@@ -511,17 +553,17 @@ begin
   // delegate validations where possible
 
   if AmdmntInd then
-    Result.AddStrings(AmdmntInfDtls.Validate);
+    Result.AddStrings(AmdmntInfDtls.Validate(schema));
 end;
 
-procedure TMandateRelatedInformation.SaveToStream(const stream: TStream);
+procedure TMandateRelatedInformation.SaveToStream(const stream: TStream; const schema: String);
 begin
   WriteLine(stream, '<MndtRltdInf>');
   WriteLine(stream, '<MndtId>'+SEPACleanString(MndtId, MNDT_ID_MAX_LEN)+'</MndtId>');
   WriteLine(stream, '<DtOfSgntr>'+SEPAFormatDate(DtOfSgntr)+'</DtOfSgntr>');
   WriteLine(stream, '<AmdmntInd>'+SEPAFormatBoolean(AmdmntInd)+'</AmdmntInd>');
   if AmdmntInd then
-    AmdmntInfDtls.SaveToStream(stream);
+    AmdmntInfDtls.SaveToStream(stream, schema);
   WriteLine(stream, '</MndtRltdInf>');
 end;
 
@@ -537,7 +579,7 @@ begin
   fDbtrAcct             := TAccountIdentification.Create;
 end;
 
-function TDirectDebitTransactionInformation.Validate: TStringList;
+function TDirectDebitTransactionInformation.Validate(const schema: String): TStringList;
 begin
   Result := TStringList.Create;
 
@@ -574,12 +616,12 @@ begin
 
   // delegate validations where possible
 
-  Result.AddStrings(DbtrAgt.Validate);
-  Result.AddStrings(DbtrAcct.Validate);
-  Result.AddStrings(DrctDbtTxMndtRltdInf.Validate);
+  Result.AddStrings(DbtrAgt.Validate(schema));
+  Result.AddStrings(DbtrAcct.Validate(schema));
+  Result.AddStrings(DrctDbtTxMndtRltdInf.Validate(schema));
 end;
 
-procedure TDirectDebitTransactionInformation.SaveToStream(const stream: TStream);
+procedure TDirectDebitTransactionInformation.SaveToStream(const stream: TStream; const schema: String);
 begin
   WriteLine(stream, '<DrctDbtTxInf>');
 
@@ -587,20 +629,22 @@ begin
   WriteLine(stream, '<InstdAmt Ccy="'+SEPACleanString(InstdAmtCcy)+'">'+SEPAFormatAmount(InstdAmt)+'</InstdAmt>');
 
   WriteLine(stream, '<DrctDbtTx>');
-  DrctDbtTxMndtRltdInf.SaveToStream(stream);
+  DrctDbtTxMndtRltdInf.SaveToStream(stream, schema);
   WriteLine(stream, '</DrctDbtTx>');
 
   WriteLine(stream, '<DbtrAgt>');
-  DbtrAgt.SaveToStream(stream);
+  DbtrAgt.SaveToStream(stream, schema);
   WriteLine(stream, '</DbtrAgt>');
 
   WriteLine(stream, '<Dbtr><Nm>'+SEPACleanString(DbtrNm, DBTR_NM_MAX_LEN)+'</Nm></Dbtr>');
 
   WriteLine(stream, '<DbtrAcct>');
-  DbtrAcct.SaveToStream(stream);
+  DbtrAcct.SaveToStream(stream, schema);
   WriteLine(stream, '</DbtrAcct>');
 
-  WriteLine(stream, '<UltmtDbtr><Nm>'+SEPACleanString(IfThen(UltmtDbtrNm<>'', UltmtDbtrNm, DbtrNm), DBTR_NM_MAX_LEN)+'</Nm></UltmtDbtr>');
+  if UltmtDbtrNm <> '' then
+    WriteLine(stream, '<UltmtDbtr><Nm>'+SEPACleanString(UltmtDbtrNm, DBTR_NM_MAX_LEN)+'</Nm></UltmtDbtr>');
+  
   WriteLine(stream, '<RmtInf><Ustrd>'+SEPACleanString(RmtInfUstrd, RMT_INF_USTRD_MAX_LEN)+'</Ustrd></RmtInf>');
 
   WriteLine(stream, '</DrctDbtTxInf>');
@@ -648,7 +692,7 @@ begin
   Result := Length(fDrctDbtTxInf);
 end;
 
-function TPaymentInstructionInformation.Validate: TStringList;
+function TPaymentInstructionInformation.Validate(const schema: String): TStringList;
 var
   possible_reqd_colltn_dt: Cardinal;
   add_days,i: Integer;
@@ -679,7 +723,7 @@ begin
      (PmtTpInfLclInstrmCd <> LCL_INSTRM_CD_B2B) then
     Result.Append(Format(INVALID_LCL_INSTRM_CD, [PmtTpInfLclInstrmCd]));
 
-  if (PmtTpInfLclInstrmCd = LCL_INSTRM_CD_COR1) and (Trunc(ReqdColltnDt) < Trunc(EncodeDate(2013, 11, 4))) then
+  if (PmtTpInfLclInstrmCd = LCL_INSTRM_CD_COR1) and (schema <> SCHEMA_PAIN_008_003_02) then
     Result.Append(INVALID_LCL_INSTRM_CD_COR1);
 
   if (PmtTpInfSeqTp <> SEQ_TP_FRST) and
@@ -692,7 +736,7 @@ begin
   possible_reqd_colltn_dt := Trunc(Today);
   if PmtTpInfLclInstrmCd = LCL_INSTRM_CD_CORE then
   begin
-    if PmtTpInfSeqTp <> SEQ_TP_FRST then
+    if (PmtTpInfSeqTp = SEQ_TP_FRST) or (PmtTpInfSeqTp = SEQ_TP_OOFF) then
       add_days := 5
     else
       add_days := 2;
@@ -725,11 +769,11 @@ begin
 
   // delegate validations where possible
 
-  Result.AddStrings(CdtrAcct.Validate);
-  Result.AddStrings(CdtrAgt.Validate);
+  Result.AddStrings(CdtrAcct.Validate(schema));
+  Result.AddStrings(CdtrAgt.Validate(schema));
 
   for i := 0 to DrctDbtTxInfCount-1 do
-    Result.AddStrings(DrctDbtTxInfEntry[i].Validate());
+    Result.AddStrings(DrctDbtTxInfEntry[i].Validate(schema));
 
   // plausibility checks
 
@@ -761,7 +805,7 @@ begin
   // ensures in its validation that it has some transactions
 end;
 
-procedure TPaymentInstructionInformation.SaveToStream(const stream: TStream);
+procedure TPaymentInstructionInformation.SaveToStream(const stream: TStream; const schema: String);
 var
   i: Integer;
 begin
@@ -781,11 +825,11 @@ begin
   WriteLine(stream, '<Cdtr><Nm>'+SEPACleanString(CdtrNm, CDTR_NM_MAX_LEN)+'</Nm></Cdtr>');
 
   WriteLine(stream, '<CdtrAcct>');
-  CdtrAcct.SaveToStream(stream);
+  CdtrAcct.SaveToStream(stream, schema);
   WriteLine(stream, '</CdtrAcct>');
 
   WriteLine(stream, '<CdtrAgt>');
-  CdtrAgt.SaveToStream(stream);
+  CdtrAgt.SaveToStream(stream, schema);
   WriteLine(stream, '</CdtrAgt>');
 
   WriteLine(stream, '<ChrgBr>'+SEPACleanString(ChrgBr)+'</ChrgBr>');
@@ -796,7 +840,7 @@ begin
   WriteLine(stream, '</Othr></PrvtId></Id></CdtrSchmeId>');
 
   for i := 0 to DrctDbtTxInfCount-1 do
-    DrctDbtTxInfEntry[i].SaveToStream(stream);
+    DrctDbtTxInfEntry[i].SaveToStream(stream, schema);
 
   WriteLine(stream, '</PmtInf>');
 end;
@@ -806,6 +850,7 @@ end;
 constructor TDirectDebitInitiation.Create;
 begin
   inherited Create;
+  fSchema        := IfThen(Now > EncodeDate(2013, 11, 4), SCHEMA_PAIN_008_003_02, SCHEMA_PAIN_008_002_02);
   fGrpHdrMsgId   := GetUUID();
   fGrpHdrCreDtTm := Now;
 end;
@@ -835,14 +880,23 @@ end;
 
 function TDirectDebitInitiation.GetPmtInfCount: Integer;
 begin
-  Result := Length(fPmtInf);
+  Result := Length(fPmtInf);   
 end;
 
 function TDirectDebitInitiation.Validate: TStringList;
 var
-  PmtInfEntriesB2B, i: Integer;
+  FirstPmtTpInfLclInstrmCd: String;
+  i: Integer;
 begin
   Result := TStringList.Create;
+
+  // check ISO schema
+
+  if (Schema <> SCHEMA_PAIN_008_002_02) and (Schema <> SCHEMA_PAIN_008_003_02) then
+    Result.Append(Format(UNKNOWN_SCHEMA, [Schema]));
+
+  if (Schema = SCHEMA_PAIN_008_003_02) and (Now < EncodeDate(2013, 11, 4)) then
+    Result.Append(Format(SCHEMA_NOT_YET_VALID, [Schema]));
 
   // check for empty fields
 
@@ -863,19 +917,25 @@ begin
   // delegate validations where possible
 
   for i := 0 to PmtInfCount-1 do
-    Result.AddStrings(PmtInfEntry[i].Validate());
+    Result.AddStrings(PmtInfEntry[i].Validate(Schema));
 
   // plausibility checks
 
   if GrpHdrNbOfTxs = 0 then
     Result.Append(INVALID_NB_OF_TXS);
 
-  PmtInfEntriesB2B := 0;
-  for i := 0 to PmtInfCount-1 do
-    if (PmtInfEntry[i].PmtTpInfLclInstrmCd = LCL_INSTRM_CD_B2B) then
-      Inc(PmtInfEntriesB2B);
-  if (PmtInfEntriesB2B > 0) and (PmtInfEntriesB2B < PmtInfCount) then
-    Result.Append(INVALID_PMT_INF_ONLY_B2B);
+  if PmtInfCount > 0 then
+  begin
+    FirstPmtTpInfLclInstrmCd := PmtInfEntry[0].PmtTpInfLclInstrmCd;
+    for i := 1 to PmtInfCount-1 do
+    begin
+      if (PmtInfEntry[i].PmtTpInfLclInstrmCd <> FirstPmtTpInfLclInstrmCd) then
+      begin
+        Result.Append(INVALID_PMT_INF_MIXING);
+        Break;
+      end;
+    end;
+  end;
 end;
 
 procedure TDirectDebitInitiation.SaveToStream(const stream: TStream);
@@ -883,9 +943,9 @@ var
   i: Integer;
 begin
   WriteLine(stream, '<?xml version="1.0" encoding="UTF-8"?>');
-  WriteLine(stream, '<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.008.002.02"'+
+  WriteLine(stream, '<Document xmlns="urn:iso:std:iso:20022:tech:xsd:'+Schema+'"'+
                     ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"'+
-                    ' xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:pain.008.002.02 pain.008.002.02.xsd">');
+                    ' xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:'+Schema+' '+Schema+'.xsd">');
   WriteLine(stream, '<CstmrDrctDbtInitn>');
 
   WriteLine(stream, '<GrpHdr>');
@@ -897,7 +957,7 @@ begin
 
   for i := 0 to PmtInfCount-1 do
     if PmtInfEntry[i].NbOfTxs > 0 then
-      PmtInfEntry[i].SaveToStream(stream);
+      PmtInfEntry[i].SaveToStream(stream, Schema);
 
   WriteLine(stream, '</CstmrDrctDbtInitn>');
   WriteLine(stream, '</Document>');
