@@ -1,6 +1,6 @@
 //
 //   Delphi unit for SEPA direct debit XML file creation
-//   (alpha version 0.0.3, 2013-09-22)
+//   (alpha version 0.0.4, 2013-09-24)
 //
 //   Copyright (C) 2013 by Aaron Spettl
 //
@@ -35,6 +35,9 @@ const
   SCHEMA_PAIN_008_002_02    = 'pain.008.002.02';
   SCHEMA_PAIN_008_003_02    = 'pain.008.003.02';
 
+  ALLOWED_CHARS             = ['0'..'9', 'a'..'z', 'A'..'Z', '''', ':', '?',
+                               ',', '-', ' ', '(', '+', '.', ')', '/'];
+
   SEPA                      = 'SEPA';
   FIN_INSTN_NOTPROVIDED     = 'NOTPROVIDED';
   END_TO_END_ID_NOTPROVIDED = 'NOTPROVIDED';
@@ -52,12 +55,9 @@ const
   SEPA_FALSE                = 'false';
   SEPA_TRUE                 = 'true';
 
-  BIC_MAX_LEN               = 11;
-  IBAN_MAX_LEN              = 34;
   ID_MAX_LEN                = 35;
   INITG_PTY_NAME_MAX_LEN    = 70;
   CDTR_NM_MAX_LEN           = 70;
-  CDTR_SCHME_ID_MAX_LEN     = 35;
   END_TO_END_ID_MAX_LEN     = 35;
   DBTR_NM_MAX_LEN           = 70;
   MNDT_ID_MAX_LEN           = 35;
@@ -139,10 +139,12 @@ type
 
   TFinancialInstitution = class
   private
-    fIdBIC: String;                                    // financial institution identification: BIC (8 or 11 characters)
+    fBIC: String;                                      // financial institution identification: BIC (8 or 11 characters)
     fOthrID: String;                                   // other identification: used for IBAN-only ("NOTPROVIDED")
+
+    procedure SetBIC(const str: String);
   public
-    property BIC: String read fIdBIC write fIdBIC;
+    property BIC: String read fBIC write SetBIC;
     property OthrID: String read fOthrID write fOthrID;
 
     function Validate(const schema: String): TStringList;
@@ -151,9 +153,11 @@ type
 
   TAccountIdentification = class
   private
-    fIdIBAN: String;                                   // account identification: IBAN
+    fIBAN: String;                                     // account identification: IBAN
+
+    procedure SetIBAN(const str: String);
   public
-    property IBAN: String read fIdIBAN write fIdIBAN;
+    property IBAN: String read fIBAN write SetIBAN;
 
     function Validate(const schema: String): TStringList;
     procedure SaveToStream(const stream: TStream; const schema: String);
@@ -167,12 +171,14 @@ type
     fOrgnlCdtrSchmeIdIdPrvtIdOthrSchmeNmPrtry: String; // (always "SEPA")
     fOrgnlDbtrAcct: TAccountIdentification;            // original debtor account identification
     fOrgnlDbtrAgtFinInstIdOthrId: String;              // "SMNDA" if same mandate + new debtor agent
+
+    procedure SetOrgnlCdtrSchmeIdIdPrvtIdOthrId(const str: String);
   public
     constructor Create;
 
     property OrgnlMndtId: String read fOrgnlMndtId write fOrgnlMndtId;
     property OrgnlCdtrSchmeIdNm: String read fOrgnlCdtrSchmeIdNm write fOrgnlCdtrSchmeIdNm;
-    property OrgnlCdtrSchmeIdIdPrvtIdOthrId: String read fOrgnlCdtrSchmeIdIdPrvtIdOthrId write fOrgnlCdtrSchmeIdIdPrvtIdOthrId;
+    property OrgnlCdtrSchmeIdIdPrvtIdOthrId: String read fOrgnlCdtrSchmeIdIdPrvtIdOthrId write SetOrgnlCdtrSchmeIdIdPrvtIdOthrId;
     property OrgnlCdtrSchmeIdIdPrvtIdOthrSchmeNmPrtry: String read fOrgnlCdtrSchmeIdIdPrvtIdOthrSchmeNmPrtry write fOrgnlCdtrSchmeIdIdPrvtIdOthrSchmeNmPrtry;
     property OrgnlDbtrAcct: TAccountIdentification read fOrgnlDbtrAcct;
     property OrgnlDbtrAgtFinInstIdOthrId: String read fOrgnlDbtrAgtFinInstIdOthrId write fOrgnlDbtrAgtFinInstIdOthrId;
@@ -210,6 +216,10 @@ type
     fDbtrAcct: TAccountIdentification;                 // debtor account identification
     fUltmtDbtrNm: String;                              // ultimate debtor name (optional)
     fRmtInfUstrd: String;                              // unstructured remittance information
+
+    procedure SetDbtrNm(const str: String);
+    procedure SetUltmtDbtrNm(const str: String);
+    procedure SetRmtInfUstrd(const str: String);
   public
     constructor Create;
 
@@ -218,10 +228,10 @@ type
     property InstdAmt: Double read fInstdAmt write fInstdAmt;
     property DrctDbtTxMndtRltdInf: TMandateRelatedInformation read fDrctDbtTxMndtRltdInf;
     property DbtrAgt: TFinancialInstitution read fDbtrAgt;
-    property DbtrNm: String read fDbtrNm write fDbtrNm;
+    property DbtrNm: String read fDbtrNm write SetDbtrNm;
     property DbtrAcct: TAccountIdentification read fDbtrAcct;
-    property UltmtDbtrNm: String read fUltmtDbtrNm write fUltmtDbtrNm;
-    property RmtInfUstrd: String read fRmtInfUstrd write fRmtInfUstrd;
+    property UltmtDbtrNm: String read fUltmtDbtrNm write SetUltmtDbtrNm;
+    property RmtInfUstrd: String read fRmtInfUstrd write SetRmtInfUstrd;
 
     function Validate(const schema: String): TStringList;
     procedure SaveToStream(const stream: TStream; const schema: String);
@@ -243,6 +253,9 @@ type
     fCdtrSchmeIdIdPrvtIdOthrSchmeNmPrtry: String;      // proprietary (always "SEPA")
     fDrctDbtTxInf: array of TDirectDebitTransactionInformation;
 
+    procedure SetCdtrNm(const str: String);
+    procedure SetCdtrSchmeIdIdPrvtIdOthrId(const str: String);
+
     function GetCtrlSum: Double;
     function GetDrctDbtTxInfEntry(const i: Integer): TDirectDebitTransactionInformation;
     function GetDrctDbtTxInfCount: Integer;
@@ -257,11 +270,11 @@ type
     property PmtTpInfLclInstrmCd: String read fPmtTpInfLclInstrmCd write fPmtTpInfLclInstrmCd;
     property PmtTpInfSeqTp: String read fPmtTpInfSeqTp write fPmtTpInfSeqTp;
     property ReqdColltnDt: TDateTime read fReqdColltnDt write fReqdColltnDt;
-    property CdtrNm: String read fCdtrNm write fCdtrNm;
+    property CdtrNm: String read fCdtrNm write SetCdtrNm;
     property CdtrAcct: TAccountIdentification read fCdtrAcct;
     property CdtrAgt: TFinancialInstitution read fCdtrAgt;
     property ChrgBr: String read fChrgBr write fChrgBr;
-    property CdtrSchmeIdIdPrvtIdOthrId: String read fCdtrSchmeIdIdPrvtIdOthrId write fCdtrSchmeIdIdPrvtIdOthrId;
+    property CdtrSchmeIdIdPrvtIdOthrId: String read fCdtrSchmeIdIdPrvtIdOthrId write SetCdtrSchmeIdIdPrvtIdOthrId;
     property CdtrSchmeIdIdPrvtIdOthrSchmeNmPrtry: String read fCdtrSchmeIdIdPrvtIdOthrSchmeNmPrtry write fCdtrSchmeIdIdPrvtIdOthrSchmeNmPrtry;
 
     procedure AppendDrctDbtTxInfEntry(const transaction: TDirectDebitTransactionInformation);
@@ -280,6 +293,8 @@ type
     fGrpHdrInitgPtyName: String;                       // group header: initiator name
     fPmtInf: array of TPaymentInstructionInformation;
 
+    procedure SetGrpHdrInitgPtyName(const str: String);
+
     function GetGrpHdrNbOfTxs: Integer;
     function GetPmtInfEntry(const i: Integer): TPaymentInstructionInformation;
     function GetPmtInfCount: Integer;
@@ -291,7 +306,7 @@ type
     property GrpHdrMsgId: String read fGrpHdrMsgId write fGrpHdrMsgId;
     property GrpHdrCreDtTm: TDateTime read fGrpHdrCreDtTm write fGrpHdrCreDtTm;
     property GrpHdrNbOfTxs: Integer read GetGrpHdrNbOfTxs;
-    property GrpHdrInitgPtyName: String read fGrpHdrInitgPtyName write fGrpHdrInitgPtyName;
+    property GrpHdrInitgPtyName: String read fGrpHdrInitgPtyName write SetGrpHdrInitgPtyName;
 
     procedure AppendPmtInfEntry(const instruction: TPaymentInstructionInformation);
     property PmtInfEntry[const i: Integer]: TPaymentInstructionInformation read GetPmtInfEntry;
@@ -302,9 +317,14 @@ type
     procedure SaveToDisk(const FileName: String);
   end;
 
+// public methods
+function SEPACheckIBAN(const iban: String): Boolean;
+function SEPACheckBIC(const bic: String): Boolean;
+function SEPACheckCI(const ci: String): Boolean;
+
 implementation
 
-// commonly used methods
+// commonly used methods (private)
 
 function GetUUID(): String;
 var
@@ -321,7 +341,93 @@ begin
   end
   else
     Result := IntToStr(RandomRange(10000, High(Integer)));  // fallback to simple random number
-end;         
+end;
+
+function SEPAConvertAlphaToNumber(const s: String): String;
+var
+  i: Integer;
+begin
+  Result := '';
+  for i := 1 to Length(s) do
+  begin
+    if s[i] in ['0'..'9'] then
+      Result := Result + s[i]
+    else if s[i] in ['A'..'Z'] then
+      Result := Result + IntToStr(10 + Ord(s[i]) - Ord('A'))
+    else
+      raise Exception.Create('Invalid character!');
+  end;
+end;
+
+function SEPAModulo97(const n: String): Integer;
+begin
+  if Length(n) > 9 then
+    Result := SEPAModulo97(IntToStr(SEPAModulo97(Copy(n, 1, 9))) + Copy(n, 10, Length(n)))
+  else
+    Result := StrToInt(n) mod 97;
+end;
+
+function SEPACleanIBANorBICorCI(s: String): String;
+begin
+  Result := Trim(AnsiReplaceStr(AnsiUpperCase(s), ' ', ''));
+end;
+
+function SEPACheckCleanIBAN(const cleanIBAN: String): Boolean;
+begin
+  // check length
+  if Length(cleanIBAN) > 34 then
+  begin
+    Result := false;
+    Exit;
+  end;
+
+  // correct check digits?
+  try
+    Result := (SEPAModulo97(SEPAConvertAlphaToNumber(Copy(cleanIBAN, 5, Length(cleanIBAN)) + Copy(cleanIBAN, 1, 4))) = 1);
+  except
+    // invalid characters detected
+    Result := false;
+  end;
+end;
+
+function SEPACheckCleanBIC(const cleanBIC: String): Boolean;
+var
+  i: Integer;
+begin
+  // check length
+  Result := (Length(cleanBIC) = 8) or (Length(cleanBIC) = 11);
+
+  // check characters
+  if Result then
+  begin
+    for i := 1 to Length(cleanBIC) do
+    begin
+      if not (cleanBIC[i] in ['0'..'9','A'..'Z']) then
+      begin
+        Result := false;
+        Break;
+      end;
+    end;
+  end;
+end;
+
+function SEPACheckCleanCI(const cleanCI: String): Boolean;
+begin
+  // check length
+  if Length(cleanCI) > 35 then
+  begin
+    Result := false;
+    Exit;
+  end;
+
+  // correct check digits?
+  try
+    Result := (SEPAModulo97(SEPAConvertAlphaToNumber(Copy(cleanCI, 8, Length(cleanCI)) + Copy(cleanCI, 1, 4))) = 1);
+  except
+    // invalid characters detected
+    Result := false;
+  end;
+end;
 
 function SEPACleanString(const s: String; const maxlen: Integer = -1): String;
 var
@@ -330,8 +436,23 @@ begin
   Result := s;
   for i := 1 to Length(Result) do
   begin
-    if not (Result[i] in ['a'..'z','A'..'Z','0'..'9','.',',','-','/','+']) then
-      Result[i] := ' ';
+    if not (Result[i] in ALLOWED_CHARS) then
+    begin
+      // use "EPC Best Practices" to convert characters that were allowed in
+      // the old DTAUS files
+      if Result[i] = 'Ä' then       Result[i] := 'A'
+      else if Result[i] = 'Ö' then  Result[i] := 'O'
+      else if Result[i] = 'Ü' then  Result[i] := 'U'
+      else if Result[i] = 'ä' then  Result[i] := 'a'
+      else if Result[i] = 'ö' then  Result[i] := 'o'
+      else if Result[i] = 'ü' then  Result[i] := 'u'
+      else if Result[i] = 'ß' then  Result[i] := 's'
+      else if Result[i] = '&' then  Result[i] := '+'
+      else if Result[i] = '*' then  Result[i] := '.'
+      else if Result[i] = '$' then  Result[i] := '.'
+      else if Result[i] = '%' then  Result[i] := '.'
+      else                          Result[i] := ' ';
+    end;
   end;
   if (maxlen >= 0) and (Length(Result) > maxlen) then
     Result := Copy(Result, 1, maxlen);
@@ -383,7 +504,29 @@ begin
   WriteString(stream, #13#10);
 end;
 
+// commonly used methods (public)
+
+function SEPACheckIBAN(const iban: String): Boolean;
+begin
+  Result := SEPACheckCleanIBAN(SEPACleanIBANorBICorCI(iban));
+end;
+
+function SEPACheckBIC(const bic: String): Boolean;
+begin
+  Result := SEPACheckCleanBIC(SEPACleanIBANorBICorCI(bic));
+end;
+
+function SEPACheckCI(const ci: String): Boolean;
+begin
+  Result := SEPACheckCleanCI(SEPACleanIBANorBICorCI(ci));
+end;
+
 // TFinancialInstitution
+
+procedure TFinancialInstitution.SetBIC(const str: String);
+begin
+  fBIC := SEPACleanIBANorBICorCI(str);
+end;
 
 function TFinancialInstitution.Validate(const schema: String): TStringList;
 begin
@@ -400,7 +543,7 @@ begin
     if OthrID <> '' then
       Result.Append(INVALID_OTHR_ID_NONEMPTY);
 
-    if not SEPACheckString(BIC, BIC_MAX_LEN) then
+    if not SEPACheckCleanBIC(BIC) then
       Result.Append(Format(INVALID_BIC, [BIC]));
   end
   else
@@ -413,7 +556,7 @@ begin
     if (BIC <> '') and (OthrID <> '') then
       Result.Append(BOTH_BIC_OTHR_ID);
 
-    if not SEPACheckString(BIC, BIC_MAX_LEN) then
+    if not SEPACheckCleanBIC(BIC) then
       Result.Append(Format(INVALID_BIC, [BIC]));
 
     if (OthrID <> '') and (OthrID <> FIN_INSTN_NOTPROVIDED) then
@@ -426,10 +569,15 @@ begin
   if (BIC = '') and (OthrID <> '') then
     WriteLine(stream, '<FinInstnId><Othr><Id>'+SEPACleanString(OthrID)+'</Id></Othr></FinInstnId>')
   else
-    WriteLine(stream, '<FinInstnId><BIC>'+SEPACleanString(BIC, BIC_MAX_LEN)+'</BIC></FinInstnId>');
+    WriteLine(stream, '<FinInstnId><BIC>'+SEPACleanString(BIC)+'</BIC></FinInstnId>');
 end;
 
 // TAccountIdentification
+
+procedure TAccountIdentification.SetIBAN(const str: String);
+begin
+  fIBAN := SEPACleanIBANorBICorCI(str);
+end;
 
 function TAccountIdentification.Validate(const schema: String): TStringList;
 begin
@@ -438,13 +586,13 @@ begin
   if IBAN = '' then
     Result.Append(EMPTY_IBAN);
 
-  if not SEPACheckString(IBAN, IBAN_MAX_LEN) then
+  if not SEPACheckCleanIBAN(IBAN) then
     Result.Append(Format(INVALID_IBAN, [IBAN]));
 end;
 
 procedure TAccountIdentification.SaveToStream(const stream: TStream; const schema: String);
 begin
-  WriteLine(stream, '<Id><IBAN>'+SEPACleanString(IBAN, IBAN_MAX_LEN)+'</IBAN></Id>');
+  WriteLine(stream, '<Id><IBAN>'+SEPACleanString(IBAN)+'</IBAN></Id>');
 end;
 
 // TAmendmentInformationDetails
@@ -454,6 +602,11 @@ begin
   inherited Create;
   fOrgnlCdtrSchmeIdIdPrvtIdOthrSchmeNmPrtry := SEPA;
   fOrgnlDbtrAcct                            := TAccountIdentification.Create;
+end;
+
+procedure TAmendmentInformationDetails.SetOrgnlCdtrSchmeIdIdPrvtIdOthrId(const str: String);
+begin
+  fOrgnlCdtrSchmeIdIdPrvtIdOthrId := SEPACleanIBANorBICorCI(str);
 end;
 
 function TAmendmentInformationDetails.Validate(const schema: String): TStringList;
@@ -474,7 +627,7 @@ begin
   if not SEPACheckString(OrgnlCdtrSchmeIdNm, CDTR_NM_MAX_LEN) then
     Result.Append(Format(INVALID_ORGNL_CRDTR_NM, [OrgnlCdtrSchmeIdNm]));
 
-  if not SEPACheckString(OrgnlCdtrSchmeIdIdPrvtIdOthrId, CDTR_SCHME_ID_MAX_LEN) then
+  if not SEPACheckCleanCI(OrgnlCdtrSchmeIdIdPrvtIdOthrId) then
     Result.Append(Format(INVALID_ORGNL_CRDTR_ID, [OrgnlCdtrSchmeIdIdPrvtIdOthrId]));
 
   if OrgnlCdtrSchmeIdIdPrvtIdOthrSchmeNmPrtry <> SEPA then
@@ -503,7 +656,7 @@ begin
       WriteLine(stream, '<Nm>'+SEPACleanString(OrgnlCdtrSchmeIdNm, CDTR_NM_MAX_LEN)+'</Nm>');
     if OrgnlCdtrSchmeIdIdPrvtIdOthrId <> '' then
       WriteLine(stream, '<Id><PrvtId><Othr>'+
-                          '<Id>'+SEPACleanString(OrgnlCdtrSchmeIdIdPrvtIdOthrId, CDTR_SCHME_ID_MAX_LEN)+'</Id>'+
+                          '<Id>'+SEPACleanString(OrgnlCdtrSchmeIdIdPrvtIdOthrId)+'</Id>'+
                           '<SchmeNm><Prtry>'+SEPACleanString(OrgnlCdtrSchmeIdIdPrvtIdOthrSchmeNmPrtry)+'</Prtry></SchmeNm>'+
                         '</Othr></PrvtId></Id>');
     WriteLine(stream, '</OrgnlCdtrSchmeId>');
@@ -577,6 +730,21 @@ begin
   fDrctDbtTxMndtRltdInf := TMandateRelatedInformation.Create;
   fDbtrAgt              := TFinancialInstitution.Create;
   fDbtrAcct             := TAccountIdentification.Create;
+end;
+
+procedure TDirectDebitTransactionInformation.SetDbtrNm(const str: String);
+begin
+  fDbtrNm := SEPACleanString(str);
+end;
+
+procedure TDirectDebitTransactionInformation.SetUltmtDbtrNm(const str: String);
+begin
+  fUltmtDbtrNm := SEPACleanString(str);
+end;
+
+procedure TDirectDebitTransactionInformation.SetRmtInfUstrd(const str: String);
+begin
+  fRmtInfUstrd := SEPACleanString(str);
 end;
 
 function TDirectDebitTransactionInformation.Validate(const schema: String): TStringList;
@@ -662,6 +830,16 @@ begin
   fCdtrSchmeIdIdPrvtIdOthrSchmeNmPrtry := SEPA;
   fCdtrAcct                            := TAccountIdentification.Create;
   fCdtrAgt                             := TFinancialInstitution.Create;
+end;
+
+procedure TPaymentInstructionInformation.SetCdtrNm(const str: String);
+begin
+  fCdtrNm := SEPACleanString(str);
+end;
+
+procedure TPaymentInstructionInformation.SetCdtrSchmeIdIdPrvtIdOthrId(const str: String);
+begin
+  fCdtrSchmeIdIdPrvtIdOthrId := SEPACleanIBANorBICorCI(str);
 end;
 
 function TPaymentInstructionInformation.GetCtrlSum: Double;
@@ -761,7 +939,7 @@ begin
   if not SEPACheckString(CdtrNm, CDTR_NM_MAX_LEN) then
     Result.Append(Format(INVALID_CDTR_NM, [CdtrNm]));
 
-  if not SEPACheckString(CdtrSchmeIdIdPrvtIdOthrId, CDTR_SCHME_ID_MAX_LEN) then
+  if not SEPACheckCleanCI(CdtrSchmeIdIdPrvtIdOthrId) then
     Result.Append(Format(INVALID_CDTR_ID, [CdtrSchmeIdIdPrvtIdOthrId]));
 
   if CdtrSchmeIdIdPrvtIdOthrSchmeNmPrtry <> SEPA then
@@ -835,7 +1013,7 @@ begin
   WriteLine(stream, '<ChrgBr>'+SEPACleanString(ChrgBr)+'</ChrgBr>');
 
   WriteLine(stream, '<CdtrSchmeId><Id><PrvtId><Othr>');
-  WriteLine(stream, '<Id>'+SEPACleanString(CdtrSchmeIdIdPrvtIdOthrId, CDTR_SCHME_ID_MAX_LEN)+'</Id>');
+  WriteLine(stream, '<Id>'+SEPACleanString(CdtrSchmeIdIdPrvtIdOthrId)+'</Id>');
   WriteLine(stream, '<SchmeNm><Prtry>'+SEPACleanString(CdtrSchmeIdIdPrvtIdOthrSchmeNmPrtry)+'</Prtry></SchmeNm>');
   WriteLine(stream, '</Othr></PrvtId></Id></CdtrSchmeId>');
 
@@ -853,6 +1031,11 @@ begin
   fSchema        := IfThen(Now > EncodeDate(2013, 11, 4), SCHEMA_PAIN_008_003_02, SCHEMA_PAIN_008_002_02);
   fGrpHdrMsgId   := GetUUID();
   fGrpHdrCreDtTm := Now;
+end;
+
+procedure TDirectDebitInitiation.SetGrpHdrInitgPtyName(const str: String);
+begin
+  fGrpHdrInitgPtyName := SEPACleanString(str);
 end;
 
 function TDirectDebitInitiation.GetGrpHdrNbOfTxs: Integer;

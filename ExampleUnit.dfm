@@ -170,16 +170,14 @@ object ExampleForm: TExampleForm
       Top = 120
       Width = 225
       Height = 21
-      MaxLength = 34
       TabOrder = 4
-      Text = 'DE0012345678123456789'
+      Text = 'DE12 12345678 123456789'
     end
     object CreditorAccountBICEdit: TEdit
       Left = 128
       Top = 144
       Width = 225
       Height = 21
-      MaxLength = 11
       TabOrder = 5
       Text = 'SOMEFININST'
     end
@@ -316,16 +314,14 @@ object ExampleForm: TExampleForm
       Top = 96
       Width = 225
       Height = 21
-      MaxLength = 34
       TabOrder = 3
-      Text = 'DE0012345678123456789'
+      Text = 'DE12 12345678 123456789'
     end
     object DebtorBICEdit: TEdit
       Left = 128
       Top = 120
       Width = 225
       Height = 21
-      MaxLength = 11
       TabOrder = 4
       Text = 'SOMEFININST'
     end
