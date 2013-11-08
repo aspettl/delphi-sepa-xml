@@ -67,6 +67,13 @@ object ExampleForm: TExampleForm
       Height = 13
       Caption = 'ISO schema:'
     end
+    object Label24: TLabel
+      Left = 256
+      Top = 24
+      Width = 98
+      Height = 13
+      Caption = '(empty = auto-select)'
+    end
     object InitiatingPartyNameEdit: TEdit
       Left = 128
       Top = 48
@@ -79,13 +86,10 @@ object ExampleForm: TExampleForm
     object ISOSchemaComboBox: TComboBox
       Left = 128
       Top = 24
-      Width = 225
+      Width = 121
       Height = 21
-      Style = csDropDownList
       ItemHeight = 13
-      ItemIndex = 0
       TabOrder = 0
-      Text = 'pain.008.002.02'
       Items.Strings = (
         'pain.008.002.02'
         'pain.008.003.02')

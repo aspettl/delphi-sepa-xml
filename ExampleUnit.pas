@@ -1,6 +1,6 @@
 //
 //   Delphi unit for SEPA direct debit XML file creation - example
-//   (alpha version 0.0.4, 2013-09-24)
+//   (alpha version 0.0.5, 2013-11-08)
 //
 //   Copyright (C) 2013 by Aaron Spettl
 //
@@ -94,6 +94,7 @@ type
     DebtorNOTPROVIDEDCheckBox: TCheckBox;
     Label23: TLabel;
     ISOSchemaComboBox: TComboBox;
+    Label24: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure SaveButtonClick(Sender: TObject);
   private
@@ -113,7 +114,7 @@ procedure TExampleForm.FormCreate(Sender: TObject);
 begin
   DecimalSeparator := '.';
 
-  ISOSchemaComboBox.ItemIndex      := IfThen(Now > EncodeDate(2013, 11, 4), 1, 0);
+  ISOSchemaComboBox.Text           := '';
   RequestedCollectionDateEdit.Date := Today;
   MandateDateOfSignatureEdit.Date  := Today-1;
   RemittanceInformationMemo.Text   := Trim(RemittanceInformationMemo.Text);

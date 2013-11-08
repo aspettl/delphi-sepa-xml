@@ -1,6 +1,6 @@
 //
 //   Delphi unit for SEPA direct debit XML file creation
-//   (alpha version 0.0.4, 2013-09-24)
+//   (alpha version 0.0.5, 2013-11-08)
 //
 //   Copyright (C) 2013 by Aaron Spettl
 //
@@ -90,6 +90,7 @@ resourcestring
   INVALID_DBTR_NM           = 'TDirectDebitTransactionInformation: DbtrNm "%s" not valid.';
   INVALID_ULTMT_DBTR_NM     = 'TDirectDebitTransactionInformation: UltmtDbtrNm "%s" not valid.';
   INVALID_RMT_INF_USTRD     = 'TDirectDebitTransactionInformation: RmtInfUstrd "%s" not valid.';
+  INVALID_IBAN_NOT_DE       = 'TDirectDebitTransactionInformation: Only German bank accounts are allowed for IBAN-only (no BIC given).';
   EMPTY_PMT_INF_ID          = 'TPaymentInstructionInformation: PmtInfId required.';
   EMPTY_CDTR_NM             = 'TPaymentInstructionInformation: CdtrNm required.';
   EMPTY_CDTR_ID             = 'TPaymentInstructionInformation: CdtrSchmeIdIdPrvtIdOthrId required.';
@@ -104,10 +105,10 @@ resourcestring
   INVALID_CDTR_NM           = 'TPaymentInstructionInformation: CdtrNm "%s" not valid.';
   INVALID_CDTR_ID           = 'TPaymentInstructionInformation: CdtrSchmeIdIdPrvtIdOthrId "%s" not valid.';
   INVALID_CDTR_PRTRY        = 'TPaymentInstructionInformation: CdtrSchmeIdIdPrvtIdOthrSchmeNmPrtry "%s" not valid (valid: SEPA).';
+  INVALID_CDTR_ACCT_NOT_DE  = 'TPaymentInstructionInformation: Creditor bank account should be of a German bank.';
   INVALID_SEQ_TP_FRST_SMNDA1= 'TPaymentInstructionInformation: PmtTpInfSeqTp is "FRST", but there is a transaction with mandate amendment details, which is not marked "SMNDA" (same mandate, new debtor agent).';
   INVALID_SEQ_TP_FRST_SMNDA2= 'TPaymentInstructionInformation: PmtTpInfSeqTp is not "FRST", but there is a transaction with mandate amendment details marked "SMNDA" (same mandate, new debtor agent), which implies "FRST".';
   UNKNOWN_SCHEMA            = 'TDirectDebitInitiation: ISO schema "%s" not known.';
-  SCHEMA_NOT_YET_VALID      = 'TDirectDebitInitiation: ISO schema "%s" not yet valid.';
   EMPTY_GRP_HDR_MSG_ID      = 'TDirectDebitInitiation: GrpHdrMsgId required.';
   EMPTY_INITG_PTY_NAME      = 'TDirectDebitInitiation: GrpHdrInitgPtyName required.';
   INVALID_GRP_HDR_MSG_ID    = 'TDirectDebitInitiation: GrpHdrMsgId "%s" not valid.';
@@ -287,12 +288,13 @@ type
 
   TDirectDebitInitiation = class
   private
-    fSchema: String;                                   // ISO schema, e.g. "pain.008.002.02"
+    fSchema: String;                                   // ISO schema, e.g. "pain.008.002.02", empty means auto-select based on date and COR1 / IBAN-only
     fGrpHdrMsgId: String;                              // group header: message identification
     fGrpHdrCreDtTm: TDateTime;                         // group header: time of file creation
     fGrpHdrInitgPtyName: String;                       // group header: initiator name
     fPmtInf: array of TPaymentInstructionInformation;
 
+    function GetSchema: String;
     procedure SetGrpHdrInitgPtyName(const str: String);
 
     function GetGrpHdrNbOfTxs: Integer;
@@ -301,7 +303,7 @@ type
   public
     constructor Create;
 
-    property Schema: String read fSchema write fSchema;
+    property Schema: String read GetSchema write fSchema;
 
     property GrpHdrMsgId: String read fGrpHdrMsgId write fGrpHdrMsgId;
     property GrpHdrCreDtTm: TDateTime read fGrpHdrCreDtTm write fGrpHdrCreDtTm;
@@ -427,6 +429,11 @@ begin
     // invalid characters detected
     Result := false;
   end;
+end;
+
+function SEPAIsGermanIBAN(const cleanIBAN: String): Boolean;
+begin
+  Result := (Copy(cleanIBAN, 1, 2) = 'DE');
 end;
 
 function SEPACleanString(const s: String; const maxlen: Integer = -1): String;
@@ -787,6 +794,11 @@ begin
   Result.AddStrings(DbtrAgt.Validate(schema));
   Result.AddStrings(DbtrAcct.Validate(schema));
   Result.AddStrings(DrctDbtTxMndtRltdInf.Validate(schema));
+
+  // plausibility checks
+
+  if (DbtrAgt.OthrID = FIN_INSTN_NOTPROVIDED) and not SEPAIsGermanIBAN(DbtrAcct.IBAN) then
+      Result.Append(INVALID_IBAN_NOT_DE);
 end;
 
 procedure TDirectDebitTransactionInformation.SaveToStream(const stream: TStream; const schema: String);
@@ -955,6 +967,9 @@ begin
 
   // plausibility checks
 
+  if not SEPAIsGermanIBAN(CdtrAcct.IBAN) then
+    Result.Append(INVALID_CDTR_ACCT_NOT_DE);
+
   if PmtTpInfSeqTp = SEQ_TP_FRST then
   begin
     for i := 0 to DrctDbtTxInfCount-1 do
@@ -1028,9 +1043,57 @@ end;
 constructor TDirectDebitInitiation.Create;
 begin
   inherited Create;
-  fSchema        := IfThen(Now > EncodeDate(2013, 11, 4), SCHEMA_PAIN_008_003_02, SCHEMA_PAIN_008_002_02);
+  fSchema        := ''; // empty = auto-select
   fGrpHdrMsgId   := GetUUID();
   fGrpHdrCreDtTm := Now;
+end;
+
+function TDirectDebitInitiation.GetSchema: String;
+var
+  i,j: Integer;
+  b: Boolean;
+begin
+  Result := fSchema;
+
+  // Default schema:
+  // - always choose pain.008.003.02 after February 1st, 2014
+  //   (it is valid since November 4th, 2013 - but it seems several banks don't
+  //    accept this new format for now...)
+  // - if COR1 or IBAN-only is used, then we will to switch to pain.008.003.02
+  // - otherwise, use always pain.008.002.02
+
+  if (Result = '') and (Now > EncodeDate(2014, 2, 1)) then
+    Result := SCHEMA_PAIN_008_003_02;
+
+  if Result = '' then
+  begin
+    // detect usage of COR1 or IBAN-only
+    b := false;
+    for i := 0 to PmtInfCount-1 do
+    begin
+      if (PmtInfEntry[i].PmtTpInfLclInstrmCd = LCL_INSTRM_CD_COR1) or
+         (PmtInfEntry[i].CdtrAgt.OthrID = FIN_INSTN_NOTPROVIDED) then
+      begin
+        b := true;
+        Break;
+      end;
+      for j := 0 to PmtInfEntry[i].DrctDbtTxInfCount-1 do
+      begin
+        if PmtInfEntry[i].DrctDbtTxInfEntry[j].DbtrAgt.OthrID = FIN_INSTN_NOTPROVIDED then
+        begin
+          b := true;
+          Break;
+        end;
+      end;
+      if b then
+        Break;
+    end;
+    if b then
+      Result := SCHEMA_PAIN_008_003_02;
+  end;
+
+  if Result = '' then
+    Result := SCHEMA_PAIN_008_002_02;
 end;
 
 procedure TDirectDebitInitiation.SetGrpHdrInitgPtyName(const str: String);
@@ -1077,9 +1140,6 @@ begin
 
   if (Schema <> SCHEMA_PAIN_008_002_02) and (Schema <> SCHEMA_PAIN_008_003_02) then
     Result.Append(Format(UNKNOWN_SCHEMA, [Schema]));
-
-  if (Schema = SCHEMA_PAIN_008_003_02) and (Now < EncodeDate(2013, 11, 4)) then
-    Result.Append(Format(SCHEMA_NOT_YET_VALID, [Schema]));
 
   // check for empty fields
 

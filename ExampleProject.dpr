@@ -9,6 +9,7 @@ uses
 
 begin
   Application.Initialize;
+  Application.Title := 'SEPA XML file example';
   Application.CreateForm(TExampleForm, ExampleForm);
   Application.Run;
 end.
