@@ -1,6 +1,6 @@
 //
 //   Delphi unit for SEPA direct debit XML file creation - example
-//   (alpha version 0.0.5, 2013-11-08)
+//   (beta version 0.1.0, 2013-12-26)
 //
 //   Copyright (C) 2013 by Aaron Spettl
 //
@@ -95,6 +95,12 @@ type
     Label23: TLabel;
     ISOSchemaComboBox: TComboBox;
     Label24: TLabel;
+    GroupBox5: TGroupBox;
+    Label25: TLabel;
+    Label26: TLabel;
+    Label27: TLabel;
+    Label28: TLabel;
+    Label29: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure SaveButtonClick(Sender: TObject);
   private

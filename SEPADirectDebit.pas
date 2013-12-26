@@ -1,6 +1,6 @@
 //
 //   Delphi unit for SEPA direct debit XML file creation
-//   (alpha version 0.0.5, 2013-11-08)
+//   (beta version 0.1.0, 2013-12-26)
 //
 //   Copyright (C) 2013 by Aaron Spettl
 //
@@ -1059,8 +1059,8 @@ begin
   // - always choose pain.008.003.02 after February 1st, 2014
   //   (it is valid since November 4th, 2013 - but it seems several banks don't
   //    accept this new format for now...)
-  // - if COR1 or IBAN-only is used, then we will to switch to pain.008.003.02
-  // - otherwise, use always pain.008.002.02
+  // - if COR1 or IBAN-only is used, then we will switch to pain.008.003.02
+  // - otherwise, always use pain.008.002.02
 
   if (Result = '') and (Now > EncodeDate(2014, 2, 1)) then
     Result := SCHEMA_PAIN_008_003_02;

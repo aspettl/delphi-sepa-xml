@@ -2,7 +2,7 @@ object ExampleForm: TExampleForm
   Left = 192
   Top = 114
   BorderStyle = bsDialog
-  Caption = 'SEPA XML file example'
+  Caption = 'SEPA XML file example (with only one transaction)'
   ClientHeight = 631
   ClientWidth = 915
   Color = clBtnFace
@@ -175,7 +175,7 @@ object ExampleForm: TExampleForm
       Width = 225
       Height = 21
       TabOrder = 4
-      Text = 'DE12 12345678 123456789'
+      Text = 'DE12 1234 5678 1234 5678 9'
     end
     object CreditorAccountBICEdit: TEdit
       Left = 128
@@ -319,7 +319,7 @@ object ExampleForm: TExampleForm
       Width = 225
       Height = 21
       TabOrder = 3
-      Text = 'DE12 12345678 123456789'
+      Text = 'DE12 1234 5678 1234 5678 9'
     end
     object DebtorBICEdit: TEdit
       Left = 128
@@ -498,6 +498,55 @@ object ExampleForm: TExampleForm
       Height = 21
       MaxLength = 35
       TabOrder = 5
+    end
+  end
+  object GroupBox5: TGroupBox
+    Left = 512
+    Top = 24
+    Width = 361
+    Height = 137
+    Caption = 'Some practical tips'
+    TabOrder = 5
+    object Label25: TLabel
+      Left = 8
+      Top = 48
+      Width = 343
+      Height = 13
+      Caption = 
+        '- Use only one <PmtInf> ("payment instruction information") bloc' +
+        'k per file.'
+    end
+    object Label26: TLabel
+      Left = 8
+      Top = 64
+      Width = 306
+      Height = 13
+      Caption = 
+        '- Limit the number of transactions per file to e.g. 500 transact' +
+        'ions.'
+    end
+    object Label27: TLabel
+      Left = 8
+      Top = 80
+      Width = 277
+      Height = 13
+      Caption = '- ISO schema pain.008.003.02 *may* not be supported yet.'
+    end
+    object Label28: TLabel
+      Left = 8
+      Top = 104
+      Width = 323
+      Height = 13
+      Caption = 
+        'Ask your bank for details - and please let us know further restr' +
+        'ictions!'
+    end
+    object Label29: TLabel
+      Left = 8
+      Top = 24
+      Width = 269
+      Height = 13
+      Caption = 'For maximum interoperability with different German banks:'
     end
   end
   object SaveDialog: TSaveDialog
