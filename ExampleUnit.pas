@@ -1,8 +1,8 @@
 //
 //   Delphi unit for SEPA direct debit XML file creation - example
-//   (beta version 0.1.0, 2013-12-26)
+//   (beta version 0.1.1, 2014-01-04)
 //
-//   Copyright (C) 2013 by Aaron Spettl
+//   Copyright (C) 2013-2014 by Aaron Spettl
 //
 //   This program is free software; you can redistribute it and/or modify
 //   it under the terms of the GNU General Public License as published by
@@ -118,10 +118,9 @@ implementation
 
 procedure TExampleForm.FormCreate(Sender: TObject);
 begin
-  DecimalSeparator := '.';
-
   ISOSchemaComboBox.Text           := '';
   RequestedCollectionDateEdit.Date := Today;
+  InstructedAmountEdit.Text        := FloatToStr(123.45);
   MandateDateOfSignatureEdit.Date  := Today-1;
   RemittanceInformationMemo.Text   := Trim(RemittanceInformationMemo.Text);
 end;

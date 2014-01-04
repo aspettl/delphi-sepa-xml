@@ -1,8 +1,8 @@
 //
 //   Delphi unit for SEPA direct debit XML file creation
-//   (beta version 0.1.0, 2013-12-26)
+//   (beta version 0.1.1, 2014-01-04)
 //
-//   Copyright (C) 2013 by Aaron Spettl
+//   Copyright (C) 2013-2014 by Aaron Spettl
 //
 //   This program is free software; you can redistribute it and/or modify
 //   it under the terms of the GNU General Public License as published by
@@ -34,9 +34,6 @@ uses
 const
   SCHEMA_PAIN_008_002_02    = 'pain.008.002.02';
   SCHEMA_PAIN_008_003_02    = 'pain.008.003.02';
-
-  ALLOWED_CHARS             = ['0'..'9', 'a'..'z', 'A'..'Z', '''', ':', '?',
-                               ',', '-', ' ', '(', '+', '.', ')', '/'];
 
   SEPA                      = 'SEPA';
   FIN_INSTN_NOTPROVIDED     = 'NOTPROVIDED';
@@ -337,12 +334,28 @@ begin
   if res = S_OK then
   begin
     Result := GuidToString(uid);
-    Result := AnsiReplaceStr(Result, '-', '');
-    Result := AnsiReplaceStr(Result, '{', '');
-    Result := AnsiReplaceStr(Result, '}', '');
+    Result := StringReplace(Result, '-', '', [rfReplaceAll]);
+    Result := StringReplace(Result, '{', '', [rfReplaceAll]);
+    Result := StringReplace(Result, '}', '', [rfReplaceAll]);
   end
   else
     Result := IntToStr(RandomRange(10000, High(Integer)));  // fallback to simple random number
+end;
+
+function CharIsInInterval(const c: Char; const i1: Char; const i2: Char): Boolean;
+begin
+  Result := ((Ord(c) >= Ord(i1)) and (Ord(c) <= Ord(i2)));
+end;
+
+function CharIsSEPAWhitelisted(const c: Char): Boolean;
+begin
+  Result := CharIsInInterval(c, 'A', 'Z') or
+            CharIsInInterval(c, 'a', 'z') or
+            CharIsInInterval(c, '0', '9') or
+            (c = '''') or (c = ':') or (c = '?') or
+            (c = ',') or (c = '-') or (c = ' ') or
+            (c = '(') or (c = '+') or (c = '.') or
+            (c = ')') or (c = '/');
 end;
 
 function SEPAConvertAlphaToNumber(const s: String): String;
@@ -352,9 +365,9 @@ begin
   Result := '';
   for i := 1 to Length(s) do
   begin
-    if s[i] in ['0'..'9'] then
+    if CharIsInInterval(s[i], '0', '9') then
       Result := Result + s[i]
-    else if s[i] in ['A'..'Z'] then
+    else if CharIsInInterval(s[i], 'A', 'Z') then
       Result := Result + IntToStr(10 + Ord(s[i]) - Ord('A'))
     else
       raise Exception.Create('Invalid character!');
@@ -404,7 +417,8 @@ begin
   begin
     for i := 1 to Length(cleanBIC) do
     begin
-      if not (cleanBIC[i] in ['0'..'9','A'..'Z']) then
+      if not CharIsInInterval(cleanBIC[i], '0', '9') and
+         not CharIsInInterval(cleanBIC[i], 'A', 'Z') then
       begin
         Result := false;
         Break;
@@ -443,7 +457,7 @@ begin
   Result := s;
   for i := 1 to Length(Result) do
   begin
-    if not (Result[i] in ALLOWED_CHARS) then
+    if not CharIsSEPAWhitelisted(Result[i]) then
     begin
       // use "EPC Best Practices" to convert characters that were allowed in
       // the old DTAUS files
@@ -475,6 +489,16 @@ begin
   Result := RoundTo(d, -2);
 end;
 
+{$IF CompilerVersion >= 15} // TFormatSettings available since Delphi 7 (?)
+function SEPAFormatAmount(const d: Double): String;
+var
+  fs: TFormatSettings;
+begin
+  fs := TFormatSettings.Create;
+  fs.DecimalSeparator := '.';
+  Result := Format('%.2f', [SEPARoundAmount(d)], fs); // round explicitly, makes sure that SEPARoundAmount and SEPAFormatAmount behaves exactly the same
+end;
+{$ELSE}
 function SEPAFormatAmount(const d: Double): String;
 var
   OldDecimalSeparator: Char;
@@ -484,6 +508,7 @@ begin
   Result              := Format('%.2f', [SEPARoundAmount(d)]); // round explicitly, makes sure that SEPARoundAmount and SEPAFormatAmount behaves exactly the same
   DecimalSeparator    := OldDecimalSeparator;
 end;
+{$IFEND}
 
 function SEPAFormatBoolean(const b: Boolean): String;
 begin
@@ -501,14 +526,21 @@ begin
 end;
 
 procedure WriteString(const stream: TStream; const str: String);
+var
+  utf8: {$IFDEF Unicode}UTF8String{$ELSE}String{$ENDIF};
 begin
-  stream.WriteBuffer(str[1], Length(str));
+  // note: we do not use any special characters, so we really don't
+  // care about encodings - just use conversion from Unicode to
+  // UTF-8 (in Unicode-based Delphi 2009 and higher), or conversion
+  // from ANSI to UTF-8 (for older Delphi versions).
+  utf8 := {$IFDEF Unicode}UTF8Encode{$ELSE}AnsiToUtf8{$ENDIF}(str);
+  stream.WriteBuffer(utf8[1], Length(utf8));
 end;
 
 procedure WriteLine(const stream: TStream; const line: String);
 begin
   WriteString(stream, line);
-  WriteString(stream, #13#10);
+  WriteString(stream, sLineBreak);
 end;
 
 // commonly used methods (public)

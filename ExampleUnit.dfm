@@ -311,7 +311,6 @@ object ExampleForm: TExampleForm
       Width = 105
       Height = 21
       TabOrder = 1
-      Text = '123.45'
     end
     object DebtorIBANEdit: TEdit
       Left = 128
