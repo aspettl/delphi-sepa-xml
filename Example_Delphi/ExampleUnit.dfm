@@ -175,7 +175,7 @@ object ExampleForm: TExampleForm
       Width = 225
       Height = 21
       TabOrder = 4
-      Text = 'DE12 1234 5678 1234 5678 9'
+      Text = 'DE58 1234 5678 0123 4567 89'
     end
     object CreditorAccountBICEdit: TEdit
       Left = 128
@@ -318,7 +318,7 @@ object ExampleForm: TExampleForm
       Width = 225
       Height = 21
       TabOrder = 3
-      Text = 'DE12 1234 5678 1234 5678 9'
+      Text = 'DE58 1234 5678 0123 4567 89'
     end
     object DebtorBICEdit: TEdit
       Left = 128
@@ -358,7 +358,6 @@ object ExampleForm: TExampleForm
       Lines.Strings = (
         'Customer number 123, invoice number 456')
       MaxLength = 140
-      ScrollBars = ssVertical
       TabOrder = 6
       WantReturns = False
     end

@@ -42,7 +42,7 @@ ImageBase=4194304
 ExeDescription=
 [Directories]
 OutputDir=
-UnitOutputDir=
+UnitOutputDir=.\lib
 PackageDLLOutputDir=
 PackageDCPOutputDir=
 SearchPath=

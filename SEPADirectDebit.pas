@@ -1,6 +1,6 @@
 //
 //   Delphi unit for SEPA direct debit XML file creation
-//   (beta version 0.1.1, 2014-01-04)
+//   (beta version 0.1.2, 2014-01-12)
 //
 //   Copyright (C) 2013-2014 by Aaron Spettl
 //
@@ -25,6 +25,8 @@
 //   E-mail:  aaron@spettl.de
 //
 unit SEPADirectDebit;
+
+{%encoding CP1252}  // for Lazarus: This file is CP-1252 encoded (not UTF-8).
 
 interface
 
@@ -115,7 +117,9 @@ resourcestring
 
 type
   // In the following, all necessary classes to create direct debit transactions
-  // for a SEPA XML file are introduced.
+  // for a SEPA XML file are introduced. Please have a look at the specification
+  // of the XML data format at http://www.ebics.de/index.php?id=77 (section 2.2.2,
+  // "Anlage3_Datenformate_V2.7.pdf" by EBICS, Die Deutsche Kreditwirtschaft).
   //
   // Short explanation of XML file:
   //
@@ -134,6 +138,12 @@ type
   //
   // TAccountIdentification and TFinancialInstitution are used for IBAN and BIC,
   // e.g. in TDirectDebitTransactionInformation and TPaymentInstructionInformation.
+  //
+  // Note that all strings in this unit are interpreted with respect to the
+  // default behavior of the development environment, i.e.,
+  // a) for Delphi < 2009:  ANSI strings
+  // b) for Delphi >= 2009: Unicode strings
+  // c) for Lazarus:        no encoding specified, ANSI is assumed
 
   TFinancialInstitution = class
   private
@@ -349,6 +359,8 @@ end;
 
 function CharIsSEPAWhitelisted(const c: Char): Boolean;
 begin
+  // note: we do not use "c in [...]" syntax because that's only correct
+  //       for strings with single-byte characters
   Result := CharIsInInterval(c, 'A', 'Z') or
             CharIsInInterval(c, 'a', 'z') or
             CharIsInInterval(c, '0', '9') or
@@ -384,7 +396,8 @@ end;
 
 function SEPACleanIBANorBICorCI(s: String): String;
 begin
-  Result := Trim(AnsiReplaceStr(AnsiUpperCase(s), ' ', ''));
+  // note: AnsiUpperCase works on Unicode strings since Delphi 2009
+  Result := Trim(StringReplace(AnsiUpperCase(s), ' ', '', [rfReplaceAll]));
 end;
 
 function SEPACheckCleanIBAN(const cleanIBAN: String): Boolean;
@@ -489,6 +502,16 @@ begin
   Result := RoundTo(d, -2);
 end;
 
+{$IFDEF FPC} // TFormatSettings available in Lazarus
+function SEPAFormatAmount(const d: Double): String;
+var
+  fs: TFormatSettings;
+begin
+  fs := DefaultFormatSettings;
+  fs.DecimalSeparator := '.';
+  Result := Format('%.2f', [SEPARoundAmount(d)], fs); // round explicitly, makes sure that SEPARoundAmount and SEPAFormatAmount behaves exactly the same
+end;
+{$ELSE}
 {$IF CompilerVersion >= 15} // TFormatSettings available since Delphi 7 (?)
 function SEPAFormatAmount(const d: Double): String;
 var
@@ -509,6 +532,7 @@ begin
   DecimalSeparator    := OldDecimalSeparator;
 end;
 {$IFEND}
+{$ENDIF}
 
 function SEPAFormatBoolean(const b: Boolean): String;
 begin
