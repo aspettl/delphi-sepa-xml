@@ -1,6 +1,6 @@
 //
 //   Delphi unit for SEPA direct debit XML file creation
-//   (beta version 0.1.2, 2014-01-12)
+//   (beta version 0.1.3, 2014-01-17)
 //
 //   Copyright (C) 2013-2014 by Aaron Spettl
 //
@@ -690,7 +690,7 @@ begin
   if not SEPACheckString(OrgnlCdtrSchmeIdNm, CDTR_NM_MAX_LEN) then
     Result.Append(Format(INVALID_ORGNL_CRDTR_NM, [OrgnlCdtrSchmeIdNm]));
 
-  if not SEPACheckCleanCI(OrgnlCdtrSchmeIdIdPrvtIdOthrId) then
+  if (OrgnlCdtrSchmeIdIdPrvtIdOthrId <> '') and not SEPACheckCleanCI(OrgnlCdtrSchmeIdIdPrvtIdOthrId) then
     Result.Append(Format(INVALID_ORGNL_CRDTR_ID, [OrgnlCdtrSchmeIdIdPrvtIdOthrId]));
 
   if OrgnlCdtrSchmeIdIdPrvtIdOthrSchmeNmPrtry <> SEPA then
