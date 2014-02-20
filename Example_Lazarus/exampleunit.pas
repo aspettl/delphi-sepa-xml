@@ -1,6 +1,6 @@
 //
-//   Delphi unit for SEPA direct debit XML file creation - Lazarus example
-//   (beta version 0.1.3, 2014-01-17)
+//   Lazarus example for SEPA XML file creation
+//   (beta version 0.2.0, 2014-02-20)
 //
 //   Copyright (C) 2013-2014 by Aaron Spettl
 //
@@ -32,7 +32,8 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  StdCtrls, EditBtn, StrUtils, SEPADirectDebit;
+  StdCtrls, EditBtn, ComCtrls, StrUtils, SEPACommon, SEPACreditTransfer,
+  SEPADirectDebit;
 
 type
 
@@ -44,24 +45,48 @@ type
     Bevel3: TBevel;
     Bevel4: TBevel;
     Bevel5: TBevel;
-    CreditorAccountBICEdit: TEdit;
-    CreditorAccountIBANEdit: TEdit;
-    CreditorAccountNOTPROVIDEDCheckBox: TCheckBox;
-    CreditorIdentifierEdit: TEdit;
-    CreditorNameEdit: TEdit;
-    DebtorBICEdit: TEdit;
-    DebtorIBANEdit: TEdit;
-    DebtorNameEdit: TEdit;
-    DebtorNOTPROVIDEDCheckBox: TCheckBox;
-    EndToEndIdComboBox: TComboBox;
-    GroupBox1: TGroupBox;
-    GroupBox2: TGroupBox;
-    GroupBox3: TGroupBox;
-    GroupBox4: TGroupBox;
-    GroupBox5: TGroupBox;
-    InitiatingPartyNameEdit: TEdit;
-    InstructedAmountEdit: TEdit;
-    ISOSchemaComboBox: TComboBox;
+    Bevel6: TBevel;
+    Bevel7: TBevel;
+    Bevel8: TBevel;
+    Bevel9: TBevel;
+    CT_CreditorBIC_Edit: TEdit;
+    CT_CreditorIBAN_Edit: TEdit;
+    CT_CreditorBICNotProvided_CheckBox: TCheckBox;
+    CT_CreditorName_Edit: TEdit;
+    CT_DebtorBIC_Edit: TEdit;
+    CT_DebtorIBAN_Edit: TEdit;
+    CT_DebtorName_Edit: TEdit;
+    CT_DebtorBICNotProvided_CheckBox: TCheckBox;
+    CT_EndToEndId_ComboBox: TComboBox;
+    CT_InitiatingPartyName_Edit: TEdit;
+    CT_InstructedAmount_Edit: TEdit;
+    CT_ISOSchema_ComboBox: TComboBox;
+    CT_PaymentInformation_GroupBox: TGroupBox;
+    CT_RemittanceInformation_Memo: TMemo;
+    CT_Save_Button: TButton;
+    CT_SupportGermanSpecialChars_CheckBox: TCheckBox;
+    CT_Transaction_GroupBox: TGroupBox;
+    CT_XMLFile_GroupBox: TGroupBox;
+    DD_CreditorBIC_Edit: TEdit;
+    DD_CreditorIBAN_Edit: TEdit;
+    DD_CreditorBICNotProvided_CheckBox: TCheckBox;
+    DD_CreditorIdentifier_Edit: TEdit;
+    DD_CreditorName_Edit: TEdit;
+    DD_DebtorBIC_Edit: TEdit;
+    DD_DebtorIBAN_Edit: TEdit;
+    DD_DebtorName_Edit: TEdit;
+    DD_DebtorBICNotProvided_CheckBox: TCheckBox;
+    DD_EndToEndId_ComboBox: TComboBox;
+    CT_RequestedExecutionDate_Edit: TDateEdit;
+    DD_Tips_GroupBox1: TGroupBox;
+    DD_XMLFile_GroupBox: TGroupBox;
+    DD_PaymentInformation_GroupBox: TGroupBox;
+    DD_Transaction_GroupBox: TGroupBox;
+    DD_Mandate_GroupBox: TGroupBox;
+    DD_Tips_GroupBox: TGroupBox;
+    DD_InitiatingPartyName_Edit: TEdit;
+    DD_InstructedAmount_Edit: TEdit;
+    DD_ISOSchema_ComboBox: TComboBox;
     Label1: TLabel;
     Label10: TLabel;
     Label11: TLabel;
@@ -85,28 +110,58 @@ type
     Label28: TLabel;
     Label29: TLabel;
     Label3: TLabel;
+    Label30: TLabel;
+    Label31: TLabel;
+    Label32: TLabel;
+    Label33: TLabel;
+    Label34: TLabel;
+    Label35: TLabel;
+    Label36: TLabel;
+    Label37: TLabel;
+    Label38: TLabel;
+    Label39: TLabel;
     Label4: TLabel;
+    Label40: TLabel;
+    Label41: TLabel;
+    Label42: TLabel;
+    Label43: TLabel;
+    Label44: TLabel;
+    Label45: TLabel;
+    Label46: TLabel;
+    Label47: TLabel;
+    Label48: TLabel;
+    Label49: TLabel;
     Label5: TLabel;
+    Label50: TLabel;
     Label6: TLabel;
     Label7: TLabel;
     Label8: TLabel;
     Label9: TLabel;
-    LocalInstrumentCodeComboBox: TComboBox;
-    MandateAmendmentInformationDetailsCheckBox: TCheckBox;
-    MandateDateOfSignatureEdit: TDateEdit;
-    MandateIdEdit: TEdit;
-    OriginalCreditorIdentifierEdit: TEdit;
-    OriginalCreditorNameEdit: TEdit;
-    OriginalDebtorAccountIBANEdit: TEdit;
-    OriginalDebtorFinInstSMNDACheckBox: TCheckBox;
-    OriginalMandateIdEdit: TEdit;
-    RemittanceInformationMemo: TMemo;
-    RequestedCollectionDateEdit: TDateEdit;
-    SaveButton: TButton;
+    DD_LocalInstrumentCode_ComboBox: TComboBox;
+    DD_MandateAmendmentInformationDetails_CheckBox: TCheckBox;
+    DD_MandateDateOfSignature_Edit: TDateEdit;
+    DD_MandateId_Edit: TEdit;
+    DD_OriginalCreditorIdentifier_Edit: TEdit;
+    DD_OriginalCreditorName_Edit: TEdit;
+    DD_OriginalDebtorAccountIBAN_Edit: TEdit;
+    DD_OriginalDebtorFinInstSMNDA_CheckBox: TCheckBox;
+    DD_OriginalMandateId_Edit: TEdit;
+    PageControl: TPageControl;
+    DD_RemittanceInformation_Memo: TMemo;
+    DD_RequestedCollectionDate_Edit: TDateEdit;
+    DD_Save_Button: TButton;
     SaveDialog: TSaveDialog;
-    SequenceTypeComboBox: TComboBox;
+    DD_SequenceType_ComboBox: TComboBox;
+    DD_SupportGermanSpecialChars_CheckBox: TCheckBox;
+    CT_TabSheet: TTabSheet;
+    DD_TabSheet: TTabSheet;
     procedure FormCreate(Sender: TObject);
-    procedure SaveButtonClick(Sender: TObject);
+    procedure CT_DebtorBICNotProvided_CheckBoxChange(Sender: TObject);
+    procedure CT_CreditorBICNotProvided_CheckBoxChange(Sender: TObject);
+    procedure DD_CreditorBICNotProvided_CheckBoxChange(Sender: TObject);
+    procedure DD_DebtorBICNotProvided_CheckBoxChange(Sender: TObject);
+    procedure CT_Save_ButtonClick(Sender: TObject);
+    procedure DD_Save_ButtonClick(Sender: TObject);
   private
     { private declarations }
   public
@@ -124,58 +179,142 @@ implementation
 
 procedure TExampleForm.FormCreate(Sender: TObject);
 begin
-  ISOSchemaComboBox.Text           := '';
-  RequestedCollectionDateEdit.Date := Date;
-  InstructedAmountEdit.Text        := FloatToStr(123.45);
-  MandateDateOfSignatureEdit.Date  := Date-1;
-  RemittanceInformationMemo.Text   := Trim(RemittanceInformationMemo.Text);
+  CT_RequestedExecutionDate_Edit.Date  := Now;
+  CT_InstructedAmount_Edit.Text        := FloatToStr(123.45);
+  CT_RemittanceInformation_Memo.Text   := Trim(DD_RemittanceInformation_Memo.Text);
+
+  DD_RequestedCollectionDate_Edit.Date := Now;
+  DD_InstructedAmount_Edit.Text        := FloatToStr(123.45);
+  DD_MandateDateOfSignature_Edit.Date  := Now-1;
+  DD_RemittanceInformation_Memo.Text   := Trim(DD_RemittanceInformation_Memo.Text);
 end;
 
-procedure TExampleForm.SaveButtonClick(Sender: TObject);
+procedure TExampleForm.CT_DebtorBICNotProvided_CheckBoxChange(
+  Sender: TObject);
+begin
+  CT_DebtorBIC_Edit.Enabled := not CT_DebtorBICNotProvided_CheckBox.Checked;
+  if not CT_DebtorBIC_Edit.Enabled then
+    CT_DebtorBIC_Edit.Text := '';
+end;
+
+procedure TExampleForm.CT_CreditorBICNotProvided_CheckBoxChange(
+  Sender: TObject);
+begin
+  CT_CreditorBIC_Edit.Enabled := not CT_CreditorBICNotProvided_CheckBox.Checked;
+  if not CT_CreditorBIC_Edit.Enabled then
+    CT_CreditorBIC_Edit.Text := '';
+end;
+
+procedure TExampleForm.DD_CreditorBICNotProvided_CheckBoxChange(
+  Sender: TObject);
+begin
+  DD_CreditorBIC_Edit.Enabled := not DD_CreditorBICNotProvided_CheckBox.Checked;
+  if not DD_CreditorBIC_Edit.Enabled then
+    DD_CreditorBIC_Edit.Text := '';
+end;
+
+procedure TExampleForm.DD_DebtorBICNotProvided_CheckBoxChange(Sender: TObject);
+begin
+  DD_DebtorBIC_Edit.Enabled := not DD_DebtorBICNotProvided_CheckBox.Checked;
+  if not DD_DebtorBIC_Edit.Enabled then
+    DD_DebtorBIC_Edit.Text := '';
+end;
+
+procedure TExampleForm.CT_Save_ButtonClick(Sender: TObject);
+var
+  cti: TCreditTransferInitiation;
+  ctpi: TCreditTransferPaymentInformation;
+  ctti: TCreditTransferTransactionInformation;
+  messages: TStringList;
+begin
+  // note: the GUI elements return strings as UTF8, so we use UTF8Decode below
+  //       (the SEPA direct debit unit expects ANSI strings)
+
+  // support for special characters has to be set before creating the objects,
+  // otherwise they will be converted in the set-methods
+  SEPASupportSpecialChars := CT_SupportGermanSpecialChars_CheckBox.Checked;
+
+  // XML file
+  cti := TCreditTransferInitiation.Create;
+  cti.Schema             := UTF8Decode(CT_ISOSchema_ComboBox.Text);
+  cti.GrpHdrInitgPtyName := UTF8Decode(CT_InitiatingPartyName_Edit.Text);
+
+  // payment instruction
+  ctpi := TCreditTransferPaymentInformation.Create;
+  ctpi.ReqdExctnDt    := CT_RequestedExecutionDate_Edit.Date;
+  ctpi.DbtrNm         := UTF8Decode(CT_DebtorName_Edit.Text);
+  ctpi.DbtrAcct.IBAN  := UTF8Decode(CT_DebtorIBAN_Edit.Text);
+  ctpi.DbtrAgt.BIC    := UTF8Decode(CT_DebtorBIC_Edit.Text);
+  ctpi.DbtrAgt.OthrID := IfThen(CT_DebtorBICNotProvided_CheckBox.Checked, FIN_INSTN_NOTPROVIDED, '');
+  cti.AppendPmtInfEntry(ctpi);
+
+  // credit transfer transaction
+  ctti := TCreditTransferTransactionInformation.Create;
+  ctti.PmtIdEndToEndId := UTF8Decode(CT_EndToEndId_ComboBox.Text);
+  ctti.InstdAmt        := StrToFloat(CT_InstructedAmount_Edit.Text);
+  ctti.CdtrNm          := UTF8Decode(CT_CreditorName_Edit.Text);
+  ctti.CdtrAcct.IBAN   := UTF8Decode(CT_CreditorIBAN_Edit.Text);
+  ctti.CdtrAgt.BIC     := UTF8Decode(CT_CreditorBIC_Edit.Text);
+  ctti.CdtrAgt.OthrID  := IfThen(CT_CreditorBICNotProvided_CheckBox.Checked, FIN_INSTN_NOTPROVIDED, '');
+  ctti.RmtInfUstrd     := Trim(UTF8Decode(CT_RemittanceInformation_Memo.Text));
+  ctpi.AppendCdtTrfTxInfEntry(ctti);
+
+  // validate and save
+  messages := cti.Validate;
+  if ((messages.Count = 0) or (MessageDlg(UTF8Encode(messages.Text), mtError, [mbOk, mbIgnore], 0) = mrIgnore)) and
+      SaveDialog.Execute then
+    cti.SaveToDisk(UTF8Decode(SaveDialog.FileName));
+end;
+
+procedure TExampleForm.DD_Save_ButtonClick(Sender: TObject);
 var
   ddi: TDirectDebitInitiation;
-  pii: TPaymentInstructionInformation;
+  ddpi: TDirectDebitPaymentInformation;
   ddti: TDirectDebitTransactionInformation;
   messages: TStringList;
 begin
   // note: the GUI elements return strings as UTF8, so we use UTF8Decode below
   //       (the SEPA direct debit unit expects ANSI strings)
 
+  // support for special characters has to be set before creating the objects,
+  // otherwise they will be converted in the set-methods
+  SEPASupportSpecialChars := DD_SupportGermanSpecialChars_CheckBox.Checked;
+
   // XML file
   ddi := TDirectDebitInitiation.Create;
-  ddi.Schema             := UTF8Decode(ISOSchemaComboBox.Text);
-  ddi.GrpHdrInitgPtyName := UTF8Decode(InitiatingPartyNameEdit.Text);
+  ddi.Schema             := UTF8Decode(DD_ISOSchema_ComboBox.Text);
+  ddi.GrpHdrInitgPtyName := UTF8Decode(DD_InitiatingPartyName_Edit.Text);
 
   // payment instruction
-  pii := TPaymentInstructionInformation.Create;
-  pii.PmtTpInfLclInstrmCd       := UTF8Decode(LocalInstrumentCodeComboBox.Text);
-  pii.PmtTpInfSeqTp             := UTF8Decode(SequenceTypeComboBox.Text);
-  pii.ReqdColltnDt              := RequestedCollectionDateEdit.Date;
-  pii.CdtrNm                    := UTF8Decode(CreditorNameEdit.Text);
-  pii.CdtrAcct.IBAN             := UTF8Decode(CreditorAccountIBANEdit.Text);
-  pii.CdtrAgt.BIC               := UTF8Decode(CreditorAccountBICEdit.Text);
-  pii.CdtrAgt.OthrID            := IfThen(CreditorAccountNOTPROVIDEDCheckBox.Checked, FIN_INSTN_NOTPROVIDED, '');
-  pii.CdtrSchmeIdIdPrvtIdOthrId := UTF8Decode(CreditorIdentifierEdit.Text);
-  ddi.AppendPmtInfEntry(pii);
+  ddpi := TDirectDebitPaymentInformation.Create;
+  ddpi.PmtTpInfLclInstrmCd       := UTF8Decode(DD_LocalInstrumentCode_ComboBox.Text);
+  ddpi.PmtTpInfSeqTp             := UTF8Decode(DD_SequenceType_ComboBox.Text);
+  ddpi.ReqdColltnDt              := DD_RequestedCollectionDate_Edit.Date;
+  ddpi.CdtrNm                    := UTF8Decode(DD_CreditorName_Edit.Text);
+  ddpi.CdtrAcct.IBAN             := UTF8Decode(DD_CreditorIBAN_Edit.Text);
+  ddpi.CdtrAgt.BIC               := UTF8Decode(DD_CreditorBIC_Edit.Text);
+  ddpi.CdtrAgt.OthrID            := IfThen(DD_CreditorBICNotProvided_CheckBox.Checked, FIN_INSTN_NOTPROVIDED, '');
+  ddpi.CdtrSchmeIdIdPrvtIdOthrId := UTF8Decode(DD_CreditorIdentifier_Edit.Text);
+  ddi.AppendPmtInfEntry(ddpi);
 
   // direct debit transaction (including mandate details)
   ddti := TDirectDebitTransactionInformation.Create;
-  ddti.PmtIdEndToEndId := UTF8Decode(EndToEndIdComboBox.Text);
-  ddti.InstdAmt        := StrToFloat(InstructedAmountEdit.Text);
-  ddti.DbtrNm          := UTF8Decode(DebtorNameEdit.Text);
-  ddti.DbtrAcct.IBAN   := UTF8Decode(DebtorIBANEdit.Text);
-  ddti.DbtrAgt.BIC     := UTF8Decode(DebtorBICEdit.Text);
-  ddti.DbtrAgt.OthrID  := IfThen(DebtorNOTPROVIDEDCheckBox.Checked, FIN_INSTN_NOTPROVIDED, '');
-  ddti.RmtInfUstrd     := Trim(UTF8Decode(RemittanceInformationMemo.Text));
-  ddti.DrctDbtTxMndtRltdInf.MndtId    := UTF8Decode(MandateIdEdit.Text);
-  ddti.DrctDbtTxMndtRltdInf.DtOfSgntr := MandateDateOfSignatureEdit.Date;
-  ddti.DrctDbtTxMndtRltdInf.AmdmntInd := MandateAmendmentInformationDetailsCheckBox.Checked;
-  ddti.DrctDbtTxMndtRltdInf.AmdmntInfDtls.OrgnlMndtId                    := UTF8Decode(OriginalMandateIdEdit.Text);
-  ddti.DrctDbtTxMndtRltdInf.AmdmntInfDtls.OrgnlCdtrSchmeIdNm             := UTF8Decode(OriginalCreditorNameEdit.Text);
-  ddti.DrctDbtTxMndtRltdInf.AmdmntInfDtls.OrgnlCdtrSchmeIdIdPrvtIdOthrId := UTF8Decode(OriginalCreditorIdentifierEdit.Text);
-  ddti.DrctDbtTxMndtRltdInf.AmdmntInfDtls.OrgnlDbtrAcct.IBAN             := UTF8Decode(OriginalDebtorAccountIBANEdit.Text);
-  ddti.DrctDbtTxMndtRltdInf.AmdmntInfDtls.OrgnlDbtrAgtFinInstIdOthrId    := IfThen(OriginalDebtorFinInstSMNDACheckBox.Checked, ORGNL_DBTR_AGT_SMNDA, '');
-  pii.AppendDrctDbtTxInfEntry(ddti);
+  ddti.PmtIdEndToEndId := UTF8Decode(DD_EndToEndId_ComboBox.Text);
+  ddti.InstdAmt        := StrToFloat(DD_InstructedAmount_Edit.Text);
+  ddti.DbtrNm          := UTF8Decode(DD_DebtorName_Edit.Text);
+  ddti.DbtrAcct.IBAN   := UTF8Decode(DD_DebtorIBAN_Edit.Text);
+  ddti.DbtrAgt.BIC     := UTF8Decode(DD_DebtorBIC_Edit.Text);
+  ddti.DbtrAgt.OthrID  := IfThen(DD_DebtorBICNotProvided_CheckBox.Checked, FIN_INSTN_NOTPROVIDED, '');
+  ddti.RmtInfUstrd     := Trim(UTF8Decode(DD_RemittanceInformation_Memo.Text));
+  ddti.DrctDbtTxMndtRltdInf.MndtId    := UTF8Decode(DD_MandateId_Edit.Text);
+  ddti.DrctDbtTxMndtRltdInf.DtOfSgntr := DD_MandateDateOfSignature_Edit.Date;
+  ddti.DrctDbtTxMndtRltdInf.AmdmntInd := DD_MandateAmendmentInformationDetails_CheckBox.Checked;
+  ddti.DrctDbtTxMndtRltdInf.AmdmntInfDtls.OrgnlMndtId                    := UTF8Decode(DD_OriginalMandateId_Edit.Text);
+  ddti.DrctDbtTxMndtRltdInf.AmdmntInfDtls.OrgnlCdtrSchmeIdNm             := UTF8Decode(DD_OriginalCreditorName_Edit.Text);
+  ddti.DrctDbtTxMndtRltdInf.AmdmntInfDtls.OrgnlCdtrSchmeIdIdPrvtIdOthrId := UTF8Decode(DD_OriginalCreditorIdentifier_Edit.Text);
+  ddti.DrctDbtTxMndtRltdInf.AmdmntInfDtls.OrgnlDbtrAcct.IBAN             := UTF8Decode(DD_OriginalDebtorAccountIBAN_Edit.Text);
+  ddti.DrctDbtTxMndtRltdInf.AmdmntInfDtls.OrgnlDbtrAgtFinInstIdOthrId    := IfThen(DD_OriginalDebtorFinInstSMNDA_CheckBox.Checked, ORGNL_DBTR_AGT_SMNDA, '');
+  ddpi.AppendDrctDbtTxInfEntry(ddti);
 
   // validate and save
   messages := ddi.Validate;

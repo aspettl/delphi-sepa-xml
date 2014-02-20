@@ -46,7 +46,7 @@ UnitOutputDir=.\lib
 PackageDLLOutputDir=
 PackageDCPOutputDir=
 SearchPath=
-Packages=
+Packages=vcl;rtl;vclx;VclSmp;vclshlctrls;dbrtl;adortl;vcldb;qrpt;bdertl;vcldbx;dsnap;cds;bdecds;teeui;teedb;tee;teeqr;ibxpress;visualclx;visualdbclx;vclie;xmlrtl;inet;inetdbbde;inetdbxpress;inetdb;nmfast;dbexpress;dbxcds;dclOffice2k;soaprtl;aaron_d6;Indy60;VirtualTreesD6;ThemeManagerD6;VirtualButtonTreeD6;Jcl;JclVcl;JvCoreD6R;JvSystemD6R;JvStdCtrlsD6R;JvAppFrmD6R;JvBandsD6R;JvDBD6R;JvDlgsD6R;JvBDED6R;JvCmpD6R;JvCryptD6R;JvCtrlsD6R;JvCustomD6R;JvDockingD6R;JvDotNetCtrlsD6R;JvEDID6R;JvGlobusD6R;JvHMID6R;JvInterpreterD6R;JvJansD6R;JvManagedThreadsD6R;JvMMD6R;JvNetD6R;JvPageCompsD6R;JvPluginD6R;JvPrintPreviewD6R;JvRuntimeDesignD6R;JvTimeFrameworkD6R;JvUIBD6R;JvValidatorsD6R;JvWizardD6R;JvXPCtrlsD6R;EPCOTAUtils60
 Conditionals=
 DebugSourceDirs=
 UsePackages=0
@@ -85,3 +85,12 @@ OriginalFilename=
 ProductName=
 ProductVersion=1.0.0.0
 Comments=
+[HistoryLists\hlUnitAliases]
+Count=1
+Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
+[HistoryLists\hlUnitOutputDirectory]
+Count=1
+Item0=.\lib
+[HistoryLists\hlOutputDirectorry]
+Count=1
+Item0=.\lib

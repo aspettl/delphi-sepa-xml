@@ -3,7 +3,9 @@ program ExampleProject;
 uses
   Forms,
   ExampleUnit in 'ExampleUnit.pas' {ExampleForm},
-  SEPADirectDebit in '../SEPADirectDebit.pas';
+  SEPADirectDebit in '..\SEPADirectDebit.pas',
+  SEPACommon in '..\SEPACommon.pas',
+  SEPACreditTransfer in '..\SEPACreditTransfer.pas';
 
 {$R *.res}
 

@@ -7,7 +7,7 @@ uses
   cthreads,
   {$ENDIF}{$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  Forms, ExampleUnit, SEPADirectDebit
+  Forms, ExampleUnit, SEPADirectDebit, SEPACommon, SEPACreditTransfer
   { you can add units after this };
 
 {$R *.res}

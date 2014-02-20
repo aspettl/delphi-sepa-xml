@@ -11,7 +11,7 @@
       </Flags>
       <SessionStorage Value="None"/>
       <MainUnit Value="0"/>
-      <Title Value="SEPA XML file example"/>
+      <Title Value="Unit tests with Lazarus"/>
       <ResourceType Value="res"/>
       <UseXPManifest Value="True"/>
     </General>
@@ -34,29 +34,32 @@
         <FormatVersion Value="1"/>
       </local>
     </RunParams>
-    <RequiredPackages Count="1">
+    <RequiredPackages Count="3">
       <Item1>
-        <PackageName Value="LCL"/>
+        <PackageName Value="FPCUnitTestRunner"/>
       </Item1>
+      <Item2>
+        <PackageName Value="LCL"/>
+      </Item2>
+      <Item3>
+        <PackageName Value="FCL"/>
+      </Item3>
     </RequiredPackages>
-    <Units Count="5">
+    <Units Count="7">
       <Unit0>
-        <Filename Value="ExampleProject.lpr"/>
+        <Filename Value="LazarusUnitTests.lpr"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="ExampleProject"/>
+        <UnitName Value="LazarusUnitTests"/>
       </Unit0>
       <Unit1>
-        <Filename Value="ExampleUnit.pas"/>
+        <Filename Value="SEPATestCase.pas"/>
         <IsPartOfProject Value="True"/>
-        <ComponentName Value="ExampleForm"/>
-        <HasResources Value="True"/>
-        <ResourceBaseClass Value="Form"/>
-        <UnitName Value="ExampleUnit"/>
+        <UnitName Value="SEPATestCase"/>
       </Unit1>
       <Unit2>
-        <Filename Value="..\SEPADirectDebit.pas"/>
+        <Filename Value="SEPACommonTests.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="SEPADirectDebit"/>
+        <UnitName Value="SEPACommonTests"/>
       </Unit2>
       <Unit3>
         <Filename Value="..\SEPACommon.pas"/>
@@ -68,6 +71,16 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="SEPACreditTransfer"/>
       </Unit4>
+      <Unit5>
+        <Filename Value="..\SEPADirectDebit.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="SEPADirectDebit"/>
+      </Unit5>
+      <Unit6>
+        <Filename Value="SEPACreditTransferTests.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="SEPACreditTransferTests"/>
+      </Unit6>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -78,13 +91,6 @@
       <OtherUnitFiles Value=".."/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
-    <Linking>
-      <Options>
-        <Win32>
-          <GraphicApplication Value="True"/>
-        </Win32>
-      </Options>
-    </Linking>
     <Other>
       <CompilerMessages>
         <MsgFileName Value=""/>
@@ -93,7 +99,7 @@
     </Other>
   </CompilerOptions>
   <Debugging>
-    <Exceptions Count="3">
+    <Exceptions Count="4">
       <Item1>
         <Name Value="EAbort"/>
       </Item1>
@@ -103,6 +109,9 @@
       <Item3>
         <Name Value="EFOpenError"/>
       </Item3>
+      <Item4>
+        <Name Value="EConvertError"/>
+      </Item4>
     </Exceptions>
   </Debugging>
 </CONFIG>
