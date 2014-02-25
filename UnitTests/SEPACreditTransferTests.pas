@@ -1,6 +1,6 @@
 //
 //   Unit tests for "SEPACreditTransfer.pas"
-//   (beta version 0.2.0, 2014-02-20)
+//   (beta version 0.2.1, 2014-02-25)
 //
 //   Copyright (C) 2013-2014 by Aaron Spettl
 //
@@ -459,13 +459,9 @@ begin
   // empty schema and no contents => should use standard version 2.7
   CheckEquals(SCHEMA_PAIN_001_003_03, fCreditTransfer.Schema);
 
-  // now: behavior as if before February 1st, 2014
-  USE_SPEC_2DOT7 := Now+1;
-
-  // now: empty schema and no contents => should use standard version 2.6
-  CheckEquals(SCHEMA_PAIN_001_002_03, fCreditTransfer.Schema);
-
   // set schema manually => should return that one
+  fCreditTransfer.Schema := SCHEMA_PAIN_001_002_03;
+  CheckEquals(SCHEMA_PAIN_001_002_03, fCreditTransfer.Schema);
   fCreditTransfer.Schema := SCHEMA_PAIN_001_003_03;
   CheckEquals(SCHEMA_PAIN_001_003_03, fCreditTransfer.Schema);
 end;

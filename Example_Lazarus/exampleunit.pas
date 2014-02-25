@@ -1,6 +1,6 @@
 //
 //   Lazarus example for SEPA XML file creation
-//   (beta version 0.2.0, 2014-02-20)
+//   (beta version 0.2.1, 2014-02-25)
 //
 //   Copyright (C) 2013-2014 by Aaron Spettl
 //

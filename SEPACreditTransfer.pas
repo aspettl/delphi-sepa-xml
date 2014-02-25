@@ -1,6 +1,6 @@
 //
 //   Delphi unit for SEPA credit transfer XML file creation
-//   (beta version 0.2.0, 2014-02-20)
+//   (beta version 0.2.1, 2014-02-25)
 //
 //   Copyright (C) 2013-2014 by Aaron Spettl
 //
@@ -410,20 +410,8 @@ end;
 function TCreditTransferInitiation.GetSchema: String;
 begin
   Result := fSchema;
-
-  // Default schema:
-  // - always choose pain.001.003.03 after February 1st, 2014
-  //   (it is valid since November 4th, 2013 - but it seems several banks don't
-  //    accept this new format for now...)
-  // - otherwise, use pain.001.002.03
-
-  if (Result = '') then
-  begin
-    if (Now > USE_SPEC_2DOT7) then
-      Result := SCHEMA_PAIN_001_003_03
-    else
-      Result := SCHEMA_PAIN_001_002_03;
-  end;
+  if Result = '' then
+    Result := SCHEMA_PAIN_001_003_03
 end;
 
 procedure TCreditTransferInitiation.SetGrpHdrInitgPtyName(const str: String);

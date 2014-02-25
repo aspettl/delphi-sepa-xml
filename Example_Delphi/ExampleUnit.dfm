@@ -359,7 +359,7 @@ object ExampleForm: TExampleForm
           Top = 80
           Width = 277
           Height = 13
-          Caption = '- ISO schema pain.001.003.03 *may* not be supported yet.'
+          Caption = '- ISO schema pain.001.003.03 *should* be supported now.'
         end
         object Label49: TLabel
           Left = 8
@@ -909,7 +909,7 @@ object ExampleForm: TExampleForm
           Top = 80
           Width = 277
           Height = 13
-          Caption = '- ISO schema pain.008.003.02 *may* not be supported yet.'
+          Caption = '- ISO schema pain.008.003.02 *should* be supported now.'
         end
         object Label28: TLabel
           Left = 8

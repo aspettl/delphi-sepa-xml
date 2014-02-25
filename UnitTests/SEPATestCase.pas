@@ -1,6 +1,6 @@
 //
 //   SEPA unit tests base class
-//   (beta version 0.2.0, 2014-02-20)
+//   (beta version 0.2.1, 2014-02-25)
 //
 //   Copyright (C) 2013-2014 by Aaron Spettl
 //
@@ -46,8 +46,6 @@ type
   TSEPATestCase = class(TTestCase)
   private
     fOld_SEPASupportSpecialChars: Boolean;
-    fOld_USE_SPEC_2DOT7: TDateTime;
-    fOld_IBAN_ONLY_DATE: TDateTime;
 
     fSaveStream: TMemoryStream;
   protected
@@ -132,14 +130,8 @@ procedure TSEPATestCase.SetUp;
 begin
   // make sure all global variables / constants are in a consistent state;
   // restore them after the tests
-
   fOld_SEPASupportSpecialChars := SEPASupportSpecialChars;
-  fOld_USE_SPEC_2DOT7          := USE_SPEC_2DOT7;
-  fOld_IBAN_ONLY_DATE          := IBAN_ONLY_DATE;
-
   SEPASupportSpecialChars := false;
-  USE_SPEC_2DOT7          := Now-1;
-  IBAN_ONLY_DATE          := Now-1;
 
   fSaveStream := TMemoryStream.Create;
 end;
@@ -150,8 +142,6 @@ begin
   fSaveStream := nil;
 
   SEPASupportSpecialChars := fOld_SEPASupportSpecialChars;
-  USE_SPEC_2DOT7          := fOld_USE_SPEC_2DOT7;
-  IBAN_ONLY_DATE          := fOld_IBAN_ONLY_DATE;
 end;
 
 end.

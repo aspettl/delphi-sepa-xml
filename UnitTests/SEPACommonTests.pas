@@ -1,6 +1,6 @@
 //
 //   Unit tests for "SEPACommon.pas"
-//   (beta version 0.2.0, 2014-02-20)
+//   (beta version 0.2.1, 2014-02-25)
 //
 //   Copyright (C) 2013-2014 by Aaron Spettl
 //
@@ -369,12 +369,6 @@ begin
   fFinInst.BIC    := '';
   fFinInst.OthrID := FIN_INSTN_NOTPROVIDED;
   CheckValidation([IBAN_ONLY_NOT_ALLOWED], fFinInst.Validate(SCHEMA_PAIN_008_002_02));
-
-  // object with only NOTPROVIDED given, but for IBAN-only date in future
-  IBAN_ONLY_DATE  := Now+1;
-  fFinInst.BIC    := '';
-  fFinInst.OthrID := FIN_INSTN_NOTPROVIDED;
-  CheckValidation([IBAN_ONLY_NOT_ALLOWED], fFinInst.Validate(SCHEMA_PAIN_008_003_02));
 end;
 
 procedure TFinancialInstitutionTestCase.TestSaveToStream;

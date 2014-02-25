@@ -1,6 +1,6 @@
 //
 //   Delphi unit for SEPA direct debit XML file creation
-//   (beta version 0.2.0, 2014-02-20)
+//   (beta version 0.2.1, 2014-02-25)
 //
 //   Copyright (C) 2013-2014 by Aaron Spettl
 //
@@ -669,51 +669,10 @@ begin
 end;
 
 function TDirectDebitInitiation.GetSchema: String;
-var
-  i,j: Integer;
-  b: Boolean;
 begin
   Result := fSchema;
-
-  // Default schema:
-  // - always choose pain.008.003.02 after February 1st, 2014
-  //   (it is valid since November 4th, 2013 - but it seems several banks don't
-  //    accept this new format for now...)
-  // - if COR1 or IBAN-only is used, then we will switch to pain.008.003.02
-  // - otherwise, always use pain.008.002.02
-
-  if (Result = '') and (Now > USE_SPEC_2DOT7) then
+  if Result = '' then
     Result := SCHEMA_PAIN_008_003_02;
-
-  if Result = '' then
-  begin
-    // detect usage of COR1 or IBAN-only
-    b := false;
-    for i := 0 to PmtInfCount-1 do
-    begin
-      if (PmtInfEntry[i].PmtTpInfLclInstrmCd = LCL_INSTRM_CD_COR1) or
-         (PmtInfEntry[i].CdtrAgt.OthrID = FIN_INSTN_NOTPROVIDED) then
-      begin
-        b := true;
-        Break;
-      end;
-      for j := 0 to PmtInfEntry[i].DrctDbtTxInfCount-1 do
-      begin
-        if PmtInfEntry[i].DrctDbtTxInfEntry[j].DbtrAgt.OthrID = FIN_INSTN_NOTPROVIDED then
-        begin
-          b := true;
-          Break;
-        end;
-      end;
-      if b then
-        Break;
-    end;
-    if b then
-      Result := SCHEMA_PAIN_008_003_02;
-  end;
-
-  if Result = '' then
-    Result := SCHEMA_PAIN_008_002_02;
 end;
 
 procedure TDirectDebitInitiation.SetGrpHdrInitgPtyName(const str: String);

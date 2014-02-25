@@ -1,6 +1,6 @@
 //
 //   Delphi unit with helper methods etc. for SEPA XML file creation
-//   (beta version 0.2.0, 2014-02-20)
+//   (beta version 0.2.1, 2014-02-25)
 //
 //   Copyright (C) 2013-2014 by Aaron Spettl
 //
@@ -71,13 +71,6 @@ const
   DBTR_NM_MAX_LEN           = 70;
   MNDT_ID_MAX_LEN           = 35;
   RMT_INF_USTRD_MAX_LEN     = 140;
-
-var
-  // The following constants are declared as variables because we want to
-  // be able to modify them in unit tests.
-  
-  USE_SPEC_2DOT7: TDateTime = 41671; // = EncodeDate(2014, 2, 1);
-  IBAN_ONLY_DATE: TDateTime = 41671; // = EncodeDate(2014, 2, 1);
 
 resourcestring
   EMPTY_BIC_OTHR_ID         = 'BIC required (or OthrID = NOTPROVIDED must be given).';
@@ -201,6 +194,15 @@ implementation
 
 // private methods and code for better compiler compatibility
 
+{$IFNDEF FPC}
+{$IF CompilerVersion >= 15}
+{$IF CompilerVersion <= 21}     // Delphi 7 to 2010:
+uses                            // include unit Windows for the constant
+  Windows;                      // LOCALE_SYSTEM_DEFAULT
+{$IFEND}
+{$IFEND}
+{$ENDIF}
+
 {$IFDEF FPC}
 type UTF8String = String;       // just use the usual strings in Lazarus
 {$ELSE}
@@ -224,7 +226,11 @@ end;
 {$DEFINE FormatSettings}        // but DefaultFormatSettings is not known
 function DefaultFormatSettings: TFormatSettings;
 begin
+{$IF CompilerVersion >= 22}     // Delphi XE and later
   Result := TFormatSettings.Create;
+{$ELSE}                         // Delphi 2010 and before
+  GetLocaleFormatSettings(LOCALE_SYSTEM_DEFAULT, Result);
+{$IFEND}
 end;
 {$IFEND}
 {$ENDIF}
@@ -524,10 +530,9 @@ begin
   if (OthrID <> '') and (OthrID <> FIN_INSTN_NOTPROVIDED) then
     Result.Append(INVALID_OTHR_ID);
 
-  if (schema = SCHEMA_PAIN_001_002_03) or (schema = SCHEMA_PAIN_008_002_02) or
-     (((schema = SCHEMA_PAIN_001_003_03) or (schema = SCHEMA_PAIN_008_003_02)) and (Now < IBAN_ONLY_DATE)) then
+  if (schema = SCHEMA_PAIN_001_002_03) or (schema = SCHEMA_PAIN_008_002_02) then
   begin
-    // IBAN-only not or not yet allowed:
+    // IBAN-only not oallowed:
 
     if (BIC = '') and (OthrID <> '') then
       Result.Append(IBAN_ONLY_NOT_ALLOWED);

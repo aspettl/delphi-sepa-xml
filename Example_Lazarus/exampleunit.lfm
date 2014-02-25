@@ -418,8 +418,8 @@ object ExampleForm: TExampleForm
           Left = 8
           Height = 14
           Top = 64
-          Width = 292
-          Caption = '- ISO schema pain.001.003.03 *may* not be supported yet.'
+          Width = 288
+          Caption = '- ISO schema pain.001.003.03 *should* be supported now.'
           ParentColor = False
         end
         object Label49: TLabel
@@ -1085,8 +1085,8 @@ object ExampleForm: TExampleForm
           Left = 8
           Height = 14
           Top = 64
-          Width = 292
-          Caption = '- ISO schema pain.008.003.02 *may* not be supported yet.'
+          Width = 288
+          Caption = '- ISO schema pain.008.003.02 *should* be supported now.'
           ParentColor = False
         end
         object Label28: TLabel
