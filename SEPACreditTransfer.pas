@@ -1,6 +1,6 @@
 //
 //   Delphi unit for SEPA credit transfer XML file creation
-//   (beta version 0.2.1, 2014-02-25)
+//   (beta version 0.2.2, 2014-02-27)
 //
 //   Copyright (C) 2013-2014 by Aaron Spettl
 //
@@ -76,6 +76,7 @@ type
     procedure SetRmtInfUstrd(const str: String);
   public
     constructor Create;
+    destructor Destroy; override;
 
     property PmtIdEndToEndId: String read fPmtIdEndToEndId write fPmtIdEndToEndId;
     property InstdAmtCcy: String read fInstdAmtCcy write fInstdAmtCcy;
@@ -85,7 +86,7 @@ type
     property CdtrAcct: TAccountIdentification read fCdtrAcct;
     property RmtInfUstrd: String read fRmtInfUstrd write SetRmtInfUstrd;
 
-    function Validate(const schema: String): TStringList;
+    function Validate(const schema: String; const appendTo: TStringList = nil): TStringList;
     procedure SaveToStream(const stream: TStream; const schema: String);
   end;
 
@@ -109,6 +110,7 @@ type
     function GetCdtTrfTxInfCount: Integer;
   public
     constructor Create;
+    destructor Destroy; override;
 
     property PmtInfId: String read fPmtInfId write fPmtInfId;
     property PmtMtd: String read fPmtMtd write fPmtMtd;
@@ -126,7 +128,7 @@ type
     property CdtTrfTxInfEntry[const i: Integer]: TCreditTransferTransactionInformation read GetCdtTrfTxInfEntry;
     property CdtTrfTxInfCount: Integer read GetCdtTrfTxInfCount;
 
-    function Validate(const schema: String): TStringList;
+    function Validate(const schema: String; const appendTo: TStringList = nil): TStringList;
     procedure SaveToStream(const stream: TStream; const schema: String);
   end;
 
@@ -146,6 +148,7 @@ type
     function GetPmtInfCount: Integer;
   public
     constructor Create;
+    destructor Destroy; override;
 
     property Schema: String read GetSchema write fSchema;
 
@@ -158,7 +161,7 @@ type
     property PmtInfEntry[const i: Integer]: TCreditTransferPaymentInformation read GetPmtInfEntry;
     property PmtInfCount: Integer read GetPmtInfCount;
 
-    function Validate: TStringList;
+    function Validate(const appendTo: TStringList = nil): TStringList;
     procedure SaveToStream(const stream: TStream);
     procedure SaveToDisk(const FileName: String);
   end;
@@ -169,11 +172,18 @@ implementation
 
 constructor TCreditTransferTransactionInformation.Create;
 begin
-  inherited Create;
+  inherited;
   fPmtIdEndToEndId := END_TO_END_ID_NOTPROVIDED;
   fInstdAmtCcy     := CCY_EUR;
   fCdtrAgt         := TFinancialInstitution.Create;
   fCdtrAcct        := TAccountIdentification.Create;
+end;
+
+destructor TCreditTransferTransactionInformation.Destroy;
+begin
+  FreeAndNil(fCdtrAgt);
+  FreeAndNil(fCdtrAcct);
+  inherited;
 end;
 
 procedure TCreditTransferTransactionInformation.SetCdtrNm(const str: String);
@@ -186,9 +196,12 @@ begin
   fRmtInfUstrd := SEPACleanString(str);
 end;
 
-function TCreditTransferTransactionInformation.Validate(const schema: String): TStringList;
+function TCreditTransferTransactionInformation.Validate(const schema: String; const appendTo: TStringList = nil): TStringList;
 begin
-  Result := TStringList.Create;
+  if appendTo <> nil then
+    Result := appendTo
+  else
+    Result := TStringList.Create;
 
   // check for empty fields
 
@@ -225,9 +238,9 @@ begin
   // handle this the same way and just do not write this <CdtrAgt> block
   // to the file if no BIC is given (corresponds to NOTPROVIDED flag), see also
   // method SaveToStream
-  Result.AddStrings(CdtrAgt.Validate(schema));
+  CdtrAgt.Validate(schema, Result);
 
-  Result.AddStrings(CdtrAcct.Validate(schema));
+  CdtrAcct.Validate(schema, Result);
 
   // plausibility checks
 
@@ -264,13 +277,24 @@ end;
 
 constructor TCreditTransferPaymentInformation.Create;
 begin
-  inherited Create;
+  inherited;
   fPmtInfId         := SEPAGenerateUUID;
   fPmtMtd           := PMT_MTD_CREDIT_TRANSFER;
   fPmtTpInfSvcLvlCd := SEPA;
   fChrgBr           := CHRG_BR_SLEV;
   fDbtrAcct         := TAccountIdentification.Create;
   fDbtrAgt          := TFinancialInstitution.Create;
+end;
+
+destructor TCreditTransferPaymentInformation.Destroy;
+var
+  i: Integer;
+begin
+  FreeAndNil(fDbtrAcct);
+  FreeAndNil(fDbtrAgt);
+  for i := Low(fCdtTrfTxInf) to High(fCdtTrfTxInf) do
+    FreeAndNil(fCdtTrfTxInf[i]);
+  inherited;
 end;
 
 procedure TCreditTransferPaymentInformation.SetDbtrNm(const str: String);
@@ -306,11 +330,14 @@ begin
   Result := Length(fCdtTrfTxInf);
 end;
 
-function TCreditTransferPaymentInformation.Validate(const schema: String): TStringList;
+function TCreditTransferPaymentInformation.Validate(const schema: String; const appendTo: TStringList = nil): TStringList;
 var
   i: Integer;
 begin
-  Result := TStringList.Create;
+  if appendTo <> nil then
+    Result := appendTo
+  else
+    Result := TStringList.Create;
 
   // check for empty fields
 
@@ -345,11 +372,11 @@ begin
 
   // delegate validations where possible
 
-  Result.AddStrings(DbtrAcct.Validate(schema));
-  Result.AddStrings(DbtrAgt.Validate(schema));
+  DbtrAcct.Validate(schema, Result);
+  DbtrAgt.Validate(schema, Result);
 
   for i := 0 to CdtTrfTxInfCount-1 do
-    Result.AddStrings(CdtTrfTxInfEntry[i].Validate(schema));
+    CdtTrfTxInfEntry[i].Validate(schema, Result);
 
   // plausibility checks
 
@@ -401,10 +428,19 @@ end;
 
 constructor TCreditTransferInitiation.Create;
 begin
-  inherited Create;
+  inherited;
   fSchema        := ''; // empty = auto-select
   fGrpHdrMsgId   := SEPAGenerateUUID;
   fGrpHdrCreDtTm := Now;
+end;
+
+destructor TCreditTransferInitiation.Destroy;
+var
+  i: Integer;
+begin
+  for i := Low(fPmtInf) to High(fPmtInf) do
+    FreeAndNil(fPmtInf[i]);
+  inherited;
 end;
 
 function TCreditTransferInitiation.GetSchema: String;
@@ -447,11 +483,14 @@ begin
   Result := Length(fPmtInf);   
 end;
 
-function TCreditTransferInitiation.Validate: TStringList;
+function TCreditTransferInitiation.Validate(const appendTo: TStringList = nil): TStringList;
 var
   i: Integer;
 begin
-  Result := TStringList.Create;
+  if appendTo <> nil then
+    Result := appendTo
+  else
+    Result := TStringList.Create;
 
   // check ISO schema
 
@@ -477,7 +516,7 @@ begin
   // delegate validations where possible
 
   for i := 0 to PmtInfCount-1 do
-    Result.AddStrings(PmtInfEntry[i].Validate(Schema));
+    PmtInfEntry[i].Validate(Schema, Result);
 
   // plausibility checks
 
@@ -491,8 +530,8 @@ var
 begin
   SEPAWriteLine(stream, '<?xml version="1.0" encoding="UTF-8"?>');
   SEPAWriteLine(stream, '<Document xmlns="urn:iso:std:iso:20022:tech:xsd:'+Schema+'"'+
-                    ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"'+
-                    ' xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:'+Schema+' '+Schema+'.xsd">');
+                        ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"'+
+                        ' xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:'+Schema+' '+Schema+'.xsd">');
   SEPAWriteLine(stream, '<CstmrCdtTrfInitn>');
 
   SEPAWriteLine(stream, '<GrpHdr>');

@@ -1,6 +1,6 @@
 //
 //   Unit tests for "SEPACommon.pas"
-//   (beta version 0.2.1, 2014-02-25)
+//   (beta version 0.2.2, 2014-02-27)
 //
 //   Copyright (C) 2013-2014 by Aaron Spettl
 //
@@ -317,8 +317,7 @@ end;
 
 procedure TFinancialInstitutionTestCase.TearDown;
 begin
-  fFinInst.Free;
-  fFinInst := nil;
+  FreeAndNil(fFinInst);
   inherited;
 end;
 
@@ -411,8 +410,7 @@ end;
 
 procedure TAccountIdentificationTestCase.TearDown;
 begin
-  fAccount.Free;
-  fAccount := nil;
+  FreeAndNil(fAccount);
   inherited;
 end;
 

@@ -1,6 +1,6 @@
 //
 //   Delphi unit for SEPA direct debit XML file creation
-//   (beta version 0.2.1, 2014-02-25)
+//   (beta version 0.2.2, 2014-02-27)
 //
 //   Copyright (C) 2013-2014 by Aaron Spettl
 //
@@ -76,6 +76,7 @@ type
     procedure SetOrgnlCdtrSchmeIdIdPrvtIdOthrId(const str: String);
   public
     constructor Create;
+    destructor Destroy; override;
 
     property OrgnlMndtId: String read fOrgnlMndtId write fOrgnlMndtId;
     property OrgnlCdtrSchmeIdNm: String read fOrgnlCdtrSchmeIdNm write fOrgnlCdtrSchmeIdNm;
@@ -84,7 +85,7 @@ type
     property OrgnlDbtrAcct: TAccountIdentification read fOrgnlDbtrAcct;
     property OrgnlDbtrAgtFinInstIdOthrId: String read fOrgnlDbtrAgtFinInstIdOthrId write fOrgnlDbtrAgtFinInstIdOthrId;
 
-    function Validate(const schema: String): TStringList;
+    function Validate(const schema: String; const appendTo: TStringList = nil): TStringList;
     procedure SaveToStream(const stream: TStream; const schema: String);
   end;
 
@@ -96,13 +97,14 @@ type
     fAmdmntInfDtls: TAmendmentInformationDetails;
   public
     constructor Create;
+    destructor Destroy; override;
 
     property MndtId: String read fMndtId write fMndtId;
     property DtOfSgntr: TDateTime read fDtOfSgntr write fDtOfSgntr;
     property AmdmntInd: Boolean read fAmdmntInd write fAmdmntInd;
     property AmdmntInfDtls: TAmendmentInformationDetails read fAmdmntInfDtls;
 
-    function Validate(const schema: String): TStringList;
+    function Validate(const schema: String; const appendTo: TStringList = nil): TStringList;
     procedure SaveToStream(const stream: TStream; const schema: String);
   end;
 
@@ -122,7 +124,8 @@ type
     procedure SetUltmtDbtrNm(const str: String);
     procedure SetRmtInfUstrd(const str: String);
   public
-    constructor Create;
+    constructor Create; 
+    destructor Destroy; override;
 
     property PmtIdEndToEndId: String read fPmtIdEndToEndId write fPmtIdEndToEndId;
     property InstdAmtCcy: String read fInstdAmtCcy write fInstdAmtCcy;
@@ -134,7 +137,7 @@ type
     property UltmtDbtrNm: String read fUltmtDbtrNm write SetUltmtDbtrNm;
     property RmtInfUstrd: String read fRmtInfUstrd write SetRmtInfUstrd;
 
-    function Validate(const schema: String): TStringList;
+    function Validate(const schema: String; const appendTo: TStringList = nil): TStringList;
     procedure SaveToStream(const stream: TStream; const schema: String);
   end;
 
@@ -162,6 +165,7 @@ type
     function GetDrctDbtTxInfCount: Integer;
   public
     constructor Create;
+    destructor Destroy; override;
 
     property PmtInfId: String read fPmtInfId write fPmtInfId;
     property PmtMtd: String read fPmtMtd write fPmtMtd;
@@ -182,7 +186,7 @@ type
     property DrctDbtTxInfEntry[const i: Integer]: TDirectDebitTransactionInformation read GetDrctDbtTxInfEntry;
     property DrctDbtTxInfCount: Integer read GetDrctDbtTxInfCount;
 
-    function Validate(const schema: String): TStringList;
+    function Validate(const schema: String; const appendTo: TStringList = nil): TStringList;
     procedure SaveToStream(const stream: TStream; const schema: String);
   end;
 
@@ -202,6 +206,7 @@ type
     function GetPmtInfCount: Integer;
   public
     constructor Create;
+    destructor Destroy; override;
 
     property Schema: String read GetSchema write fSchema;
 
@@ -214,7 +219,7 @@ type
     property PmtInfEntry[const i: Integer]: TDirectDebitPaymentInformation read GetPmtInfEntry;
     property PmtInfCount: Integer read GetPmtInfCount;
 
-    function Validate: TStringList;
+    function Validate(const appendTo: TStringList = nil): TStringList;
     procedure SaveToStream(const stream: TStream);
     procedure SaveToDisk(const FileName: String);
   end;
@@ -225,9 +230,15 @@ implementation
 
 constructor TAmendmentInformationDetails.Create;
 begin
-  inherited Create;
+  inherited;
   fOrgnlCdtrSchmeIdIdPrvtIdOthrSchmeNmPrtry := SEPA;
   fOrgnlDbtrAcct                            := TAccountIdentification.Create;
+end;
+
+destructor TAmendmentInformationDetails.Destroy;
+begin
+  FreeAndNil(fOrgnlDbtrAcct);
+  inherited;
 end;
 
 procedure TAmendmentInformationDetails.SetOrgnlCdtrSchmeIdIdPrvtIdOthrId(const str: String);
@@ -235,9 +246,12 @@ begin
   fOrgnlCdtrSchmeIdIdPrvtIdOthrId := SEPACleanIBANorBICorCI(str);
 end;
 
-function TAmendmentInformationDetails.Validate(const schema: String): TStringList;
+function TAmendmentInformationDetails.Validate(const schema: String; const appendTo: TStringList = nil): TStringList;
 begin
-  Result := TStringList.Create;
+  if appendTo <> nil then
+    Result := appendTo
+  else
+    Result := TStringList.Create;
 
   // check for empty fields
 
@@ -265,7 +279,7 @@ begin
   // delegate validations where possible
 
   if (OrgnlDbtrAcct.IBAN <> '') then
-    Result.AddStrings(OrgnlDbtrAcct.Validate(schema));
+    OrgnlDbtrAcct.Validate(schema, Result);
 end;
 
 procedure TAmendmentInformationDetails.SaveToStream(const stream: TStream; const schema: String);
@@ -305,13 +319,22 @@ end;
 
 constructor TMandateRelatedInformation.Create;
 begin
-  inherited Create;
+  inherited;
   fAmdmntInfDtls := TAmendmentInformationDetails.Create;
 end;
 
-function TMandateRelatedInformation.Validate(const schema: String): TStringList;
+destructor TMandateRelatedInformation.Destroy;
 begin
-  Result := TStringList.Create;
+  FreeAndNil(fAmdmntInfDtls);
+  inherited;
+end;
+
+function TMandateRelatedInformation.Validate(const schema: String; const appendTo: TStringList = nil): TStringList;
+begin
+  if appendTo <> nil then
+    Result := appendTo
+  else
+    Result := TStringList.Create;
 
   // check for empty fields
 
@@ -332,7 +355,7 @@ begin
   // delegate validations where possible
 
   if AmdmntInd then
-    Result.AddStrings(AmdmntInfDtls.Validate(schema));
+    AmdmntInfDtls.Validate(schema, Result);
 end;
 
 procedure TMandateRelatedInformation.SaveToStream(const stream: TStream; const schema: String);
@@ -350,12 +373,20 @@ end;
 
 constructor TDirectDebitTransactionInformation.Create;
 begin
-  inherited Create;
+  inherited;
   fPmtIdEndToEndId      := END_TO_END_ID_NOTPROVIDED;
   fInstdAmtCcy          := CCY_EUR;
   fDrctDbtTxMndtRltdInf := TMandateRelatedInformation.Create;
   fDbtrAgt              := TFinancialInstitution.Create;
   fDbtrAcct             := TAccountIdentification.Create;
+end;
+
+destructor TDirectDebitTransactionInformation.Destroy;
+begin
+  FreeAndNil(fDrctDbtTxMndtRltdInf);
+  FreeAndNil(fDbtrAgt);
+  FreeAndNil(fDbtrAcct);
+  inherited;
 end;
 
 procedure TDirectDebitTransactionInformation.SetDbtrNm(const str: String);
@@ -373,9 +404,12 @@ begin
   fRmtInfUstrd := SEPACleanString(str);
 end;
 
-function TDirectDebitTransactionInformation.Validate(const schema: String): TStringList;
+function TDirectDebitTransactionInformation.Validate(const schema: String; const appendTo: TStringList = nil): TStringList;
 begin
-  Result := TStringList.Create;
+  if appendTo <> nil then
+    Result := appendTo
+  else
+    Result := TStringList.Create;
 
   // check for empty fields
 
@@ -410,9 +444,9 @@ begin
 
   // delegate validations where possible
 
-  Result.AddStrings(DbtrAgt.Validate(schema));
-  Result.AddStrings(DbtrAcct.Validate(schema));
-  Result.AddStrings(DrctDbtTxMndtRltdInf.Validate(schema));
+  DbtrAgt.Validate(schema, Result);
+  DbtrAcct.Validate(schema, Result);
+  DrctDbtTxMndtRltdInf.Validate(schema, Result);
 
   // plausibility checks
 
@@ -453,7 +487,7 @@ end;
 
 constructor TDirectDebitPaymentInformation.Create;
 begin
-  inherited Create;
+  inherited;
   fPmtInfId                            := SEPAGenerateUUID;
   fPmtMtd                              := PMT_MTD_DIRECT_DEBIT;
   fPmtTpInfSvcLvlCd                    := SEPA;
@@ -461,6 +495,17 @@ begin
   fCdtrSchmeIdIdPrvtIdOthrSchmeNmPrtry := SEPA;
   fCdtrAcct                            := TAccountIdentification.Create;
   fCdtrAgt                             := TFinancialInstitution.Create;
+end;
+
+destructor TDirectDebitPaymentInformation.Destroy;
+var
+  i: Integer;
+begin
+  FreeAndNil(fCdtrAcct);
+  FreeAndNil(fCdtrAgt);
+  for i := Low(fDrctDbtTxInf) to High(fDrctDbtTxInf) do
+    FreeAndNil(fDrctDbtTxInf[i]);
+  inherited;
 end;
 
 procedure TDirectDebitPaymentInformation.SetCdtrNm(const str: String);
@@ -501,12 +546,15 @@ begin
   Result := Length(fDrctDbtTxInf);
 end;
 
-function TDirectDebitPaymentInformation.Validate(const schema: String): TStringList;
+function TDirectDebitPaymentInformation.Validate(const schema: String; const appendTo: TStringList = nil): TStringList;
 var
   possible_reqd_colltn_dt: Cardinal;
   add_days,i: Integer;
 begin
-  Result := TStringList.Create;
+  if appendTo <> nil then
+    Result := appendTo
+  else
+    Result := TStringList.Create;
 
   // check for empty fields
 
@@ -578,11 +626,11 @@ begin
 
   // delegate validations where possible
 
-  Result.AddStrings(CdtrAcct.Validate(schema));
-  Result.AddStrings(CdtrAgt.Validate(schema));
+  CdtrAcct.Validate(schema, Result);
+  CdtrAgt.Validate(schema, Result);
 
   for i := 0 to DrctDbtTxInfCount-1 do
-    Result.AddStrings(DrctDbtTxInfEntry[i].Validate(schema));
+    DrctDbtTxInfEntry[i].Validate(schema, Result);
 
   // plausibility checks
 
@@ -662,10 +710,19 @@ end;
 
 constructor TDirectDebitInitiation.Create;
 begin
-  inherited Create;
+  inherited;
   fSchema        := ''; // empty = auto-select
   fGrpHdrMsgId   := SEPAGenerateUUID;
   fGrpHdrCreDtTm := Now;
+end;
+
+destructor TDirectDebitInitiation.Destroy;
+var
+  i: Integer;
+begin
+  for i := Low(fPmtInf) to High(fPmtInf) do
+    FreeAndNil(fPmtInf[i]);
+  inherited;
 end;
 
 function TDirectDebitInitiation.GetSchema: String;
@@ -708,12 +765,15 @@ begin
   Result := Length(fPmtInf);   
 end;
 
-function TDirectDebitInitiation.Validate: TStringList;
+function TDirectDebitInitiation.Validate(const appendTo: TStringList = nil): TStringList;
 var
   FirstPmtTpInfLclInstrmCd: String;
   i: Integer;
 begin
-  Result := TStringList.Create;
+  if appendTo <> nil then
+    Result := appendTo
+  else
+    Result := TStringList.Create;
 
   // check ISO schema
 
@@ -739,7 +799,7 @@ begin
   // delegate validations where possible
 
   for i := 0 to PmtInfCount-1 do
-    Result.AddStrings(PmtInfEntry[i].Validate(Schema));
+    PmtInfEntry[i].Validate(Schema, Result);
 
   // plausibility checks
 
@@ -766,8 +826,8 @@ var
 begin
   SEPAWriteLine(stream, '<?xml version="1.0" encoding="UTF-8"?>');
   SEPAWriteLine(stream, '<Document xmlns="urn:iso:std:iso:20022:tech:xsd:'+Schema+'"'+
-                    ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"'+
-                    ' xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:'+Schema+' '+Schema+'.xsd">');
+                        ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"'+
+                        ' xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:'+Schema+' '+Schema+'.xsd">');
   SEPAWriteLine(stream, '<CstmrDrctDbtInitn>');
 
   SEPAWriteLine(stream, '<GrpHdr>');

@@ -1,6 +1,6 @@
 //
 //   Delphi example for SEPA XML file creation
-//   (beta version 0.2.1, 2014-02-25)
+//   (beta version 0.2.2, 2014-02-27)
 //
 //   Copyright (C) 2013-2014 by Aaron Spettl
 //
@@ -217,7 +217,7 @@ procedure TExampleForm.CT_Save_ButtonClick(Sender: TObject);
 var
   cti: TCreditTransferInitiation;
   pi: TCreditTransferPaymentInformation;
-  ctti: TCreditTransferTransactionInformation;
+  ti: TCreditTransferTransactionInformation;
   messages: TStringList;
 begin
   // support for special characters has to be set before creating the objects,
@@ -239,28 +239,35 @@ begin
   cti.AppendPmtInfEntry(pi);
 
   // credit transfer transaction
-  ctti := TCreditTransferTransactionInformation.Create;
-  ctti.PmtIdEndToEndId := CT_EndToEndId_ComboBox.Text;
-  ctti.InstdAmt        := StrToFloat(CT_InstructedAmount_Edit.Text);
-  ctti.CdtrNm          := CT_CreditorName_Edit.Text;
-  ctti.CdtrAcct.IBAN   := CT_CreditorIBAN_Edit.Text;
-  ctti.CdtrAgt.BIC     := CT_CreditorBIC_Edit.Text;
-  ctti.CdtrAgt.OthrID  := IfThen(CT_CreditorBICNotProvided_CheckBox.Checked, FIN_INSTN_NOTPROVIDED, '');
-  ctti.RmtInfUstrd     := Trim(CT_RemittanceInformation_Memo.Text);
-  pi.AppendCdtTrfTxInfEntry(ctti);
+  ti := TCreditTransferTransactionInformation.Create;
+  ti.PmtIdEndToEndId := CT_EndToEndId_ComboBox.Text;
+  ti.InstdAmt        := StrToFloat(CT_InstructedAmount_Edit.Text);
+  ti.CdtrNm          := CT_CreditorName_Edit.Text;
+  ti.CdtrAcct.IBAN   := CT_CreditorIBAN_Edit.Text;
+  ti.CdtrAgt.BIC     := CT_CreditorBIC_Edit.Text;
+  ti.CdtrAgt.OthrID  := IfThen(CT_CreditorBICNotProvided_CheckBox.Checked, FIN_INSTN_NOTPROVIDED, '');
+  ti.RmtInfUstrd     := Trim(CT_RemittanceInformation_Memo.Text);
+  pi.AppendCdtTrfTxInfEntry(ti);
 
   // validate and save
   messages := cti.Validate;
   if ((messages.Count = 0) or (MessageDlg(messages.Text, mtError, [mbOk, mbIgnore], 0) = mrIgnore)) and
       SaveDialog.Execute then
     cti.SaveToDisk(SaveDialog.FileName);
+
+  // free objects
+  FreeAndNil(messages);
+  FreeAndNil(cti);
+  // note that the objects referenced in "cti" are automatically destroyed
+  pi := nil;
+  ti := nil;
 end;
 
 procedure TExampleForm.DD_Save_ButtonClick(Sender: TObject);
 var
   ddi: TDirectDebitInitiation;
   pi: TDirectDebitPaymentInformation;
-  ddti: TDirectDebitTransactionInformation;
+  ti: TDirectDebitTransactionInformation;
   messages: TStringList;
 begin
   // support for special characters has to be set before creating the objects,
@@ -285,29 +292,36 @@ begin
   ddi.AppendPmtInfEntry(pi);
 
   // direct debit transaction (including mandate details)
-  ddti := TDirectDebitTransactionInformation.Create;
-  ddti.PmtIdEndToEndId := DD_EndToEndId_ComboBox.Text;
-  ddti.InstdAmt        := StrToFloat(DD_InstructedAmount_Edit.Text);
-  ddti.DbtrNm          := DD_DebtorName_Edit.Text;
-  ddti.DbtrAcct.IBAN   := DD_DebtorIBAN_Edit.Text;
-  ddti.DbtrAgt.BIC     := DD_DebtorBIC_Edit.Text;
-  ddti.DbtrAgt.OthrID  := IfThen(DD_DebtorBICNotProvided_CheckBox.Checked, FIN_INSTN_NOTPROVIDED, '');
-  ddti.RmtInfUstrd     := Trim(DD_RemittanceInformation_Memo.Text);
-  ddti.DrctDbtTxMndtRltdInf.MndtId    := DD_MandateId_Edit.Text;
-  ddti.DrctDbtTxMndtRltdInf.DtOfSgntr := DD_MandateDateOfSignature_Edit.Date;
-  ddti.DrctDbtTxMndtRltdInf.AmdmntInd := DD_MandateAmendmentInformationDetails_CheckBox.Checked;
-  ddti.DrctDbtTxMndtRltdInf.AmdmntInfDtls.OrgnlMndtId                    := DD_OriginalMandateId_Edit.Text;
-  ddti.DrctDbtTxMndtRltdInf.AmdmntInfDtls.OrgnlCdtrSchmeIdNm             := DD_OriginalCreditorName_Edit.Text;
-  ddti.DrctDbtTxMndtRltdInf.AmdmntInfDtls.OrgnlCdtrSchmeIdIdPrvtIdOthrId := DD_OriginalCreditorIdentifier_Edit.Text;
-  ddti.DrctDbtTxMndtRltdInf.AmdmntInfDtls.OrgnlDbtrAcct.IBAN             := DD_OriginalDebtorAccountIBAN_Edit.Text;
-  ddti.DrctDbtTxMndtRltdInf.AmdmntInfDtls.OrgnlDbtrAgtFinInstIdOthrId    := IfThen(DD_OriginalDebtorFinInstSMNDA_CheckBox.Checked, ORGNL_DBTR_AGT_SMNDA, '');
-  pi.AppendDrctDbtTxInfEntry(ddti);
+  ti := TDirectDebitTransactionInformation.Create;
+  ti.PmtIdEndToEndId := DD_EndToEndId_ComboBox.Text;
+  ti.InstdAmt        := StrToFloat(DD_InstructedAmount_Edit.Text);
+  ti.DbtrNm          := DD_DebtorName_Edit.Text;
+  ti.DbtrAcct.IBAN   := DD_DebtorIBAN_Edit.Text;
+  ti.DbtrAgt.BIC     := DD_DebtorBIC_Edit.Text;
+  ti.DbtrAgt.OthrID  := IfThen(DD_DebtorBICNotProvided_CheckBox.Checked, FIN_INSTN_NOTPROVIDED, '');
+  ti.RmtInfUstrd     := Trim(DD_RemittanceInformation_Memo.Text);
+  ti.DrctDbtTxMndtRltdInf.MndtId    := DD_MandateId_Edit.Text;
+  ti.DrctDbtTxMndtRltdInf.DtOfSgntr := DD_MandateDateOfSignature_Edit.Date;
+  ti.DrctDbtTxMndtRltdInf.AmdmntInd := DD_MandateAmendmentInformationDetails_CheckBox.Checked;
+  ti.DrctDbtTxMndtRltdInf.AmdmntInfDtls.OrgnlMndtId                    := DD_OriginalMandateId_Edit.Text;
+  ti.DrctDbtTxMndtRltdInf.AmdmntInfDtls.OrgnlCdtrSchmeIdNm             := DD_OriginalCreditorName_Edit.Text;
+  ti.DrctDbtTxMndtRltdInf.AmdmntInfDtls.OrgnlCdtrSchmeIdIdPrvtIdOthrId := DD_OriginalCreditorIdentifier_Edit.Text;
+  ti.DrctDbtTxMndtRltdInf.AmdmntInfDtls.OrgnlDbtrAcct.IBAN             := DD_OriginalDebtorAccountIBAN_Edit.Text;
+  ti.DrctDbtTxMndtRltdInf.AmdmntInfDtls.OrgnlDbtrAgtFinInstIdOthrId    := IfThen(DD_OriginalDebtorFinInstSMNDA_CheckBox.Checked, ORGNL_DBTR_AGT_SMNDA, '');
+  pi.AppendDrctDbtTxInfEntry(ti);
 
   // validate and save
   messages := ddi.Validate;
   if ((messages.Count = 0) or (MessageDlg(messages.Text, mtError, [mbOk, mbIgnore], 0) = mrIgnore)) and
       SaveDialog.Execute then
     ddi.SaveToDisk(SaveDialog.FileName);
+
+  // free objects
+  FreeAndNil(messages);
+  FreeAndNil(ddi);
+  // note that the objects referenced in "ddi" are automatically destroyed
+  pi := nil;
+  ti := nil;
 end;
 
 end.

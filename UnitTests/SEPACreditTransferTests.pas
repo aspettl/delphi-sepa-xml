@@ -1,6 +1,6 @@
 //
 //   Unit tests for "SEPACreditTransfer.pas"
-//   (beta version 0.2.1, 2014-02-25)
+//   (beta version 0.2.2, 2014-02-27)
 //
 //   Copyright (C) 2013-2014 by Aaron Spettl
 //
@@ -98,8 +98,7 @@ end;
 
 procedure TCreditTransferTransactionInformationTests.TearDown;
 begin
-  fTransaction.Free;
-  fTransaction := nil;
+  FreeAndNil(fTransaction);
   inherited;
 end;
 
@@ -229,8 +228,7 @@ end;
 
 procedure TCreditTransferPaymentInformationTests.TearDown;
 begin
-  fPaymentInfo.Free;
-  fPaymentInfo := nil;
+  FreeAndNil(fPaymentInfo);
   inherited;
 end;
 
@@ -309,26 +307,6 @@ begin
   Check(ti1 = fPaymentInfo.CdtTrfTxInfEntry[0], 'count 3, entry 0 check');
   Check(ti2 = fPaymentInfo.CdtTrfTxInfEntry[1], 'count 3, entry 1 check');
   Check(ti3 = fPaymentInfo.CdtTrfTxInfEntry[2], 'count 3, entry 2 check');
-
-  // add one object another time: this behavior is not important, but let's
-  // say we accept anything (may change in the future!)
-  fPaymentInfo.AppendCdtTrfTxInfEntry(ti3);
-  CheckEquals(4, fPaymentInfo.CdtTrfTxInfCount);
-  Check(ti1 = fPaymentInfo.CdtTrfTxInfEntry[0], 'count 4, entry 0 check');
-  Check(ti2 = fPaymentInfo.CdtTrfTxInfEntry[1], 'count 4, entry 1 check');
-  Check(ti3 = fPaymentInfo.CdtTrfTxInfEntry[2], 'count 4, entry 2 check');
-  Check(ti3 = fPaymentInfo.CdtTrfTxInfEntry[3], 'count 4, entry 3 check');
-
-  // add "nil": this behavior is not important, but let's say we accept this
-  // (may change in the future! - of course, other code will definitely fail
-  //  with nil values)
-  fPaymentInfo.AppendCdtTrfTxInfEntry(nil);
-  CheckEquals(5, fPaymentInfo.CdtTrfTxInfCount);
-  Check(ti1 = fPaymentInfo.CdtTrfTxInfEntry[0], 'count 5, entry 0 check');
-  Check(ti2 = fPaymentInfo.CdtTrfTxInfEntry[1], 'count 5, entry 2 check');
-  Check(ti3 = fPaymentInfo.CdtTrfTxInfEntry[2], 'count 5, entry 2 check');
-  Check(ti3 = fPaymentInfo.CdtTrfTxInfEntry[3], 'count 5, entry 3 check');
-  CheckNull(fPaymentInfo.CdtTrfTxInfEntry[4],   'count 5, entry 4 check');
 end;
 
 procedure TCreditTransferPaymentInformationTests.TestValidate;
@@ -438,8 +416,7 @@ end;
 
 procedure TCreditTransferInitiationTests.TearDown;
 begin
-  fCreditTransfer.Free;
-  fCreditTransfer := nil;
+  FreeAndNil(fCreditTransfer);
   inherited;
 end;
 
@@ -520,26 +497,6 @@ begin
   Check(pi1 = fCreditTransfer.PmtInfEntry[0], 'count 3, entry 0 check');
   Check(pi2 = fCreditTransfer.PmtInfEntry[1], 'count 3, entry 1 check');
   Check(pi3 = fCreditTransfer.PmtInfEntry[2], 'count 3, entry 2 check');
-
-  // add one object another time: this behavior is not important, but let's
-  // say we accept anything (may change in the future!)
-  fCreditTransfer.AppendPmtInfEntry(pi3);
-  CheckEquals(4, fCreditTransfer.PmtInfCount);
-  Check(pi1 = fCreditTransfer.PmtInfEntry[0], 'count 4, entry 0 check');
-  Check(pi2 = fCreditTransfer.PmtInfEntry[1], 'count 4, entry 1 check');
-  Check(pi3 = fCreditTransfer.PmtInfEntry[2], 'count 4, entry 2 check');
-  Check(pi3 = fCreditTransfer.PmtInfEntry[3], 'count 4, entry 3 check');
-
-  // add "nil": this behavior is not important, but let's say we accept this
-  // (may change in the future! - of course, other code will definitely fail
-  //  with nil values)
-  fCreditTransfer.AppendPmtInfEntry(nil);
-  CheckEquals(5, fCreditTransfer.PmtInfCount);
-  Check(pi1 = fCreditTransfer.PmtInfEntry[0], 'count 5, entry 0 check');
-  Check(pi2 = fCreditTransfer.PmtInfEntry[1], 'count 5, entry 2 check');
-  Check(pi3 = fCreditTransfer.PmtInfEntry[2], 'count 5, entry 2 check');
-  Check(pi3 = fCreditTransfer.PmtInfEntry[3], 'count 5, entry 3 check');
-  CheckNull(fCreditTransfer.PmtInfEntry[4],   'count 5, entry 4 check');
 end;
 
 procedure TCreditTransferInitiationTests.TestValidate;

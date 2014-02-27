@@ -1,6 +1,6 @@
 //
 //   Delphi unit with helper methods etc. for SEPA XML file creation
-//   (beta version 0.2.1, 2014-02-25)
+//   (beta version 0.2.2, 2014-02-27)
 //
 //   Copyright (C) 2013-2014 by Aaron Spettl
 //
@@ -149,7 +149,7 @@ type
     property BIC: String read fBIC write SetBIC;
     property OthrID: String read fOthrID write fOthrID;
 
-    function Validate(const schema: String): TStringList;
+    function Validate(const schema: String; const appendTo: TStringList = nil): TStringList;
     procedure SaveToStream(const stream: TStream; const schema: String);
   end;
 
@@ -161,7 +161,7 @@ type
   public
     property IBAN: String read fIBAN write SetIBAN;
 
-    function Validate(const schema: String): TStringList;
+    function Validate(const schema: String; const appendTo: TStringList = nil): TStringList;
     procedure SaveToStream(const stream: TStream; const schema: String);
   end;
 
@@ -233,6 +233,11 @@ begin
 {$IFEND}
 end;
 {$IFEND}
+{$ENDIF}
+
+{$IFDEF FormatSettings}                // format settings variable with correct
+var                                    // decimal separator, initialized in unit
+  SEPAFormatSettings: TFormatSettings; // "initialization" block below
 {$ENDIF}
 
 function CharIsInInterval(const c: Char; const i1: Char; const i2: Char): Boolean;
@@ -468,12 +473,8 @@ end;
 
 function SEPAFormatAmount(const d: Currency; const digits: Integer = 2): String;
 {$IFDEF FormatSettings}
-var
-  fs: TFormatSettings;
 begin
-  fs := DefaultFormatSettings;
-  fs.DecimalSeparator := '.';
-  Result := CurrToStrF(d, ffFixed, digits, fs);
+  Result := CurrToStrF(d, ffFixed, digits, SEPAFormatSettings);
 end;
 {$ELSE}
 var
@@ -514,9 +515,12 @@ begin
   fBIC := SEPACleanIBANorBICorCI(str);
 end;
 
-function TFinancialInstitution.Validate(const schema: String): TStringList;
+function TFinancialInstitution.Validate(const schema: String; const appendTo: TStringList = nil): TStringList;
 begin
-  Result := TStringList.Create;
+  if appendTo <> nil then
+    Result := appendTo
+  else
+    Result := TStringList.Create;
 
   if (BIC = '') and (OthrID = '') then
     Result.Append(EMPTY_BIC_OTHR_ID);
@@ -554,9 +558,12 @@ begin
   fIBAN := SEPACleanIBANorBICorCI(str);
 end;
 
-function TAccountIdentification.Validate(const schema: String): TStringList;
+function TAccountIdentification.Validate(const schema: String; const appendTo: TStringList = nil): TStringList;
 begin
-  Result := TStringList.Create;
+  if appendTo <> nil then
+    Result := appendTo
+  else
+    Result := TStringList.Create;
 
   if IBAN = '' then
     Result.Append(EMPTY_IBAN);
@@ -569,5 +576,12 @@ procedure TAccountIdentification.SaveToStream(const stream: TStream; const schem
 begin
   SEPAWriteLine(stream, '<Id><IBAN>'+SEPACleanString(IBAN)+'</IBAN></Id>');
 end;
+
+{$IFDEF FormatSettings}
+initialization
+  // initialize format settings variable with correct decimal separator 
+  SEPAFormatSettings := DefaultFormatSettings;
+  SEPAFormatSettings.DecimalSeparator := '.';
+{$ENDIF}
 
 end.

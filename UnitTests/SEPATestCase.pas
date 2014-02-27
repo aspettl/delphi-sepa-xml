@@ -1,6 +1,6 @@
 //
 //   SEPA unit tests base class
-//   (beta version 0.2.1, 2014-02-25)
+//   (beta version 0.2.2, 2014-02-27)
 //
 //   Copyright (C) 2013-2014 by Aaron Spettl
 //
@@ -81,21 +81,26 @@ var
   expectedStringList: TStringList;
   i: Integer;
 begin
-  // note: we do not only compare the validation messages, but also their order
   expectedStringList := TStringList.Create;
-  for i := 0 to Length(expected)-1 do
-  begin
-    if expected[i] <> '' then
-      expectedStringList.Add(expected[i]);
+  try
+    // note: we do not only compare the validation messages, but also their order
+    for i := Low(expected) to High(expected) do
+    begin
+      if expected[i] <> '' then
+        expectedStringList.Add(expected[i]);
+    end;
+
+    CheckEquals(expectedStringList.Text, actual.Text, msg);
+  finally
+    expectedStringList.Free;
   end;
-  CheckEquals(expectedStringList.Text, actual.Text, msg);
 end;
 
 procedure TSEPATestCase.CheckValidationContains(expected: array of String; actual: TStrings; msg: String = '');
 var
   i: Integer;
 begin
-  for i := 0 to Length(expected)-1 do
+  for i := Low(expected) to High(expected) do
   begin
     if expected[i] <> '' then
       Check(actual.IndexOf(expected[i]) >= 0, msg + IfThen(msg<>'', ', ', '') +
@@ -138,8 +143,7 @@ end;
 
 procedure TSEPATestCase.TearDown;
 begin
-  fSaveStream.Free;
-  fSaveStream := nil;
+  FreeAndNil(fSaveStream);
 
   SEPASupportSpecialChars := fOld_SEPASupportSpecialChars;
 end;
