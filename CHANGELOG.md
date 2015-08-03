@@ -12,7 +12,7 @@
   - Unterstützung für SEPA-Lastschriften. Hierzu wurde die Funktionalität in drei Dateien aufgesplittet: Allgemeines (SEPACommon.pas), Lastschriften (SEPADirectDebit.pas), Überweisungen (SEPACreditTransfer.pas). Um Namenskonflikte zu vermeiden, musste die bisherige Klasse TPaymentInstructionInformation in TDirectDebitPaymentInformation umbenannt werden.
   - Verwende immer Currency statt Double für Geldbeträge, um Gleitkomma-/Rundungsprobleme zu vermeiden.
   - Über eine globale Variable (SEPASupportSpecialChars) kann die Möglichkeit aktiviert werden, deutsche Sonderzeichen in die XML-Dateien zu schreiben. Den Banken ist es allerdings freigestellt, wie sie mit diesen umgehen, also ob sie konvertiert oder tatsächlich benutzt werden.
-  - Teilweise Implementierung von Unit-Tests: vorerst nur für die Units SEPACommon.pas und die neu hinzugekommene SEPACreditTransfer.pas. Die Unit-Tests sind lauffähig unter Delphi (auf Basis von DUnit) und Lazarus (fpcunit).
+  - Teilweise Implementierung von Unit-Tests: vorerst nur für die Units SEPACommon.pas und die neu hinzugekommene SEPACreditTransfer.pas. Die Unit-Tests sind lauffähig unter Delphi (auf Basis von [DUnit](http://dunit.sourceforge.net/)) und Lazarus (fpcunit).
   - Danksagung: Unterstützung der Weiterentwicklung durch A to C DataSolutions, www.a-to-c.de, vielen Dank!
 
 ## 0.1.3 Beta (2014-01-17)
