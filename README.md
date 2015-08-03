@@ -12,11 +12,11 @@ Soweit gesetzlich zulässig ist jegliche Haftung ausgeschlossen! Für mehr Details
 
 ## Autor / Lizenz:
 
-Autor: Aaron Spettl (aaron@spettl.de)
-Lizenz: [GPL (General Public License), Version 2](http://www.gnu.de/documents/gpl-2.0.de.html) oder höher
-Andere Lizenzierung auf Anfrage.
+  - Autor: Aaron Spettl (aaron@spettl.de)
+  - Lizenz: [GPL (General Public License), Version 2](http://www.gnu.de/documents/gpl-2.0.de.html) oder höher
+  - Andere Lizenzierung auf Anfrage.
 
 ## Homepage:
 
-https://www.spettl.com/delphi-sepa-xml/
-https://github.com/aspettl/delphi-sepa-xml
+  - https://www.spettl.com/delphi-sepa-xml/
+  - https://github.com/aspettl/delphi-sepa-xml
