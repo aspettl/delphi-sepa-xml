@@ -644,7 +644,10 @@ begin
       if DrctDbtTxInfEntry[i].DrctDbtTxMndtRltdInf.AmdmntInd then
       begin
         if DrctDbtTxInfEntry[i].DrctDbtTxMndtRltdInf.AmdmntInfDtls.OrgnlDbtrAgtFinInstIdOthrId <> ORGNL_DBTR_AGT_SMNDA then
+        begin
           Result.Append(INVALID_SEQ_TP_FRST_SMNDA1);
+          Break;
+        end;
       end;
     end;
   end
@@ -655,7 +658,10 @@ begin
       if DrctDbtTxInfEntry[i].DrctDbtTxMndtRltdInf.AmdmntInd then
       begin
         if DrctDbtTxInfEntry[i].DrctDbtTxMndtRltdInf.AmdmntInfDtls.OrgnlDbtrAgtFinInstIdOthrId = ORGNL_DBTR_AGT_SMNDA then
+        begin
           Result.Append(INVALID_SEQ_TP_FRST_SMNDA2);
+          Break;
+        end;
       end;
     end;
   end;
