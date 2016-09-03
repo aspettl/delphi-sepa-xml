@@ -6,7 +6,7 @@ Ziel dieses Projekts ist eine einzelne Delphi-Unit, mit deren Hilfe man relativ 
 Für eine bessere Kompatibilität mit verschiedenen deutschen Banken sollte in einer XML-Datei nur ein "\<PmtInf\>"-Block enthalten sein, d.h. z.B., nur ein Lastschrift-Datum und alle Buchungen mit dem gleichen Typ (FRST/RCUR etc.). Das Dateiformat unterstützt zwar mehrere dieser Blöcke, aber nicht alle Banken akzeptieren dies. Zudem sollte die Anzahl der Datensätze limitiert werden, die maximale Anzahl wie z.B. 500 ist bei der eigenen Bank anzufragen.
 
 *Achtung:*
-Die Datei ist noch in der Entwicklung (Beta-Version)! Sie wurde aber bereits mehrfach für Testbuchungen verwendet, ist beim Autor im Produktiveinsatz und der XML-Output hat für einfache Testfälle die Prüfung durch eine Drittsoftware bestanden. Getestet wurde die Unit unter Delphi 6 Professional und Lazarus 1.0, sie sollte auch mit jeweils höheren Versionen funktionieren. 
+Die Datei ist noch in der Entwicklung! Sie wurde aber bereits mehrfach für Testbuchungen verwendet, ist beim Autor im Produktiveinsatz und der XML-Output hat für einfache Testfälle die Prüfung durch eine Drittsoftware bestanden. Getestet wurde die Unit unter Delphi 6 Professional und Lazarus (mit FPC 2.6), sie sollte auch mit neueren Delphi-Versionen funktionieren.
 Soweit gesetzlich zulässig ist jegliche Haftung ausgeschlossen! Für mehr Details siehe Lizenztext.
 
 ## Autor / Lizenz:
