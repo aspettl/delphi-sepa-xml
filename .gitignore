@@ -53,6 +53,9 @@
 __history/
 *.~*
 
+# Lazarus backups
+*.bak
+
 # Castalia statistics file
 *.stat
 
