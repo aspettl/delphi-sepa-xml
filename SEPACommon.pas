@@ -466,10 +466,9 @@ end;
 function SEPACheckRounded(const d: Currency): Boolean;
 begin
   // check that the given value is rounded to two decimal places;
-  // currency values have exactly four decimal places, just use a string
-  // comparison after formatting (once after rounding) - not exactly
-  // elegant, but works
-  Result := (CurrToStrF(d, ffFixed, 4) = CurrToStrF(SimpleRoundTo(d, -2), ffFixed, 2)+'00');
+  // here, currency values are assumed to have exactly four relevant decimal
+  // places (remaining decimal places are just ignored)
+  Result := (Round(d*10000) = Round(d*100)*100);
 end;
 
 function SEPAFormatAmount(const d: Currency; const digits: Integer = 2): String;
