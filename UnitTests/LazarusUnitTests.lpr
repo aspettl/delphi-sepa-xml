@@ -4,7 +4,8 @@ program LazarusUnitTests;
 
 uses
   Interfaces, Forms, GuiTestRunner, SEPATestCase, SEPACommonTests,
-  SEPACreditTransferTests, SEPACommon, SEPACreditTransfer, SEPADirectDebit;
+  SEPACreditTransferTests, SEPADirectDebitTests, SEPACommon,
+  SEPACreditTransfer, SEPADirectDebit;
 
 {$R *.res}
 

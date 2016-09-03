@@ -1,8 +1,8 @@
 //
 //   Lazarus example for SEPA XML file creation
-//   (beta version 0.2.2, 2014-02-27)
+//   (beta version 0.2.3-dev, 2016-09-03)
 //
-//   Copyright (C) 2013-2014 by Aaron Spettl
+//   Copyright (C) 2013-2016 by Aaron Spettl
 //
 //   This program is free software; you can redistribute it and/or modify
 //   it under the terms of the GNU General Public License as published by
@@ -179,11 +179,11 @@ implementation
 
 procedure TExampleForm.FormCreate(Sender: TObject);
 begin
-  CT_RequestedExecutionDate_Edit.Date  := Now;
+  CT_RequestedExecutionDate_Edit.Date  := Now+1;
   CT_InstructedAmount_Edit.Text        := FloatToStr(123.45);
   CT_RemittanceInformation_Memo.Text   := Trim(DD_RemittanceInformation_Memo.Text);
 
-  DD_RequestedCollectionDate_Edit.Date := Now;
+  DD_RequestedCollectionDate_Edit.Date := SEPAEarliestCollectionDate(DD_LocalInstrumentCode_ComboBox.Text, DD_SequenceType_ComboBox.Text);
   DD_InstructedAmount_Edit.Text        := FloatToStr(123.45);
   DD_MandateDateOfSignature_Edit.Date  := Now-1;
   DD_RemittanceInformation_Memo.Text   := Trim(DD_RemittanceInformation_Memo.Text);

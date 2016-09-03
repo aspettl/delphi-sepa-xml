@@ -1,8 +1,8 @@
 //
 //   Delphi unit with helper methods etc. for SEPA XML file creation
-//   (beta version 0.2.2, 2014-02-27)
+//   (beta version 0.2.3-dev, 2016-09-03)
 //
-//   Copyright (C) 2013-2014 by Aaron Spettl
+//   Copyright (C) 2013-2016 by Aaron Spettl
 //
 //   This program is free software; you can redistribute it and/or modify
 //   it under the terms of the GNU General Public License as published by
@@ -182,6 +182,7 @@ function SEPAFormatAmount(const d: Currency; const digits: Integer = 2): String;
 function SEPAFormatBoolean(const b: Boolean): String;
 function SEPAFormatDate(const d: TDateTime): String;
 function SEPAFormatDateTime(const d: TDateTime): String;
+function SEPAEarliestCollectionDate(PmtTpInfLclInstrmCd: String; PmtTpInfSeqTp: String; BaseDate: TDateTime = 0): Cardinal;
 
 procedure SEPAWriteLine(const stream: TStream; const line: String);
 
@@ -502,6 +503,38 @@ begin
   Result := FormatDateTime('yyyy"-"mm"-"dd"T"hh":"nn":"ss"."zzz"Z"', d);
 end;
 
+function SEPAEarliestCollectionDate(PmtTpInfLclInstrmCd: String; PmtTpInfSeqTp: String; BaseDate: TDateTime = 0): Cardinal;
+var
+  add_days, i: Integer;
+begin
+  // This method returns the date or more precisely a lower bound for the date
+  // that is the earliest possible point in time for a direct debit transfer.
+  // Note that this method does not take e.g. (bank) holidays into account, so
+  // it is not precise).
+
+  // plan to add 1 or 2 or 5 days (seen from the current date), depending on the
+  // local instrument code and the sequence type
+  if PmtTpInfLclInstrmCd = LCL_INSTRM_CD_CORE then
+  begin
+    if (PmtTpInfSeqTp = SEQ_TP_FRST) or (PmtTpInfSeqTp = SEQ_TP_OOFF) then
+      add_days := 5
+    else
+      add_days := 2;
+  end
+  else
+    add_days := 1;
+  // now increment the date accordingly but skip saturdays and sundays
+  Result := Trunc(BaseDate);
+  if Result = 0 then
+    Result := Trunc(Today);
+  for i := 1 to add_days do
+  begin
+    Inc(Result);
+    while DayOfTheWeek(Result) > 5 do
+      Inc(Result);
+  end;
+end;
+
 procedure SEPAWriteLine(const stream: TStream; const line: String);
 begin
   WriteString(stream, line);
@@ -536,7 +569,7 @@ begin
 
   if (schema = SCHEMA_PAIN_001_002_03) or (schema = SCHEMA_PAIN_008_002_02) then
   begin
-    // IBAN-only not oallowed:
+    // IBAN-only not allowed:
 
     if (BIC = '') and (OthrID <> '') then
       Result.Append(IBAN_ONLY_NOT_ALLOWED);

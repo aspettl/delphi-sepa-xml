@@ -1,8 +1,8 @@
 //
 //   Unit tests for "SEPACommon.pas"
-//   (beta version 0.2.2, 2014-02-27)
+//   (beta version 0.2.3-dev, 2016-09-03)
 //
-//   Copyright (C) 2013-2014 by Aaron Spettl
+//   Copyright (C) 2013-2016 by Aaron Spettl
 //
 //   This program is free software; you can redistribute it and/or modify
 //   it under the terms of the GNU General Public License as published by
@@ -62,6 +62,7 @@ type
     procedure TestSEPAFormatBoolean;
     procedure TestSEPAFormatDate;
     procedure TestSEPAFormatDateTime;
+    procedure TestSEPAEarliestCollectionDate;
 
     procedure TestSEPAWriteLine;
   end;
@@ -283,6 +284,37 @@ procedure TPublicMethodsTestCase.TestSEPAFormatDateTime;
 begin
   CheckEquals('2014-02-01T00:00:00.000Z', SEPAFormatDateTime(EncodeDate(2014, 2, 1)), 'Date-time format without time check');
   CheckEquals('2014-02-01T12:55:30.100Z', SEPAFormatDateTime(EncodeDateTime(2014, 2, 1, 12, 55, 30, 100)), 'Date-time format check');
+end;
+
+procedure TPublicMethodsTestCase.TestSEPAEarliestCollectionDate;
+begin
+  // base date: today is default
+  if (DayOfTheWeek(Now) = 5) then // Friday: need +3 days instead of +1
+    CheckEquals(Trunc(Now)+3, SEPAEarliestCollectionDate(LCL_INSTRM_CD_COR1, SEQ_TP_FRST))
+  else if (DayOfTheWeek(Now) = 6) then // Saturday: need +2 days instead of +1
+    CheckEquals(Trunc(Now)+2, SEPAEarliestCollectionDate(LCL_INSTRM_CD_COR1, SEQ_TP_FRST))
+  else
+    CheckEquals(Trunc(Now)+1, SEPAEarliestCollectionDate(LCL_INSTRM_CD_COR1, SEQ_TP_FRST));
+
+  // with fixed base date for easier testing:
+  // - test skipping saturdays/sundays
+  CheckEquals(EncodeDate(2016, 9, 2), SEPAEarliestCollectionDate(LCL_INSTRM_CD_COR1, SEQ_TP_FRST, EncodeDate(2016, 9, 1)));
+  CheckEquals(EncodeDate(2016, 9, 5), SEPAEarliestCollectionDate(LCL_INSTRM_CD_COR1, SEQ_TP_FRST, EncodeDate(2016, 9, 2)));
+  CheckEquals(EncodeDate(2016, 9, 5), SEPAEarliestCollectionDate(LCL_INSTRM_CD_COR1, SEQ_TP_FRST, EncodeDate(2016, 9, 3)));
+  CheckEquals(EncodeDate(2016, 9, 5), SEPAEarliestCollectionDate(LCL_INSTRM_CD_COR1, SEQ_TP_FRST, EncodeDate(2016, 9, 4)));
+  // - test different variants of COR1/CORE/B2B, FRST/RCUR/FNAL/OOFF (which determines the number of days to add)
+  CheckEquals(EncodeDate(2016, 9, 6), SEPAEarliestCollectionDate(LCL_INSTRM_CD_COR1, SEQ_TP_FRST, EncodeDate(2016, 9, 5)));
+  CheckEquals(EncodeDate(2016, 9, 6), SEPAEarliestCollectionDate(LCL_INSTRM_CD_COR1, SEQ_TP_RCUR, EncodeDate(2016, 9, 5)));
+  CheckEquals(EncodeDate(2016, 9, 6), SEPAEarliestCollectionDate(LCL_INSTRM_CD_COR1, SEQ_TP_FNAL, EncodeDate(2016, 9, 5)));
+  CheckEquals(EncodeDate(2016, 9, 6), SEPAEarliestCollectionDate(LCL_INSTRM_CD_COR1, SEQ_TP_OOFF, EncodeDate(2016, 9, 5)));
+  CheckEquals(EncodeDate(2016, 9, 12), SEPAEarliestCollectionDate(LCL_INSTRM_CD_CORE, SEQ_TP_FRST, EncodeDate(2016, 9, 5)));
+  CheckEquals(EncodeDate(2016, 9, 7), SEPAEarliestCollectionDate(LCL_INSTRM_CD_CORE, SEQ_TP_RCUR, EncodeDate(2016, 9, 5)));
+  CheckEquals(EncodeDate(2016, 9, 7), SEPAEarliestCollectionDate(LCL_INSTRM_CD_CORE, SEQ_TP_FNAL, EncodeDate(2016, 9, 5)));
+  CheckEquals(EncodeDate(2016, 9, 12), SEPAEarliestCollectionDate(LCL_INSTRM_CD_CORE, SEQ_TP_OOFF, EncodeDate(2016, 9, 5)));
+  CheckEquals(EncodeDate(2016, 9, 6), SEPAEarliestCollectionDate(LCL_INSTRM_CD_B2B, SEQ_TP_FRST, EncodeDate(2016, 9, 5)));
+  CheckEquals(EncodeDate(2016, 9, 6), SEPAEarliestCollectionDate(LCL_INSTRM_CD_B2B, SEQ_TP_RCUR, EncodeDate(2016, 9, 5)));
+  CheckEquals(EncodeDate(2016, 9, 6), SEPAEarliestCollectionDate(LCL_INSTRM_CD_B2B, SEQ_TP_FNAL, EncodeDate(2016, 9, 5)));
+  CheckEquals(EncodeDate(2016, 9, 6), SEPAEarliestCollectionDate(LCL_INSTRM_CD_B2B, SEQ_TP_OOFF, EncodeDate(2016, 9, 5)));
 end;
 
 procedure TPublicMethodsTestCase.TestSEPAWriteLine;

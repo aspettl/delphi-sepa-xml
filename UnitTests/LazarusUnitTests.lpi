@@ -45,7 +45,7 @@
         <PackageName Value="FCL"/>
       </Item3>
     </RequiredPackages>
-    <Units Count="7">
+    <Units Count="8">
       <Unit0>
         <Filename Value="LazarusUnitTests.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -81,6 +81,11 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="SEPACreditTransferTests"/>
       </Unit6>
+      <Unit7>
+        <Filename Value="SEPADirectDebitTests.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="SEPADirectDebitTests"/>
+      </Unit7>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

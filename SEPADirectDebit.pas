@@ -548,8 +548,7 @@ end;
 
 function TDirectDebitPaymentInformation.Validate(const schema: String; const appendTo: TStringList = nil): TStringList;
 var
-  possible_reqd_colltn_dt: Cardinal;
-  add_days,i: Integer;
+  i: Integer;
 begin
   if appendTo <> nil then
     Result := appendTo
@@ -589,24 +588,7 @@ begin
      (PmtTpInfSeqTp <> SEQ_TP_FNAL) then
     Result.Append(Format(INVALID_SEQ_TP, [PmtTpInfSeqTp]));
 
-  // compute earliest possible date for collection (not precise: e.g. no holidays; always ask your bank for deadlines)
-  possible_reqd_colltn_dt := Trunc(Today);
-  if PmtTpInfLclInstrmCd = LCL_INSTRM_CD_CORE then
-  begin
-    if (PmtTpInfSeqTp = SEQ_TP_FRST) or (PmtTpInfSeqTp = SEQ_TP_OOFF) then
-      add_days := 5
-    else
-      add_days := 2;
-  end
-  else
-    add_days := 1;
-  for i := 1 to add_days do
-  begin
-    Inc(possible_reqd_colltn_dt);
-    while DayOfTheWeek(possible_reqd_colltn_dt) > 5 do
-      Inc(possible_reqd_colltn_dt);
-  end;
-  if Trunc(ReqdColltnDt) < possible_reqd_colltn_dt then
+  if Trunc(ReqdColltnDt) < SEPAEarliestCollectionDate(PmtTpInfLclInstrmCd, PmtTpInfSeqTp) then
     Result.Append(Format(INVALID_REQD_COLLTN_DT, [DateToStr(ReqdColltnDt)]));
 
   if PmtTpInfSvcLvlCd <> SEPA then

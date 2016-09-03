@@ -1,8 +1,8 @@
 //
 //   Unit tests for "SEPACreditTransfer.pas"
-//   (beta version 0.2.2, 2014-02-27)
+//   (beta version 0.2.3-dev, 2016-09-03)
 //
-//   Copyright (C) 2013-2014 by Aaron Spettl
+//   Copyright (C) 2013-2016 by Aaron Spettl
 //
 //   This program is free software; you can redistribute it and/or modify
 //   it under the terms of the GNU General Public License as published by
@@ -120,14 +120,14 @@ begin
   fTransaction.CdtrAgt.BIC   := 'SOMEFININST';
   fTransaction.CdtrAcct.IBAN := 'DE58123456780123456789';
 
-  // empty object (make sure that no "invalid" messages appear)
-  CheckValidation([EMPTY_CDTR_NM, EMPTY_RMT_INF_USTRD, Format(INVALID_INSTD_AMT, ['0.0000'])], fTransaction.Validate(SCHEMA_PAIN_008_003_02));
+  // empty object (make sure that no unnecessary "invalid" messages appear)
+  CheckValidation([EMPTY_CDTR_NM, EMPTY_RMT_INF_USTRD, Format(INVALID_INSTD_AMT, ['0.0000'])], fTransaction.Validate(SCHEMA_PAIN_001_003_03));
 
   // check remaining fields which should not be empty
   fTransaction.PmtIdEndToEndId := '';
-  CheckValidationContains([EMPTY_END_TO_END_ID], fTransaction.Validate(SCHEMA_PAIN_008_003_02));
+  CheckValidationContains([EMPTY_END_TO_END_ID], fTransaction.Validate(SCHEMA_PAIN_001_003_03));
   fTransaction.InstdAmtCcy     := '';
-  CheckValidationContains([EMPTY_INSTD_AMT_CCY], fTransaction.Validate(SCHEMA_PAIN_008_003_02));
+  CheckValidationContains([EMPTY_INSTD_AMT_CCY], fTransaction.Validate(SCHEMA_PAIN_001_003_03));
 
   // now generate object with all required fields
   fTransaction.PmtIdEndToEndId := 'END-TO-END';
@@ -135,46 +135,54 @@ begin
   fTransaction.InstdAmt        := 0.01;
   fTransaction.CdtrNm          := 'Creditor name';
   fTransaction.RmtInfUstrd     := 'Remittance information';
-  CheckValidation([], fTransaction.Validate(SCHEMA_PAIN_008_003_02));
+  CheckValidation([], fTransaction.Validate(SCHEMA_PAIN_001_003_03));
 
   // checks for clean SEPA strings: End-to-End ID is not automatically cleaned
   fTransaction.PmtIdEndToEndId := 'END-TO-END!';
-  CheckValidationContains([Format(INVALID_END_TO_END_ID, ['END-TO-END!'])], fTransaction.Validate(SCHEMA_PAIN_008_003_02));
+  CheckValidationContains([Format(INVALID_END_TO_END_ID, ['END-TO-END!'])], fTransaction.Validate(SCHEMA_PAIN_001_003_03));
   fTransaction.PmtIdEndToEndId := 'END-TO-END';
 
   // checks for clean SEPA strings: name and remittance information are automatically cleaned
   fTransaction.CdtrNm          := 'Creditor name! Test';
   CheckEquals('Creditor name  Test', fTransaction.CdtrNm);
-  CheckValidation([], fTransaction.Validate(SCHEMA_PAIN_008_003_02));
+  CheckValidation([], fTransaction.Validate(SCHEMA_PAIN_001_003_03));
 
   fTransaction.RmtInfUstrd     := 'Remittance information! Test';
   CheckEquals('Remittance information  Test', fTransaction.RmtInfUstrd);
-  CheckValidation([], fTransaction.Validate(SCHEMA_PAIN_008_003_02));
+  CheckValidation([], fTransaction.Validate(SCHEMA_PAIN_001_003_03));
 
   // check for negative instructed amount
   fTransaction.InstdAmt        := -0.01;
-  CheckValidationContains([Format(INVALID_INSTD_AMT, ['-0.0100'])], fTransaction.Validate(SCHEMA_PAIN_008_003_02));
+  CheckValidationContains([Format(INVALID_INSTD_AMT, ['-0.0100'])], fTransaction.Validate(SCHEMA_PAIN_001_003_03));
   fTransaction.InstdAmt        := -0.00;
-  CheckValidationContains([Format(INVALID_INSTD_AMT, ['0.0000'])], fTransaction.Validate(SCHEMA_PAIN_008_003_02));
+  CheckValidationContains([Format(INVALID_INSTD_AMT, ['0.0000'])], fTransaction.Validate(SCHEMA_PAIN_001_003_03));
 
   // check for instructed amount with more three or four decimal places
   fTransaction.InstdAmt        := 0.011;
-  CheckValidationContains([Format(INVALID_INSTD_AMT, ['0.0110'])], fTransaction.Validate(SCHEMA_PAIN_008_003_02));
+  CheckValidationContains([Format(INVALID_INSTD_AMT, ['0.0110'])], fTransaction.Validate(SCHEMA_PAIN_001_003_03));
   fTransaction.InstdAmt        := 0.0101;
-  CheckValidationContains([Format(INVALID_INSTD_AMT, ['0.0101'])], fTransaction.Validate(SCHEMA_PAIN_008_003_02));
+  CheckValidationContains([Format(INVALID_INSTD_AMT, ['0.0101'])], fTransaction.Validate(SCHEMA_PAIN_001_003_03));
 
   // check for instructed amount: decimal places at position 5 and higher are irrelevant
-  fTransaction.InstdAmt := 0.01001;
-  CheckValidation([], fTransaction.Validate(SCHEMA_PAIN_008_003_02));
+  fTransaction.InstdAmt        := 0.01001;
+  CheckValidation([], fTransaction.Validate(SCHEMA_PAIN_001_003_03));
 
-  // TODO: test that creditor account and creditor agent are validated
+  // test that creditor agent is validated
+  fTransaction.CdtrAgt.BIC     := '';
+  CheckValidationContains([EMPTY_BIC_OTHR_ID], fTransaction.Validate(SCHEMA_PAIN_001_003_03));
+  fTransaction.CdtrAgt.BIC     := 'SOMEFININST';
+
+  // test that creditor account is validated
+  fTransaction.CdtrAcct.IBAN   := '';
+  CheckValidationContains([EMPTY_IBAN], fTransaction.Validate(SCHEMA_PAIN_001_003_03));
+  fTransaction.CdtrAcct.IBAN   := 'DE58123456780123456789';
 
   // check that IBAN-only only allowed for German accounts
   fTransaction.CdtrAgt.BIC     := '';
   fTransaction.CdtrAgt.OthrID  := FIN_INSTN_NOTPROVIDED;
-  CheckValidation([], fTransaction.Validate(SCHEMA_PAIN_008_003_02));
+  CheckValidation([], fTransaction.Validate(SCHEMA_PAIN_001_003_03));
   fTransaction.CdtrAcct.IBAN   := 'CH';
-  CheckValidationContains([INVALID_IBAN_NOT_DE], fTransaction.Validate(SCHEMA_PAIN_008_003_02));
+  CheckValidationContains([INVALID_IBAN_NOT_DE], fTransaction.Validate(SCHEMA_PAIN_001_003_03));
 end;
 
 procedure TCreditTransferTransactionInformationTests.TestSaveToStream;
@@ -187,7 +195,7 @@ begin
   fTransaction.CdtrAcct.IBAN   := 'DE58123456780123456789';
   fTransaction.RmtInfUstrd     := 'Remittance information';
 
-  fTransaction.SaveToStream(SaveStream, SCHEMA_PAIN_008_003_02);
+  fTransaction.SaveToStream(SaveStream, SCHEMA_PAIN_001_003_03);
 
   CheckSaveStream('<CdtTrfTxInf>'+
                   '<PmtId><EndToEndId>END-TO-END</EndToEndId></PmtId>'+
@@ -204,8 +212,9 @@ begin
 
   // now IBAN-only
   fTransaction.CdtrAgt.BIC := '';
+  fTransaction.CdtrAgt.OthrID := FIN_INSTN_NOTPROVIDED;
 
-  fTransaction.SaveToStream(SaveStream, SCHEMA_PAIN_008_003_02);
+  fTransaction.SaveToStream(SaveStream, SCHEMA_PAIN_001_003_03);
 
   CheckSaveStream('<CdtTrfTxInf>'+
                   '<PmtId><EndToEndId>END-TO-END</EndToEndId></PmtId>'+
@@ -315,42 +324,54 @@ begin
   fPaymentInfo.DbtrAgt.BIC   := 'SOMEFININST';
   fPaymentInfo.DbtrAcct.IBAN := 'DE58123456780123456789';
 
-  // empty object (make sure that no "invalid" messages appear)
-  CheckValidation([EMPTY_DBTR_NM, Format(INVALID_REQD_EXCTN_DT, [DateToStr(0)])], fPaymentInfo.Validate(SCHEMA_PAIN_008_003_02));
+  // empty object (make sure that no unnecessary "invalid" messages appear)
+  CheckValidation([EMPTY_DBTR_NM, Format(INVALID_REQD_EXCTN_DT, [DateToStr(0)])], fPaymentInfo.Validate(SCHEMA_PAIN_001_003_03));
 
   // check remaining fields which should not be empty
   fPaymentInfo.PmtInfId := '';
-  CheckValidationContains([EMPTY_PMT_INF_ID], fPaymentInfo.Validate(SCHEMA_PAIN_008_003_02));
+  CheckValidationContains([EMPTY_PMT_INF_ID], fPaymentInfo.Validate(SCHEMA_PAIN_001_003_03));
   fPaymentInfo.PmtInfId := SEPAGenerateUUID;
 
   // now generate object with all required fields
   fPaymentInfo.ReqdExctnDt := Now;
   fPaymentInfo.DbtrNm      := 'Debtor name';
-  CheckValidation([], fPaymentInfo.Validate(SCHEMA_PAIN_008_003_02));
+  CheckValidation([], fPaymentInfo.Validate(SCHEMA_PAIN_001_003_03));
 
   // checks for clean SEPA strings: ID is not automatically cleaned
   fPaymentInfo.PmtInfId := 'ID!';
-  CheckValidationContains([Format(INVALID_PMT_INF_ID, ['ID!'])], fPaymentInfo.Validate(SCHEMA_PAIN_008_003_02));
+  CheckValidationContains([Format(INVALID_PMT_INF_ID, ['ID!'])], fPaymentInfo.Validate(SCHEMA_PAIN_001_003_03));
   fPaymentInfo.PmtInfId := SEPAGenerateUUID;
 
-  // checks for clean SEPA strings: name and remittance information are automatically cleaned
+  // checks for clean SEPA strings: name is automatically cleaned
   fPaymentInfo.DbtrNm := 'Debtor name! Test';
   CheckEquals('Debtor name  Test', fPaymentInfo.DbtrNm);
-  CheckValidation([], fPaymentInfo.Validate(SCHEMA_PAIN_008_003_02));
+  CheckValidation([], fPaymentInfo.Validate(SCHEMA_PAIN_001_003_03));
 
-  // check requested collection date
+  // check requested execution date
   fPaymentInfo.ReqdExctnDt := Now-1;
-  CheckValidationContains([Format(INVALID_REQD_EXCTN_DT, [DateToStr(Now-1)])], fPaymentInfo.Validate(SCHEMA_PAIN_008_003_02));
+  CheckValidationContains([Format(INVALID_REQD_EXCTN_DT, [DateToStr(Now-1)])], fPaymentInfo.Validate(SCHEMA_PAIN_001_003_03));
   fPaymentInfo.ReqdExctnDt := Now;
 
-  // TODO: test that debtor account, agent and transactions are validated
+  // check that debtor account and agent are validated
+  fPaymentInfo.DbtrAgt.BIC   := '';
+  fPaymentInfo.DbtrAcct.IBAN := 'DE58123456780123456788';
+  CheckValidation([Format(INVALID_IBAN, ['DE58123456780123456788']), EMPTY_BIC_OTHR_ID], fPaymentInfo.Validate(SCHEMA_PAIN_001_003_03));
+  fPaymentInfo.DbtrAgt.BIC   := 'SOMEFININST';
+  fPaymentInfo.DbtrAcct.IBAN := 'DE58123456780123456789';
 
-  // check that debtor has always a German account
+  // check that transactions are validated
+  CheckEquals('', fPaymentInfo.Validate(SCHEMA_PAIN_001_003_03).Text);
+  fPaymentInfo.AppendCdtTrfTxInfEntry(TCreditTransferTransactionInformation.Create);
+  CheckNotEquals('', fPaymentInfo.Validate(SCHEMA_PAIN_001_003_03).Text);
+
+  // check that debtor has a German account
   fPaymentInfo.DbtrAcct.IBAN := 'CH';
-  CheckValidationContains([INVALID_DBTR_ACCT_NOT_DE], fPaymentInfo.Validate(SCHEMA_PAIN_008_003_02));
+  CheckValidationContains([INVALID_DBTR_ACCT_NOT_DE], fPaymentInfo.Validate(SCHEMA_PAIN_001_003_03));
 end;
 
 procedure TCreditTransferPaymentInformationTests.TestSaveToStream;
+var
+  xmlTxInfEntry0: AnsiString;
 begin
   fPaymentInfo.PmtInfId      := 'PMTINFID';
   fPaymentInfo.ReqdExctnDt   := EncodeDate(2014, 2, 1);
@@ -358,7 +379,7 @@ begin
   fPaymentInfo.DbtrAgt.BIC   := 'SOMEFININST';
   fPaymentInfo.DbtrAcct.IBAN := 'DE58123456780123456789';
 
-  fPaymentInfo.SaveToStream(SaveStream, SCHEMA_PAIN_008_003_02);
+  fPaymentInfo.SaveToStream(SaveStream, SCHEMA_PAIN_001_003_03);
 
   CheckSaveStream('<PmtInf>'+
                   '<PmtInfId>PMTINFID</PmtInfId>'+
@@ -380,7 +401,8 @@ begin
                   '</PmtInf>');
 
   fPaymentInfo.PmtTpInfInstrPrty := 'NORM';
-  fPaymentInfo.SaveToStream(SaveStream, SCHEMA_PAIN_008_003_02);
+  fPaymentInfo.SaveToStream(SaveStream, SCHEMA_PAIN_001_003_03);
+  fPaymentInfo.PmtTpInfInstrPrty := '';
 
   CheckSaveStream('<PmtInf>'+
                   '<PmtInfId>PMTINFID</PmtInfId>'+
@@ -402,7 +424,38 @@ begin
                   '<ChrgBr>SLEV</ChrgBr>'+
                   '</PmtInf>');
 
-  // TODO: test integration of transactions
+  // test integration of transactions
+  fPaymentInfo.AppendCdtTrfTxInfEntry(TCreditTransferTransactionInformation.Create);
+  fPaymentInfo.CdtTrfTxInfEntry[0].PmtIdEndToEndId := 'END-TO-END';
+  fPaymentInfo.CdtTrfTxInfEntry[0].InstdAmt := 0.01;
+  fPaymentInfo.CdtTrfTxInfEntry[0].CdtrAgt.BIC := 'SOMEFININST';
+  fPaymentInfo.CdtTrfTxInfEntry[0].CdtrNm := 'Creditor name';
+  fPaymentInfo.CdtTrfTxInfEntry[0].CdtrAcct.IBAN := 'DE58123456780123456789';
+  fPaymentInfo.CdtTrfTxInfEntry[0].RmtInfUstrd := 'Remittance information';
+
+  fPaymentInfo.CdtTrfTxInfEntry[0].SaveToStream(SaveStream, SCHEMA_PAIN_001_003_03);
+  xmlTxInfEntry0 := FetchAndResetSaveStream;
+  fPaymentInfo.SaveToStream(SaveStream, SCHEMA_PAIN_001_003_03);
+
+  CheckSaveStream('<PmtInf>'+
+                  '<PmtInfId>PMTINFID</PmtInfId>'+
+                  '<PmtMtd>TRF</PmtMtd>'+
+                  '<NbOfTxs>1</NbOfTxs>'+
+                  '<CtrlSum>0.01</CtrlSum>'+
+                  '<PmtTpInf>'+
+                  '<SvcLvl><Cd>SEPA</Cd></SvcLvl>'+
+                  '</PmtTpInf>'+
+                  '<ReqdExctnDt>2014-02-01</ReqdExctnDt>'+
+                  '<Dbtr><Nm>Debtor name</Nm></Dbtr>'+
+                  '<DbtrAcct>'+
+                  '<Id><IBAN>DE58123456780123456789</IBAN></Id>'+
+                  '</DbtrAcct>'+
+                  '<DbtrAgt>'+
+                  '<FinInstnId><BIC>SOMEFININST</BIC></FinInstnId>'+
+                  '</DbtrAgt>'+
+                  '<ChrgBr>SLEV</ChrgBr>'+
+                  xmlTxInfEntry0+
+                  '</PmtInf>');
 end;
 
 // TCreditTransferInitiationTests
@@ -504,7 +557,7 @@ var
   fPaymentInfo: TCreditTransferPaymentInformation;
   fTransaction: TCreditTransferTransactionInformation;
 begin
-  // empty object (make sure that no "invalid" messages appear)
+  // empty object (make sure that no unnecessary "invalid" messages appear)
   CheckValidation([EMPTY_INITG_PTY_NAME, INVALID_NB_OF_TXS], fCreditTransfer.Validate);
 
   // check remaining fields which should not be empty
@@ -549,6 +602,8 @@ begin
 end;
 
 procedure TCreditTransferInitiationTests.TestSaveToStream;
+var
+  xmlPmtInfEntry0: AnsiString;
 begin
   fCreditTransfer.GrpHdrMsgId        := 'MSGID';
   fCreditTransfer.GrpHdrCreDtTm      := EncodeDate(2014, 2, 1) + EncodeTime(12, 0, 1, 100);
@@ -558,8 +613,8 @@ begin
 
   CheckSaveStream('<?xml version="1.0" encoding="UTF-8"?>'+
                   '<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.003.03"'+
-                    ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"'+
-                    ' xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:pain.001.003.03 pain.001.003.03.xsd">'+
+                  ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"'+
+                  ' xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:pain.001.003.03 pain.001.003.03.xsd">'+
                   '<CstmrCdtTrfInitn>'+
                   '<GrpHdr>'+
                   '<MsgId>MSGID</MsgId>'+
@@ -570,7 +625,39 @@ begin
                   '</CstmrCdtTrfInitn>'+
                   '</Document>');
 
-  // TODO: test integration of payment information blocks and transactions
+  // test integration of payment information blocks and transactions
+  fCreditTransfer.AppendPmtInfEntry(TCreditTransferPaymentInformation.Create);
+  fCreditTransfer.PmtInfEntry[0].PmtInfId      := 'PMTINFID';
+  fCreditTransfer.PmtInfEntry[0].ReqdExctnDt   := EncodeDate(2014, 2, 1);
+  fCreditTransfer.PmtInfEntry[0].DbtrNm        := 'Debtor name';
+  fCreditTransfer.PmtInfEntry[0].DbtrAgt.BIC   := 'SOMEFININST';
+  fCreditTransfer.PmtInfEntry[0].DbtrAcct.IBAN := 'DE58123456780123456789';
+  fCreditTransfer.PmtInfEntry[0].AppendCdtTrfTxInfEntry(TCreditTransferTransactionInformation.Create);
+  fCreditTransfer.PmtInfEntry[0].CdtTrfTxInfEntry[0].PmtIdEndToEndId := 'END-TO-END';
+  fCreditTransfer.PmtInfEntry[0].CdtTrfTxInfEntry[0].InstdAmt := 0.01;
+  fCreditTransfer.PmtInfEntry[0].CdtTrfTxInfEntry[0].CdtrAgt.BIC := 'SOMEFININST';
+  fCreditTransfer.PmtInfEntry[0].CdtTrfTxInfEntry[0].CdtrNm := 'Creditor name';
+  fCreditTransfer.PmtInfEntry[0].CdtTrfTxInfEntry[0].CdtrAcct.IBAN := 'DE58123456780123456789';
+  fCreditTransfer.PmtInfEntry[0].CdtTrfTxInfEntry[0].RmtInfUstrd := 'Remittance information';
+
+  fCreditTransfer.PmtInfEntry[0].SaveToStream(SaveStream, fCreditTransfer.Schema);
+  xmlPmtInfEntry0 := FetchAndResetSaveStream;
+  fCreditTransfer.SaveToStream(SaveStream);
+
+  CheckSaveStream('<?xml version="1.0" encoding="UTF-8"?>'+
+                  '<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.003.03"'+
+                  ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"'+
+                  ' xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:pain.001.003.03 pain.001.003.03.xsd">'+
+                  '<CstmrCdtTrfInitn>'+
+                  '<GrpHdr>'+
+                  '<MsgId>MSGID</MsgId>'+
+                  '<CreDtTm>2014-02-01T12:00:01.100Z</CreDtTm>'+
+                  '<NbOfTxs>1</NbOfTxs>'+
+                  '<InitgPty><Nm>Initiating party name</Nm></InitgPty>'+
+                  '</GrpHdr>'+
+                  xmlPmtInfEntry0+
+                  '</CstmrCdtTrfInitn>'+
+                  '</Document>');
 end;
 
 procedure TCreditTransferInitiationTests.TestSaveToDisk;

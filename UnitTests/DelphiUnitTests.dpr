@@ -15,7 +15,8 @@ uses
   SEPACreditTransfer in '..\SEPACreditTransfer.pas',
   SEPADirectDebit in '..\SEPADirectDebit.pas',
   SEPATestCase in 'SEPATestCase.pas',
-  SEPACreditTransferTests in 'SEPACreditTransferTests.pas';
+  SEPACreditTransferTests in 'SEPACreditTransferTests.pas',
+  SEPADirectDebitTests in 'SEPADirectDebitTests.pas';
 
 {$R *.RES}
 
