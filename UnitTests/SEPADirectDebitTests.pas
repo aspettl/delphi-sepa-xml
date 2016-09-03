@@ -1,6 +1,6 @@
 //
 //   Unit tests for "SEPADirectDebit.pas"
-//   (beta version 0.2.3-dev, 2016-09-03)
+//   (beta version 0.2.3, 2016-09-03)
 //
 //   Copyright (C) 2013-2016 by Aaron Spettl
 //

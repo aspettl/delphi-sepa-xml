@@ -1,3 +1,7 @@
+## 0.2.3 Beta (2016-09-03)
+
+  - Unit-Tests vervollständigt.
+
 ## 0.2.2 Beta (2014-02-27)
 
   - Memory-Leaks entfernt.
