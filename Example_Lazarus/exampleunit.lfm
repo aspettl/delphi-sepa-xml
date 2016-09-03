@@ -21,52 +21,52 @@ object ExampleForm: TExampleForm
     TabOrder = 0
     object CT_TabSheet: TTabSheet
       Caption = 'Credit transfer'
-      ClientHeight = 646
+      ClientHeight = 644
       ClientWidth = 907
       object CT_XMLFile_GroupBox: TGroupBox
         Left = 12
         Height = 105
         Top = 10
-        Width = 377
+        Width = 393
         Caption = 'XML file / group header'
         ClientHeight = 87
-        ClientWidth = 373
+        ClientWidth = 389
         TabOrder = 0
         object Label31: TLabel
           Left = 8
-          Height = 14
+          Height = 16
           Top = 32
-          Width = 113
+          Width = 122
           Caption = 'Initiating party (name):'
           ParentColor = False
         end
         object Label32: TLabel
           Left = 8
-          Height = 14
+          Height = 16
           Top = 8
-          Width = 62
+          Width = 66
           Caption = 'ISO schema:'
           ParentColor = False
         end
         object Label33: TLabel
-          Left = 256
-          Height = 14
+          Left = 262
+          Height = 16
           Top = 8
-          Width = 107
+          Width = 116
           Caption = '(empty = auto-select)'
           ParentColor = False
         end
         object Label34: TLabel
           Left = 8
-          Height = 14
+          Height = 16
           Top = 56
-          Width = 92
+          Width = 98
           Caption = 'Special characters:'
           ParentColor = False
         end
         object CT_InitiatingPartyName_Edit: TEdit
-          Left = 128
-          Height = 21
+          Left = 134
+          Height = 23
           Top = 32
           Width = 225
           MaxLength = 70
@@ -74,11 +74,11 @@ object ExampleForm: TExampleForm
           Text = 'My name'
         end
         object CT_ISOSchema_ComboBox: TComboBox
-          Left = 128
-          Height = 21
+          Left = 134
+          Height = 23
           Top = 8
           Width = 121
-          ItemHeight = 13
+          ItemHeight = 15
           Items.Strings = (
             'pain.001.002.03'
             'pain.001.003.03'
@@ -86,10 +86,10 @@ object ExampleForm: TExampleForm
           TabOrder = 0
         end
         object CT_SupportGermanSpecialChars_CheckBox: TCheckBox
-          Left = 128
-          Height = 17
+          Left = 134
+          Height = 19
           Top = 56
-          Width = 228
+          Width = 249
           Caption = 'Allow (German) characters: ÄÖÜäöüß&&*$%'
           TabOrder = 2
         end
@@ -98,46 +98,46 @@ object ExampleForm: TExampleForm
         Left = 44
         Height = 217
         Top = 130
-        Width = 377
+        Width = 393
         Caption = 'Payment information'
         ClientHeight = 199
-        ClientWidth = 373
+        ClientWidth = 389
         TabOrder = 1
         object Label37: TLabel
           Left = 8
-          Height = 14
+          Height = 16
           Top = 8
-          Width = 103
+          Width = 107
           Caption = 'Req. execution date:'
           ParentColor = False
         end
         object Label38: TLabel
           Left = 8
-          Height = 14
+          Height = 16
           Top = 32
-          Width = 67
+          Width = 73
           Caption = 'Debtor name:'
           ParentColor = False
         end
         object Label39: TLabel
           Left = 8
-          Height = 14
+          Height = 16
           Top = 56
-          Width = 114
+          Width = 124
           Caption = 'Debtor account (IBAN):'
           ParentColor = False
         end
         object Label40: TLabel
           Left = 8
-          Height = 14
+          Height = 16
           Top = 80
-          Width = 109
+          Width = 114
           Caption = 'Debtor fin. inst. (BIC):'
           ParentColor = False
         end
         object CT_DebtorName_Edit: TEdit
-          Left = 128
-          Height = 21
+          Left = 134
+          Height = 23
           Top = 32
           Width = 225
           MaxLength = 70
@@ -145,35 +145,35 @@ object ExampleForm: TExampleForm
           Text = 'My name'
         end
         object CT_DebtorIBAN_Edit: TEdit
-          Left = 128
-          Height = 21
+          Left = 134
+          Height = 23
           Top = 56
           Width = 225
           TabOrder = 2
           Text = 'DE58 1234 5678 0123 4567 89'
         end
         object CT_DebtorBIC_Edit: TEdit
-          Left = 128
-          Height = 21
+          Left = 134
+          Height = 23
           Top = 80
           Width = 225
           TabOrder = 3
           Text = 'SOMEFININST'
         end
         object CT_DebtorBICNotProvided_CheckBox: TCheckBox
-          Left = 128
-          Height = 17
+          Left = 134
+          Height = 19
           Top = 104
-          Width = 149
+          Width = 166
           Caption = 'NOTPROVIDED (IBAN-only)'
           OnChange = CT_DebtorBICNotProvided_CheckBoxChange
           TabOrder = 4
         end
         object CT_RequestedExecutionDate_Edit: TDateEdit
-          Left = 128
-          Height = 21
+          Left = 134
+          Height = 23
           Top = 8
-          Width = 80
+          Width = 88
           CalendarDisplaySettings = [dsShowHeadings, dsShowDayNames]
           OKCaption = 'OK'
           CancelCaption = 'Cancel'
@@ -225,88 +225,88 @@ object ExampleForm: TExampleForm
         Left = 76
         Height = 233
         Top = 362
-        Width = 377
+        Width = 393
         Caption = 'Credit transfer transaction'
         ClientHeight = 215
-        ClientWidth = 373
+        ClientWidth = 389
         TabOrder = 2
         object Label42: TLabel
           Left = 8
-          Height = 14
+          Height = 16
           Top = 8
-          Width = 73
+          Width = 79
           Caption = 'End-to-end ID:'
           ParentColor = False
         end
         object Label43: TLabel
           Left = 8
-          Height = 14
+          Height = 16
           Top = 32
-          Width = 94
+          Width = 102
           Caption = 'Instructed amount:'
           ParentColor = False
         end
         object Label44: TLabel
           Left = 8
-          Height = 14
+          Height = 16
           Top = 80
-          Width = 120
+          Width = 131
           Caption = 'Creditor account (IBAN):'
           ParentColor = False
         end
         object Label45: TLabel
           Left = 8
-          Height = 14
+          Height = 16
           Top = 104
-          Width = 115
+          Width = 121
           Caption = 'Creditor fin. inst. (BIC):'
           ParentColor = False
         end
         object Label47: TLabel
-          Left = 240
-          Height = 14
+          Left = 246
+          Height = 16
           Top = 32
-          Width = 21
+          Width = 22
           Caption = 'EUR'
           ParentColor = False
         end
         object Label48: TLabel
           Left = 8
-          Height = 14
+          Height = 16
           Top = 56
-          Width = 73
+          Width = 80
           Caption = 'Creditor name:'
           ParentColor = False
         end
         object CT_InstructedAmount_Edit: TEdit
-          Left = 128
-          Height = 21
+          Left = 134
+          Height = 23
           Top = 32
           Width = 105
           TabOrder = 1
         end
         object CT_CreditorIBAN_Edit: TEdit
-          Left = 128
-          Height = 21
+          Left = 134
+          Height = 23
           Top = 80
           Width = 225
           TabOrder = 3
           Text = 'DE58 1234 5678 0123 4567 89'
         end
         object CT_CreditorBIC_Edit: TEdit
-          Left = 128
-          Height = 21
+          Left = 134
+          Height = 23
           Top = 104
           Width = 225
           TabOrder = 4
           Text = 'SOMEFININST'
         end
         object CT_EndToEndId_ComboBox: TComboBox
-          Left = 128
-          Height = 21
+          Left = 134
+          Height = 23
           Top = 8
           Width = 225
-          ItemHeight = 13
+          ItemHeight = 15
           ItemIndex = 0
           Items.Strings = (
             'NOTPROVIDED'
@@ -316,8 +316,8 @@ object ExampleForm: TExampleForm
           Text = 'NOTPROVIDED'
         end
         object CT_CreditorName_Edit: TEdit
-          Left = 128
-          Height = 21
+          Left = 134
+          Height = 23
           Top = 56
           Width = 225
           MaxLength = 70
@@ -325,22 +325,23 @@ object ExampleForm: TExampleForm
           Text = 'Customer name'
         end
         object CT_RemittanceInformation_Memo: TMemo
-          Left = 128
+          Left = 134
           Height = 57
           Top = 148
           Width = 225
           Lines.Strings = (
-            'Customer number 123, invoice number 456'
+            'Customer number 123, invoice number '
+            '456'
           )
           MaxLength = 140
           TabOrder = 6
           WantReturns = False
         end
         object CT_CreditorBICNotProvided_CheckBox: TCheckBox
-          Left = 128
-          Height = 17
+          Left = 134
+          Height = 19
           Top = 128
-          Width = 149
+          Width = 166
           Caption = 'NOTPROVIDED (IBAN-only)'
           OnChange = CT_CreditorBICNotProvided_CheckBoxChange
           TabOrder = 5
@@ -357,10 +358,10 @@ object ExampleForm: TExampleForm
         end
       end
       object CT_Save_Button: TButton
-        Left = 362
+        Left = 370
         Height = 25
-        Top = 610
-        Width = 91
+        Top = 608
+        Width = 99
         Caption = 'Save XML file...'
         OnClick = CT_Save_ButtonClick
         TabOrder = 3
@@ -390,51 +391,51 @@ object ExampleForm: TExampleForm
         Width = 17
       end
       object DD_Tips_GroupBox1: TGroupBox
-        Left = 484
+        Left = 500
         Height = 137
         Top = 18
-        Width = 377
+        Width = 393
         Caption = 'Some practical tips'
         ClientHeight = 119
-        ClientWidth = 373
+        ClientWidth = 389
         TabOrder = 4
         object Label36: TLabel
           Left = 8
-          Height = 14
+          Height = 16
           Top = 32
-          Width = 306
+          Width = 340
           Caption = '- Use only one <PmtInf> ("payment information") block per file.'
           ParentColor = False
         end
         object Label41: TLabel
           Left = 8
-          Height = 14
+          Height = 16
           Top = 48
-          Width = 321
+          Width = 348
           Caption = '- Limit the number of transactions per file to e.g. 500 transactions.'
           ParentColor = False
         end
         object Label46: TLabel
           Left = 8
-          Height = 14
+          Height = 16
           Top = 64
-          Width = 288
+          Width = 305
           Caption = '- ISO schema pain.001.003.03 *should* be supported now.'
           ParentColor = False
         end
         object Label49: TLabel
           Left = 8
-          Height = 14
+          Height = 16
           Top = 88
-          Width = 336
+          Width = 364
           Caption = 'Ask your bank for details - and please let us know further restrictions!'
           ParentColor = False
         end
         object Label50: TLabel
           Left = 8
-          Height = 14
+          Height = 16
           Top = 8
-          Width = 282
+          Width = 314
           Caption = 'For maximum interoperability with different German banks:'
           ParentColor = False
         end
@@ -442,7 +443,7 @@ object ExampleForm: TExampleForm
     end
     object DD_TabSheet: TTabSheet
       Caption = 'Direct debit'
-      ClientHeight = 646
+      ClientHeight = 644
       ClientWidth = 907
       object Bevel1: TBevel
         Left = 20
@@ -469,47 +470,47 @@ object ExampleForm: TExampleForm
         Width = 17
       end
       object Bevel5: TBevel
-        Left = 460
+        Left = 476
         Height = 2
         Top = 379
-        Width = 17
+        Width = 18
       end
       object DD_XMLFile_GroupBox: TGroupBox
         Left = 12
         Height = 105
         Top = 10
-        Width = 377
+        Width = 393
         Caption = 'XML file / group header'
         ClientHeight = 87
-        ClientWidth = 373
+        ClientWidth = 389
         TabOrder = 0
         object Label1: TLabel
           Left = 8
-          Height = 14
+          Height = 16
           Top = 32
-          Width = 113
+          Width = 122
           Caption = 'Initiating party (name):'
           ParentColor = False
         end
         object Label23: TLabel
           Left = 8
-          Height = 14
+          Height = 16
           Top = 8
-          Width = 62
+          Width = 66
           Caption = 'ISO schema:'
           ParentColor = False
         end
         object Label24: TLabel
-          Left = 256
-          Height = 14
+          Left = 262
+          Height = 16
           Top = 8
-          Width = 107
+          Width = 116
           Caption = '(empty = auto-select)'
           ParentColor = False
         end
         object DD_InitiatingPartyName_Edit: TEdit
-          Left = 128
-          Height = 21
+          Left = 134
+          Height = 23
           Top = 32
           Width = 225
           MaxLength = 70
@@ -517,11 +518,11 @@ object ExampleForm: TExampleForm
           Text = 'My name'
         end
         object DD_ISOSchema_ComboBox: TComboBox
-          Left = 128
-          Height = 21
+          Left = 134
+          Height = 23
           Top = 8
           Width = 121
-          ItemHeight = 13
+          ItemHeight = 15
           Items.Strings = (
             'pain.008.002.02'
             'pain.008.003.02'
@@ -530,26 +531,26 @@ object ExampleForm: TExampleForm
         end
         object Label30: TLabel
           Left = 8
-          Height = 14
+          Height = 16
           Top = 56
-          Width = 92
+          Width = 98
           Caption = 'Special characters:'
           ParentColor = False
         end
         object DD_SupportGermanSpecialChars_CheckBox: TCheckBox
-          Left = 128
-          Height = 17
+          Left = 134
+          Height = 19
           Top = 56
-          Width = 228
+          Width = 249
           Caption = 'Allow (German) characters: ÄÖÜäöüß&&*$%'
           TabOrder = 2
         end
       end
       object DD_Save_Button: TButton
-        Left = 362
+        Left = 370
         Height = 25
-        Top = 610
-        Width = 91
+        Top = 608
+        Width = 99
         Caption = 'Save XML file...'
         OnClick = DD_Save_ButtonClick
         TabOrder = 5
@@ -558,70 +559,70 @@ object ExampleForm: TExampleForm
         Left = 44
         Height = 217
         Top = 130
-        Width = 377
+        Width = 393
         Caption = 'Payment information'
         ClientHeight = 199
-        ClientWidth = 373
+        ClientWidth = 389
         TabOrder = 1
         object Label2: TLabel
           Left = 8
-          Height = 14
+          Height = 16
           Top = 8
-          Width = 109
+          Width = 122
           Caption = 'Local instrument code:'
           ParentColor = False
         end
         object Label3: TLabel
           Left = 8
-          Height = 14
+          Height = 16
           Top = 32
-          Width = 77
+          Width = 81
           Caption = 'Sequence type:'
           ParentColor = False
         end
         object Label4: TLabel
           Left = 8
-          Height = 14
+          Height = 16
           Top = 56
-          Width = 100
+          Width = 108
           Caption = 'Req. collection date:'
           ParentColor = False
         end
         object Label5: TLabel
           Left = 8
-          Height = 14
+          Height = 16
           Top = 80
-          Width = 73
+          Width = 80
           Caption = 'Creditor name:'
           ParentColor = False
         end
         object Label6: TLabel
           Left = 8
-          Height = 14
+          Height = 16
           Top = 104
-          Width = 120
+          Width = 131
           Caption = 'Creditor account (IBAN):'
           ParentColor = False
         end
         object Label7: TLabel
           Left = 8
-          Height = 14
+          Height = 16
           Top = 128
-          Width = 115
+          Width = 121
           Caption = 'Creditor fin. inst. (BIC):'
           ParentColor = False
         end
         object Label8: TLabel
           Left = 8
-          Height = 14
+          Height = 16
           Top = 172
-          Width = 89
+          Width = 97
           Caption = 'Creditor identifier:'
           ParentColor = False
         end
         object DD_CreditorName_Edit: TEdit
-          Left = 128
-          Height = 21
+          Left = 134
+          Height = 23
           Top = 80
           Width = 225
           MaxLength = 70
@@ -629,24 +630,24 @@ object ExampleForm: TExampleForm
           Text = 'My name'
         end
         object DD_CreditorIBAN_Edit: TEdit
-          Left = 128
-          Height = 21
+          Left = 134
+          Height = 23
           Top = 104
           Width = 225
           TabOrder = 4
           Text = 'DE58 1234 5678 0123 4567 89'
         end
         object DD_CreditorBIC_Edit: TEdit
-          Left = 128
-          Height = 21
+          Left = 134
+          Height = 23
           Top = 128
           Width = 225
           TabOrder = 5
           Text = 'SOMEFININST'
         end
         object DD_CreditorIdentifier_Edit: TEdit
-          Left = 128
-          Height = 21
+          Left = 134
+          Height = 23
           Top = 172
           Width = 225
           MaxLength = 35
@@ -654,11 +655,11 @@ object ExampleForm: TExampleForm
           Text = 'DE98ZZZ09999999999'
         end
         object DD_LocalInstrumentCode_ComboBox: TComboBox
-          Left = 128
-          Height = 21
+          Left = 134
+          Height = 23
           Top = 8
           Width = 145
-          ItemHeight = 13
+          ItemHeight = 15
           ItemIndex = 0
           Items.Strings = (
             'CORE'
@@ -670,11 +671,11 @@ object ExampleForm: TExampleForm
           Text = 'CORE'
         end
         object DD_SequenceType_ComboBox: TComboBox
-          Left = 128
-          Height = 21
+          Left = 134
+          Height = 23
           Top = 32
           Width = 145
-          ItemHeight = 13
+          ItemHeight = 15
           ItemIndex = 0
           Items.Strings = (
             'FRST'
@@ -687,19 +688,19 @@ object ExampleForm: TExampleForm
           Text = 'FRST'
         end
         object DD_CreditorBICNotProvided_CheckBox: TCheckBox
-          Left = 128
-          Height = 17
+          Left = 134
+          Height = 19
           Top = 152
-          Width = 149
+          Width = 166
           Caption = 'NOTPROVIDED (IBAN-only)'
           OnChange = DD_CreditorBICNotProvided_CheckBoxChange
           TabOrder = 6
         end
         object DD_RequestedCollectionDate_Edit: TDateEdit
-          Left = 128
-          Height = 21
+          Left = 134
+          Height = 23
           Top = 56
-          Width = 80
+          Width = 88
           CalendarDisplaySettings = [dsShowHeadings, dsShowDayNames]
           OKCaption = 'OK'
           CancelCaption = 'Cancel'
@@ -751,40 +752,40 @@ object ExampleForm: TExampleForm
         Left = 76
         Height = 233
         Top = 362
-        Width = 377
+        Width = 393
         Caption = 'Direct debit transaction'
         ClientHeight = 215
-        ClientWidth = 373
+        ClientWidth = 389
         TabOrder = 2
         object Label9: TLabel
           Left = 8
-          Height = 14
+          Height = 16
           Top = 8
-          Width = 73
+          Width = 79
           Caption = 'End-to-end ID:'
           ParentColor = False
         end
         object Label12: TLabel
           Left = 8
-          Height = 14
+          Height = 16
           Top = 32
-          Width = 94
+          Width = 102
           Caption = 'Instructed amount:'
           ParentColor = False
         end
         object Label13: TLabel
           Left = 8
-          Height = 14
+          Height = 16
           Top = 80
-          Width = 114
+          Width = 124
           Caption = 'Debtor account (IBAN):'
           ParentColor = False
         end
         object Label14: TLabel
           Left = 8
-          Height = 14
+          Height = 16
           Top = 104
-          Width = 109
+          Width = 114
           Caption = 'Debtor fin. inst. (BIC):'
           ParentColor = False
         end
@@ -799,50 +800,50 @@ object ExampleForm: TExampleForm
           WordWrap = True
         end
         object Label10: TLabel
-          Left = 240
-          Height = 14
+          Left = 246
+          Height = 16
           Top = 32
-          Width = 21
+          Width = 22
           Caption = 'EUR'
           ParentColor = False
         end
         object Label11: TLabel
           Left = 8
-          Height = 14
+          Height = 16
           Top = 56
-          Width = 67
+          Width = 73
           Caption = 'Debtor name:'
           ParentColor = False
         end
         object DD_InstructedAmount_Edit: TEdit
-          Left = 128
-          Height = 21
+          Left = 134
+          Height = 23
           Top = 32
           Width = 105
           TabOrder = 1
         end
         object DD_DebtorIBAN_Edit: TEdit
-          Left = 128
-          Height = 21
+          Left = 134
+          Height = 23
           Top = 80
           Width = 225
           TabOrder = 3
           Text = 'DE58 1234 5678 0123 4567 89'
         end
         object DD_DebtorBIC_Edit: TEdit
-          Left = 128
-          Height = 21
+          Left = 134
+          Height = 23
           Top = 104
           Width = 225
           TabOrder = 4
           Text = 'SOMEFININST'
         end
         object DD_EndToEndId_ComboBox: TComboBox
-          Left = 128
-          Height = 21
+          Left = 134
+          Height = 23
           Top = 8
           Width = 225
-          ItemHeight = 13
+          ItemHeight = 15
           ItemIndex = 0
           Items.Strings = (
             'NOTPROVIDED'
@@ -852,8 +853,8 @@ object ExampleForm: TExampleForm
           Text = 'NOTPROVIDED'
         end
         object DD_DebtorName_Edit: TEdit
-          Left = 128
-          Height = 21
+          Left = 134
+          Height = 23
           Top = 56
           Width = 225
           MaxLength = 70
@@ -861,95 +862,96 @@ object ExampleForm: TExampleForm
           Text = 'Customer name'
         end
         object DD_RemittanceInformation_Memo: TMemo
-          Left = 128
+          Left = 134
           Height = 57
           Top = 148
           Width = 225
           Lines.Strings = (
-            'Customer number 123, invoice number 456'
+            'Customer number 123, invoice number '
+            '456'
           )
           MaxLength = 140
           TabOrder = 6
           WantReturns = False
         end
         object DD_DebtorBICNotProvided_CheckBox: TCheckBox
-          Left = 128
-          Height = 17
+          Left = 134
+          Height = 19
           Top = 128
-          Width = 149
+          Width = 166
           Caption = 'NOTPROVIDED (IBAN-only)'
           OnChange = DD_DebtorBICNotProvided_CheckBoxChange
           TabOrder = 5
         end
       end
       object DD_Mandate_GroupBox: TGroupBox
-        Left = 484
+        Left = 500
         Height = 233
         Top = 362
-        Width = 377
+        Width = 393
         Caption = 'Mandate related information'
         ClientHeight = 215
-        ClientWidth = 373
+        ClientWidth = 389
         TabOrder = 3
         object Label17: TLabel
           Left = 8
-          Height = 14
+          Height = 16
           Top = 8
-          Width = 61
+          Width = 65
           Caption = 'Mandate ID:'
           ParentColor = False
         end
         object Label18: TLabel
           Left = 8
-          Height = 14
+          Height = 16
           Top = 160
-          Width = 114
+          Width = 124
           Caption = 'Debtor account (IBAN):'
           ParentColor = False
         end
         object Label19: TLabel
           Left = 8
-          Height = 14
+          Height = 16
           Top = 184
-          Width = 81
+          Width = 85
           Caption = 'Debtor fin. inst.:'
           ParentColor = False
         end
         object Label20: TLabel
           Left = 8
-          Height = 14
+          Height = 16
           Top = 88
-          Width = 61
+          Width = 65
           Caption = 'Mandate ID:'
           ParentColor = False
         end
         object Label22: TLabel
           Left = 8
-          Height = 14
+          Height = 16
           Top = 32
-          Width = 89
+          Width = 94
           Caption = 'Date of signature:'
           ParentColor = False
         end
         object Label16: TLabel
           Left = 8
-          Height = 14
+          Height = 16
           Top = 112
-          Width = 73
+          Width = 80
           Caption = 'Creditor name:'
           ParentColor = False
         end
         object Label21: TLabel
           Left = 8
-          Height = 14
+          Height = 16
           Top = 136
-          Width = 89
+          Width = 97
           Caption = 'Creditor identifier:'
           ParentColor = False
         end
         object DD_MandateId_Edit: TEdit
-          Left = 128
-          Height = 21
+          Left = 134
+          Height = 23
           Top = 8
           Width = 225
           MaxLength = 35
@@ -957,16 +959,16 @@ object ExampleForm: TExampleForm
           Text = 'MNDTID'
         end
         object DD_OriginalDebtorAccountIBAN_Edit: TEdit
-          Left = 128
-          Height = 21
+          Left = 134
+          Height = 23
           Top = 160
           Width = 225
           MaxLength = 34
           TabOrder = 6
         end
         object DD_OriginalMandateId_Edit: TEdit
-          Left = 128
-          Height = 21
+          Left = 134
+          Height = 23
           Top = 88
           Width = 225
           MaxLength = 35
@@ -974,39 +976,39 @@ object ExampleForm: TExampleForm
         end
         object DD_MandateAmendmentInformationDetails_CheckBox: TCheckBox
           Left = 8
-          Height = 17
+          Height = 19
           Top = 64
-          Width = 244
+          Width = 274
           Caption = 'Amendment information details (only changes):'
           TabOrder = 2
         end
         object DD_OriginalDebtorFinInstSMNDA_CheckBox: TCheckBox
-          Left = 128
-          Height = 17
+          Left = 134
+          Height = 19
           Top = 184
-          Width = 227
+          Width = 250
           Caption = 'SMNDA (same mandate, new debtor agent)'
           TabOrder = 7
         end
         object DD_OriginalCreditorName_Edit: TEdit
-          Left = 128
-          Height = 21
+          Left = 134
+          Height = 23
           Top = 112
           Width = 225
           MaxLength = 70
           TabOrder = 4
         end
         object DD_OriginalCreditorIdentifier_Edit: TEdit
-          Left = 128
-          Height = 21
+          Left = 134
+          Height = 23
           Top = 136
           Width = 225
           MaxLength = 35
           TabOrder = 5
         end
         object DD_MandateDateOfSignature_Edit: TDateEdit
-          Left = 128
-          Height = 21
+          Left = 134
+          Height = 23
           Top = 32
           Width = 80
           CalendarDisplaySettings = [dsShowHeadings, dsShowDayNames]
@@ -1057,51 +1059,51 @@ object ExampleForm: TExampleForm
         end
       end
       object DD_Tips_GroupBox: TGroupBox
-        Left = 484
+        Left = 500
         Height = 137
         Top = 18
-        Width = 377
+        Width = 393
         Caption = 'Some practical tips'
         ClientHeight = 119
-        ClientWidth = 373
+        ClientWidth = 389
         TabOrder = 4
         object Label25: TLabel
           Left = 8
-          Height = 14
+          Height = 16
           Top = 32
-          Width = 306
+          Width = 340
           Caption = '- Use only one <PmtInf> ("payment information") block per file.'
           ParentColor = False
         end
         object Label26: TLabel
           Left = 8
-          Height = 14
+          Height = 16
           Top = 48
-          Width = 321
+          Width = 348
           Caption = '- Limit the number of transactions per file to e.g. 500 transactions.'
           ParentColor = False
         end
         object Label27: TLabel
           Left = 8
-          Height = 14
+          Height = 16
           Top = 64
-          Width = 288
+          Width = 305
           Caption = '- ISO schema pain.008.003.02 *should* be supported now.'
           ParentColor = False
         end
         object Label28: TLabel
           Left = 8
-          Height = 14
+          Height = 16
           Top = 88
-          Width = 336
+          Width = 364
           Caption = 'Ask your bank for details - and please let us know further restrictions!'
           ParentColor = False
         end
         object Label29: TLabel
           Left = 8
-          Height = 14
+          Height = 16
           Top = 8
-          Width = 282
+          Width = 314
           Caption = 'For maximum interoperability with different German banks:'
           ParentColor = False
         end
