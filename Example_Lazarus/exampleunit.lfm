@@ -1010,7 +1010,7 @@ object ExampleForm: TExampleForm
           Left = 134
           Height = 23
           Top = 32
-          Width = 80
+          Width = 88
           CalendarDisplaySettings = [dsShowHeadings, dsShowDayNames]
           OKCaption = 'OK'
           CancelCaption = 'Cancel'
