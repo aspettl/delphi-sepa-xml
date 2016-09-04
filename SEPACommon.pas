@@ -204,11 +204,10 @@ uses                            // include unit Windows for the constant
 {$IFEND}
 {$ENDIF}
 
-{$IFDEF FPC}
-type UTF8String = String;       // just use the usual strings in Lazarus
-{$ELSE}
-{$IF CompilerVersion < 11}      // also use the usual strings in Delphi < 2007
-type UTF8String = String;       // (same definition as in Delphi 2007)
+{$IFNDEF FPC}
+{$IF CompilerVersion < 11}
+type                            // Delphi < 2007:
+  UTF8String = String;          // UTF8String: use the usual strings (same definition as in Delphi 2007)
 {$IFEND}
 {$ENDIF}
 
