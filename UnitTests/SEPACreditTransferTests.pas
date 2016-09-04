@@ -371,7 +371,7 @@ end;
 
 procedure TCreditTransferPaymentInformationTests.TestSaveToStream;
 var
-  xmlTxInfEntry0: AnsiString;
+  xmlTxInfEntry0: RawByteString;
 begin
   fPaymentInfo.PmtInfId      := 'PMTINFID';
   fPaymentInfo.ReqdExctnDt   := EncodeDate(2014, 2, 1);
@@ -603,7 +603,7 @@ end;
 
 procedure TCreditTransferInitiationTests.TestSaveToStream;
 var
-  xmlPmtInfEntry0: AnsiString;
+  xmlPmtInfEntry0: RawByteString;
 begin
   fCreditTransfer.GrpHdrMsgId        := 'MSGID';
   fCreditTransfer.GrpHdrCreDtTm      := EncodeDate(2014, 2, 1) + EncodeTime(12, 0, 1, 100);

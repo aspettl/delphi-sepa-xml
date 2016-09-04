@@ -707,7 +707,7 @@ end;
 
 procedure TDirectDebitPaymentInformationTests.TestSaveToStream;
 var
-  xmlTxInfEntry0: AnsiString;
+  xmlTxInfEntry0: RawByteString;
 begin
   fPaymentInfo.PmtInfId      := 'PMTINFID';
   fPaymentInfo.PmtTpInfLclInstrmCd := LCL_INSTRM_CD_CORE;
@@ -983,7 +983,7 @@ end;
 
 procedure TDirectDebitInitiationTests.TestSaveToStream;
 var
-  xmlPmtInfEntry0: AnsiString;
+  xmlPmtInfEntry0: RawByteString;
 begin
   fDirectDebit.GrpHdrMsgId        := 'MSGID';
   fDirectDebit.GrpHdrCreDtTm      := EncodeDate(2016, 9, 1) + EncodeTime(12, 0, 1, 100);

@@ -43,6 +43,18 @@ uses
   Classes, SysUtils, StrUtils;
 
 type
+  {$IFNDEF FPC}
+  {$IFNDEF Unicode}
+  RawByteString = AnsiString; // define RawByteString as an ANSI string before Delphi 2009
+  {$ENDIF}
+  {$ENDIF}
+
+  {$IFDEF FPC}
+  {$IFNDEF FPC_HAS_CPSTRING}
+  RawByteString = AnsiString; // define RawByteString as an ANSI string for FPC < 3.0
+  {$ENDIF}
+  {$ENDIF}
+
   TSEPATestCase = class(TTestCase)
   private
     fOld_SEPASupportSpecialChars: Boolean;
@@ -52,11 +64,11 @@ type
     procedure SetUp; override;
     procedure TearDown; override;
 
-    function FetchAndResetSaveStream: AnsiString;
+    function FetchAndResetSaveStream: RawByteString;
 
     procedure CheckValidation(expected: array of String; actual: TStrings; msg: String = '');
     procedure CheckValidationContains(expected: array of String; actual: TStrings; msg: String = '');
-    procedure CheckSaveStream(expected: AnsiString; msg: String = '');
+    procedure CheckSaveStream(expected: RawByteString; msg: String = '');
 
     property SaveStream: TMemoryStream read fSaveStream;
   end;
@@ -65,7 +77,7 @@ implementation
 
 // TSEPATestCase
 
-function TSEPATestCase.FetchAndResetSaveStream: AnsiString;
+function TSEPATestCase.FetchAndResetSaveStream: RawByteString;
 begin
   // read written bytes from stream
   fSaveStream.Seek(0, soFromBeginning);
@@ -108,9 +120,9 @@ begin
   end;
 end;
 
-procedure TSEPATestCase.CheckSaveStream(expected: AnsiString; msg: String = '');
+procedure TSEPATestCase.CheckSaveStream(expected: RawByteString; msg: String = '');
 
-  function RemoveWhitespace(const str: AnsiString): AnsiString;
+  function RemoveWhitespace(const str: RawByteString): RawByteString;
   begin
     // Just remove line breaks by replacing them with spaces, then
     // replace all remaining spaces between tags. This is not very
@@ -125,7 +137,7 @@ procedure TSEPATestCase.CheckSaveStream(expected: AnsiString; msg: String = '');
   end;
 
 var
-  actual: AnsiString;
+  actual: RawByteString;
 begin
   actual := FetchAndResetSaveStream;
   CheckEquals(RemoveWhitespace(expected), RemoveWhitespace(actual), msg);

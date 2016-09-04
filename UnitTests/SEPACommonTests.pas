@@ -319,7 +319,7 @@ end;
 
 procedure TPublicMethodsTestCase.TestSEPAWriteLine;
 
-  function SEPAWriteLine_GetBytes(const line: String): AnsiString;
+  function SEPAWriteLine_GetBytes(const line: String): RawByteString;
   begin
     // write to stream
     SEPAWriteLine(SaveStream, line);
@@ -330,11 +330,11 @@ procedure TPublicMethodsTestCase.TestSEPAWriteLine;
 const
   Default_TestStr: String = '<abc>';
   Default_SpChar : String = 'ä';
-  UTF8_LineBreak : AnsiString = {$IFDEF LINUX} #10 {$ELSE} #13#10 {$ENDIF};
-  UTF8_TestStr   : AnsiString = '<abc>';
-  UTF8_SpChar    : AnsiString = #195#164;
+  UTF8_LineBreak : RawByteString = {$IFDEF LINUX} #10 {$ELSE} #13#10 {$ENDIF};
+  UTF8_TestStr   : RawByteString = '<abc>';
+  UTF8_SpChar    : RawByteString = #195#164;
 begin
-  CheckEquals(UTF8_LineBreak, SEPAWriteLine_GetBytes(''),   'Empty line written check');
+  CheckEquals(UTF8_LineBreak, SEPAWriteLine_GetBytes(''), 'Empty line written check');
   CheckEquals(UTF8_TestStr+UTF8_LineBreak, SEPAWriteLine_GetBytes(Default_TestStr), 'Simple line written check');
   CheckEquals(UTF8_SpChar+UTF8_LineBreak, SEPAWriteLine_GetBytes(Default_SpChar), 'Special character line written as UTF-8 check');
 end;
