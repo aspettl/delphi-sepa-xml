@@ -177,6 +177,16 @@ implementation
 
 { TExampleForm }
 
+function GUIStringToDefaultString(const s: UTF8String): String;
+begin
+  Result := Utf8ToAnsi(s);
+end;
+
+function DefaultStringToGUIString(const s: String): UTF8String;
+begin
+  Result := AnsiToUtf8(s);
+end;
+
 procedure TExampleForm.FormCreate(Sender: TObject);
 begin
   CT_RequestedExecutionDate_Edit.Date  := Now+1;
@@ -227,7 +237,7 @@ var
   ti: TCreditTransferTransactionInformation;
   messages: TStringList;
 begin
-  // note: the GUI elements return strings as UTF8, so we use UTF8Decode below
+  // note: the GUI elements return strings as UTF8, so we use GUIStringToDefaultString below
   //       (the SEPA direct debit unit expects ANSI strings)
 
   // support for special characters has to be set before creating the objects,
@@ -236,34 +246,34 @@ begin
 
   // XML file
   cti := TCreditTransferInitiation.Create;
-  cti.Schema             := UTF8Decode(CT_ISOSchema_ComboBox.Text);
-  cti.GrpHdrInitgPtyName := UTF8Decode(CT_InitiatingPartyName_Edit.Text);
+  cti.Schema             := GUIStringToDefaultString(CT_ISOSchema_ComboBox.Text);
+  cti.GrpHdrInitgPtyName := GUIStringToDefaultString(CT_InitiatingPartyName_Edit.Text);
 
   // payment instruction
   pi := TCreditTransferPaymentInformation.Create;
   pi.ReqdExctnDt    := CT_RequestedExecutionDate_Edit.Date;
-  pi.DbtrNm         := UTF8Decode(CT_DebtorName_Edit.Text);
-  pi.DbtrAcct.IBAN  := UTF8Decode(CT_DebtorIBAN_Edit.Text);
-  pi.DbtrAgt.BIC    := UTF8Decode(CT_DebtorBIC_Edit.Text);
+  pi.DbtrNm         := GUIStringToDefaultString(CT_DebtorName_Edit.Text);
+  pi.DbtrAcct.IBAN  := GUIStringToDefaultString(CT_DebtorIBAN_Edit.Text);
+  pi.DbtrAgt.BIC    := GUIStringToDefaultString(CT_DebtorBIC_Edit.Text);
   pi.DbtrAgt.OthrID := IfThen(CT_DebtorBICNotProvided_CheckBox.Checked, FIN_INSTN_NOTPROVIDED, '');
   cti.AppendPmtInfEntry(pi);
 
   // credit transfer transaction
   ti := TCreditTransferTransactionInformation.Create;
-  ti.PmtIdEndToEndId := UTF8Decode(CT_EndToEndId_ComboBox.Text);
+  ti.PmtIdEndToEndId := GUIStringToDefaultString(CT_EndToEndId_ComboBox.Text);
   ti.InstdAmt        := StrToFloat(CT_InstructedAmount_Edit.Text);
-  ti.CdtrNm          := UTF8Decode(CT_CreditorName_Edit.Text);
-  ti.CdtrAcct.IBAN   := UTF8Decode(CT_CreditorIBAN_Edit.Text);
-  ti.CdtrAgt.BIC     := UTF8Decode(CT_CreditorBIC_Edit.Text);
+  ti.CdtrNm          := GUIStringToDefaultString(CT_CreditorName_Edit.Text);
+  ti.CdtrAcct.IBAN   := GUIStringToDefaultString(CT_CreditorIBAN_Edit.Text);
+  ti.CdtrAgt.BIC     := GUIStringToDefaultString(CT_CreditorBIC_Edit.Text);
   ti.CdtrAgt.OthrID  := IfThen(CT_CreditorBICNotProvided_CheckBox.Checked, FIN_INSTN_NOTPROVIDED, '');
-  ti.RmtInfUstrd     := Trim(UTF8Decode(CT_RemittanceInformation_Memo.Text));
+  ti.RmtInfUstrd     := Trim(GUIStringToDefaultString(CT_RemittanceInformation_Memo.Text));
   pi.AppendCdtTrfTxInfEntry(ti);
 
   // validate and save
   messages := cti.Validate;
-  if ((messages.Count = 0) or (MessageDlg(UTF8Encode(messages.Text), mtError, [mbOk, mbIgnore], 0) = mrIgnore)) and
+  if ((messages.Count = 0) or (MessageDlg(DefaultStringToGUIString(messages.Text), mtError, [mbOk, mbIgnore], 0) = mrIgnore)) and
       SaveDialog.Execute then
-    cti.SaveToDisk(UTF8Decode(SaveDialog.FileName));
+    cti.SaveToDisk(GUIStringToDefaultString(SaveDialog.FileName));
 
   // free objects
   FreeAndNil(messages);
@@ -280,7 +290,7 @@ var
   ti: TDirectDebitTransactionInformation;
   messages: TStringList;
 begin
-  // note: the GUI elements return strings as UTF8, so we use UTF8Decode below
+  // note: the GUI elements return strings as UTF8, so we use GUIStringToDefaultString below
   //       (the SEPA direct debit unit expects ANSI strings)
 
   // support for special characters has to be set before creating the objects,
@@ -289,45 +299,45 @@ begin
 
   // XML file
   ddi := TDirectDebitInitiation.Create;
-  ddi.Schema             := UTF8Decode(DD_ISOSchema_ComboBox.Text);
-  ddi.GrpHdrInitgPtyName := UTF8Decode(DD_InitiatingPartyName_Edit.Text);
+  ddi.Schema             := GUIStringToDefaultString(DD_ISOSchema_ComboBox.Text);
+  ddi.GrpHdrInitgPtyName := GUIStringToDefaultString(DD_InitiatingPartyName_Edit.Text);
 
   // payment instruction
   pi := TDirectDebitPaymentInformation.Create;
-  pi.PmtTpInfLclInstrmCd       := UTF8Decode(DD_LocalInstrumentCode_ComboBox.Text);
-  pi.PmtTpInfSeqTp             := UTF8Decode(DD_SequenceType_ComboBox.Text);
+  pi.PmtTpInfLclInstrmCd       := GUIStringToDefaultString(DD_LocalInstrumentCode_ComboBox.Text);
+  pi.PmtTpInfSeqTp             := GUIStringToDefaultString(DD_SequenceType_ComboBox.Text);
   pi.ReqdColltnDt              := DD_RequestedCollectionDate_Edit.Date;
-  pi.CdtrNm                    := UTF8Decode(DD_CreditorName_Edit.Text);
-  pi.CdtrAcct.IBAN             := UTF8Decode(DD_CreditorIBAN_Edit.Text);
-  pi.CdtrAgt.BIC               := UTF8Decode(DD_CreditorBIC_Edit.Text);
+  pi.CdtrNm                    := GUIStringToDefaultString(DD_CreditorName_Edit.Text);
+  pi.CdtrAcct.IBAN             := GUIStringToDefaultString(DD_CreditorIBAN_Edit.Text);
+  pi.CdtrAgt.BIC               := GUIStringToDefaultString(DD_CreditorBIC_Edit.Text);
   pi.CdtrAgt.OthrID            := IfThen(DD_CreditorBICNotProvided_CheckBox.Checked, FIN_INSTN_NOTPROVIDED, '');
-  pi.CdtrSchmeIdIdPrvtIdOthrId := UTF8Decode(DD_CreditorIdentifier_Edit.Text);
+  pi.CdtrSchmeIdIdPrvtIdOthrId := GUIStringToDefaultString(DD_CreditorIdentifier_Edit.Text);
   ddi.AppendPmtInfEntry(pi);
 
   // direct debit transaction (including mandate details)
   ti := TDirectDebitTransactionInformation.Create;
-  ti.PmtIdEndToEndId := UTF8Decode(DD_EndToEndId_ComboBox.Text);
+  ti.PmtIdEndToEndId := GUIStringToDefaultString(DD_EndToEndId_ComboBox.Text);
   ti.InstdAmt        := StrToFloat(DD_InstructedAmount_Edit.Text);
-  ti.DbtrNm          := UTF8Decode(DD_DebtorName_Edit.Text);
-  ti.DbtrAcct.IBAN   := UTF8Decode(DD_DebtorIBAN_Edit.Text);
-  ti.DbtrAgt.BIC     := UTF8Decode(DD_DebtorBIC_Edit.Text);
+  ti.DbtrNm          := GUIStringToDefaultString(DD_DebtorName_Edit.Text);
+  ti.DbtrAcct.IBAN   := GUIStringToDefaultString(DD_DebtorIBAN_Edit.Text);
+  ti.DbtrAgt.BIC     := GUIStringToDefaultString(DD_DebtorBIC_Edit.Text);
   ti.DbtrAgt.OthrID  := IfThen(DD_DebtorBICNotProvided_CheckBox.Checked, FIN_INSTN_NOTPROVIDED, '');
-  ti.RmtInfUstrd     := Trim(UTF8Decode(DD_RemittanceInformation_Memo.Text));
-  ti.DrctDbtTxMndtRltdInf.MndtId    := UTF8Decode(DD_MandateId_Edit.Text);
+  ti.RmtInfUstrd     := Trim(GUIStringToDefaultString(DD_RemittanceInformation_Memo.Text));
+  ti.DrctDbtTxMndtRltdInf.MndtId    := GUIStringToDefaultString(DD_MandateId_Edit.Text);
   ti.DrctDbtTxMndtRltdInf.DtOfSgntr := DD_MandateDateOfSignature_Edit.Date;
   ti.DrctDbtTxMndtRltdInf.AmdmntInd := DD_MandateAmendmentInformationDetails_CheckBox.Checked;
-  ti.DrctDbtTxMndtRltdInf.AmdmntInfDtls.OrgnlMndtId                    := UTF8Decode(DD_OriginalMandateId_Edit.Text);
-  ti.DrctDbtTxMndtRltdInf.AmdmntInfDtls.OrgnlCdtrSchmeIdNm             := UTF8Decode(DD_OriginalCreditorName_Edit.Text);
-  ti.DrctDbtTxMndtRltdInf.AmdmntInfDtls.OrgnlCdtrSchmeIdIdPrvtIdOthrId := UTF8Decode(DD_OriginalCreditorIdentifier_Edit.Text);
-  ti.DrctDbtTxMndtRltdInf.AmdmntInfDtls.OrgnlDbtrAcct.IBAN             := UTF8Decode(DD_OriginalDebtorAccountIBAN_Edit.Text);
+  ti.DrctDbtTxMndtRltdInf.AmdmntInfDtls.OrgnlMndtId                    := GUIStringToDefaultString(DD_OriginalMandateId_Edit.Text);
+  ti.DrctDbtTxMndtRltdInf.AmdmntInfDtls.OrgnlCdtrSchmeIdNm             := GUIStringToDefaultString(DD_OriginalCreditorName_Edit.Text);
+  ti.DrctDbtTxMndtRltdInf.AmdmntInfDtls.OrgnlCdtrSchmeIdIdPrvtIdOthrId := GUIStringToDefaultString(DD_OriginalCreditorIdentifier_Edit.Text);
+  ti.DrctDbtTxMndtRltdInf.AmdmntInfDtls.OrgnlDbtrAcct.IBAN             := GUIStringToDefaultString(DD_OriginalDebtorAccountIBAN_Edit.Text);
   ti.DrctDbtTxMndtRltdInf.AmdmntInfDtls.OrgnlDbtrAgtFinInstIdOthrId    := IfThen(DD_OriginalDebtorFinInstSMNDA_CheckBox.Checked, ORGNL_DBTR_AGT_SMNDA, '');
   pi.AppendDrctDbtTxInfEntry(ti);
 
   // validate and save
   messages := ddi.Validate;
-  if ((messages.Count = 0) or (MessageDlg(UTF8Encode(messages.Text), mtError, [mbOk, mbIgnore], 0) = mrIgnore)) and
+  if ((messages.Count = 0) or (MessageDlg(DefaultStringToGUIString(messages.Text), mtError, [mbOk, mbIgnore], 0) = mrIgnore)) and
       SaveDialog.Execute then
-    ddi.SaveToDisk(UTF8Decode(SaveDialog.FileName));
+    ddi.SaveToDisk(GUIStringToDefaultString(SaveDialog.FileName));
 
   // free objects
   FreeAndNil(messages);
