@@ -141,13 +141,26 @@ begin
 end;
 
 procedure TPublicMethodsTestCase.TestSEPACleanIBANorBICorCI;
+const
+  // define bytes strings as raw values instead of standard string literals to
+  // avoid issues with file encoding and different interpretations of different
+  // compilers
+  CP1252_SpChar_Up: RawByteString = #196; // Ä
+  CP1252_SpChar_Lo: RawByteString = #228; // ä
 begin
+  {$IFDEF FPC_HAS_CPSTRING}
+  // now set codepage of raw strings defined above
+  // (to make sure automatic conversions in FPC 3 work as needed)
+  SetCodePage(CP1252_SpChar_Up, 1252, false);
+  SetCodePage(CP1252_SpChar_Lo, 1252, false);
+  {$ENDIF}
+
   CheckEquals('TEST', SEPACleanIBANorBICorCI('TEST'),      'Already clean string check');
   CheckEquals('TEST', SEPACleanIBANorBICorCI('TEST'+sLineBreak), 'Trim check');
   CheckEquals('TEST', SEPACleanIBANorBICorCI('TE ST'),     'Single white-space check');
   CheckEquals('TEST', SEPACleanIBANorBICorCI(' T E S T '), 'Multiple white-space check');
   CheckEquals('TEST', SEPACleanIBANorBICorCI('test'),      'Upper-case conversion check');
-  CheckEquals('TESTÄ', SEPACleanIBANorBICorCI('testä'),    'Upper-case conversion check with special character');
+  CheckEquals('TEST'+CP1252_SpChar_Up, SEPACleanIBANorBICorCI('test'+CP1252_SpChar_Lo), 'Upper-case conversion check with special character');
 end;
 
 procedure TPublicMethodsTestCase.TestSEPAModulo97;
@@ -328,15 +341,40 @@ procedure TPublicMethodsTestCase.TestSEPAWriteLine;
   end;
 
 const
-  Default_TestStr: String = '<abc>';
-  Default_SpChar : String = 'ä';
-  UTF8_LineBreak : RawByteString = {$IFDEF LINUX} #10 {$ELSE} #13#10 {$ENDIF};
-  UTF8_TestStr   : RawByteString = '<abc>';
-  UTF8_SpChar    : RawByteString = #195#164;
+  CP1252_TestStr   : RawByteString = '<abc>';
+  CP1252_SpChar    : RawByteString = #228;
+  {$IFDEF FPC_HAS_CPSTRING}
+  UTF8_TestStr     : RawByteString = '<abc>';
+  UTF8_SpChar      : RawByteString = #195#164;
+  {$ENDIF}
+  {$IFDEF LINUX}
+  Raw_LineBreak    : RawByteString = #10;
+  Raw_TestStrWithLB: RawByteString = '<abc>'#10;
+  Raw_SpCharWithLB : RawByteString = #195#164#10;
+  {$ELSE}
+  Raw_LineBreak    : RawByteString = #13#10;
+  Raw_TestStrWithLB: RawByteString = '<abc>'#13#10;
+  Raw_SpCharWithLB : RawByteString = #195#164#13#10;
+  {$ENDIF}
 begin
-  CheckEquals(UTF8_LineBreak, SEPAWriteLine_GetBytes(''), 'Empty line written check');
-  CheckEquals(UTF8_TestStr+UTF8_LineBreak, SEPAWriteLine_GetBytes(Default_TestStr), 'Simple line written check');
-  CheckEquals(UTF8_SpChar+UTF8_LineBreak, SEPAWriteLine_GetBytes(Default_SpChar), 'Special character line written as UTF-8 check');
+  {$IFDEF FPC_HAS_CPSTRING}
+  // now set codepage of raw strings defined above
+  // (to make sure automatic conversions in FPC 3 work as needed)
+  SetCodePage(CP1252_TestStr, 1252, false);
+  SetCodePage(CP1252_SpChar, 1252, false);
+  SetCodePage(UTF8_TestStr, CP_UTF8, false);
+  SetCodePage(UTF8_SpChar, CP_UTF8, false);
+  {$ENDIF}
+
+  CheckEquals(Raw_LineBreak, SEPAWriteLine_GetBytes(''), 'Empty line written check');
+  CheckEquals(Raw_TestStrWithLB, SEPAWriteLine_GetBytes(CP1252_TestStr), 'Simple line (from CP1252 string) written check');
+  CheckEquals(Raw_SpCharWithLB, SEPAWriteLine_GetBytes(CP1252_SpChar), 'Special character line (from CP1252 string) written as UTF-8 check');
+
+  {$IFDEF FPC_HAS_CPSTRING}
+  // in FPC 3, also test UTF-8 strings as input - the result should be the same
+  CheckEquals(Raw_TestStrWithLB, SEPAWriteLine_GetBytes(UTF8_TestStr), 'Simple line (from UTF-8 string) written check');
+  CheckEquals(Raw_SpCharWithLB, SEPAWriteLine_GetBytes(UTF8_SpChar), 'Special character line (from UTF-8 string) written as UTF-8 check');
+  {$ENDIF}
 end;
 
 // TFinancialInstitutionTestCase

@@ -122,7 +122,7 @@ end;
 
 procedure TSEPATestCase.CheckSaveStream(expected: RawByteString; msg: String = '');
 
-  function RemoveWhitespace(const str: RawByteString): RawByteString;
+  function RemoveWhitespace(const str: RawByteString): String;
   begin
     // Just remove line breaks by replacing them with spaces, then
     // replace all remaining spaces between tags. This is not very
