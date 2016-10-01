@@ -179,11 +179,19 @@ implementation
 
 function GUIStringToDefaultString(const s: UTF8String): String;
 begin
+  // with FPC 2.6, the strings in the GUI are UTF-8 and they have to be
+  // converted to the standard ANSI strings
+  // (with FPC 3.0 and UTF-8 mode / codepage-aware strings, this is not
+  //  necessary anymore)
   Result := Utf8ToAnsi(s);
 end;
 
 function DefaultStringToGUIString(const s: String): UTF8String;
 begin
+  // with FPC 2.6, the strings in the GUI are UTF-8 and they have to be
+  // converted to the standard ANSI strings
+  // (with FPC 3.0 and UTF-8 mode / codepage-aware strings, this is not
+  //  necessary anymore)
   Result := AnsiToUtf8(s);
 end;
 
