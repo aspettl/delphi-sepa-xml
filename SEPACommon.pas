@@ -258,12 +258,45 @@ begin
             (c = ')') or (c = '/');
 end;
 
-function CharIsGermanSpecialChar(const c: Char): Boolean;
+function CP1252CharIsGermanSpecialChar(const c: Char): Boolean;
 begin
-  Result := (c = 'Ä') or (c = 'Ö') or (c = 'Ü') or
-            (c = 'ä') or (c = 'ö') or (c = 'ü') or
-            (c = 'ß') or (c = '&') or (c = '*') or
-            (c = '$') or (c = '%');
+  // note:
+  // - this method works only for CP1252-encoded ANSI strings
+  // - to avoid problems with file encoding and compiler interpretation of string
+  //   literals, we use hardcoded byte values for German special characters
+
+  Result := (c = #196) or // Ä
+            (c = #214) or // Ö
+            (c = #220) or // Ü
+            (c = #228) or // ä
+            (c = #246) or // ö
+            (c = #252) or // ü
+            (c = #223) or // ß
+            (c = '&') or (c = '*') or (c = '$') or (c = '%');
+end;
+
+function ConvertCP1252SpecialChar(const c: Char): Char;
+begin
+  // use "EPC Best Practices" to convert characters that were allowed in
+  // the old DTAUS files
+  //
+  // note:
+  // - this method works only for CP1252-encoded ANSI strings
+  // - to avoid problems with file encoding and compiler interpretation of string
+  //   literals, we use hardcoded byte values for German special characters
+
+  if c = #196 then      Result := 'A' // Ä
+  else if c = #214 then Result := 'O' // Ö
+  else if c = #220 then Result := 'U' // Ü
+  else if c = #228 then Result := 'a' // ä
+  else if c = #246 then Result := 'o' // ö
+  else if c = #252 then Result := 'u' // ü
+  else if c = #223 then Result := 's' // ß
+  else if c = '&' then  Result := '+'
+  else if c = '*' then  Result := '.'
+  else if c = '$' then  Result := '.'
+  else if c = '%' then  Result := '.'
+  else                  Result := ' ';
 end;
 
 function ConvertAlphaToNumber(const s: String): String;
@@ -425,11 +458,18 @@ var
   i: Integer;
 begin
   Result := s;
+
+  {$IFDEF FPC_HAS_CPSTRING}
+  // FPC 3: in the code below we assume ANSI strings with codepage 1252
+  // (hardcoded character comparisons)
+  SetCodePage(RawByteString(Result), 1252, true);
+  {$ENDIF}
+
   for i := 1 to Length(Result) do
   begin
     if not CharIsSEPAWhitelisted(Result[i]) then
     begin
-      if (SEPASupportSpecialChars and CharIsGermanSpecialChar(Result[i])) then
+      if (SEPASupportSpecialChars and CP1252CharIsGermanSpecialChar(Result[i])) then
       begin
         // some special characters are allowed in "pain.008.003.02", do not convert
         // them if "SupportGermanSpecialChars" is set
@@ -438,18 +478,7 @@ begin
       begin
         // use "EPC Best Practices" to convert characters that were allowed in
         // the old DTAUS files
-        if Result[i] = 'Ä' then       Result[i] := 'A'
-        else if Result[i] = 'Ö' then  Result[i] := 'O'
-        else if Result[i] = 'Ü' then  Result[i] := 'U'
-        else if Result[i] = 'ä' then  Result[i] := 'a'
-        else if Result[i] = 'ö' then  Result[i] := 'o'
-        else if Result[i] = 'ü' then  Result[i] := 'u'
-        else if Result[i] = 'ß' then  Result[i] := 's'
-        else if Result[i] = '&' then  Result[i] := '+'
-        else if Result[i] = '*' then  Result[i] := '.'
-        else if Result[i] = '$' then  Result[i] := '.'
-        else if Result[i] = '%' then  Result[i] := '.'
-        else                          Result[i] := ' ';
+        Result[i] := ConvertCP1252SpecialChar(Result[i]);
       end;
     end;
   end;

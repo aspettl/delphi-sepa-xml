@@ -147,12 +147,18 @@ const
   // compilers
   CP1252_SpChar_Up: RawByteString = #196; // Ä
   CP1252_SpChar_Lo: RawByteString = #228; // ä
+  {$IFDEF FPC_HAS_CPSTRING}
+  UTF8_SpChar_Up  : RawByteString = #195#132; // Ä
+  UTF8_SpChar_Lo  : RawByteString = #195#164; // ä
+  {$ENDIF}
 begin
   {$IFDEF FPC_HAS_CPSTRING}
   // now set codepage of raw strings defined above
   // (to make sure automatic conversions in FPC 3 work as needed)
   SetCodePage(CP1252_SpChar_Up, 1252, false);
   SetCodePage(CP1252_SpChar_Lo, 1252, false);
+  SetCodePage(UTF8_SpChar_Up, CP_UTF8, false);
+  SetCodePage(UTF8_SpChar_Lo, CP_UTF8, false);
   {$ENDIF}
 
   CheckEquals('TEST', SEPACleanIBANorBICorCI('TEST'),      'Already clean string check');
@@ -160,7 +166,12 @@ begin
   CheckEquals('TEST', SEPACleanIBANorBICorCI('TE ST'),     'Single white-space check');
   CheckEquals('TEST', SEPACleanIBANorBICorCI(' T E S T '), 'Multiple white-space check');
   CheckEquals('TEST', SEPACleanIBANorBICorCI('test'),      'Upper-case conversion check');
-  CheckEquals('TEST'+CP1252_SpChar_Up, SEPACleanIBANorBICorCI('test'+CP1252_SpChar_Lo), 'Upper-case conversion check with special character');
+  CheckEquals('TEST'+CP1252_SpChar_Up, SEPACleanIBANorBICorCI('test'+CP1252_SpChar_Lo),
+              'Upper-case conversion check with special character as CP-1252');
+  {$IFDEF FPC_HAS_CPSTRING}
+  CheckEquals('TEST'+UTF8_SpChar_Up, SEPACleanIBANorBICorCI('test'+UTF8_SpChar_Lo),
+              'Upper-case conversion check with special character as UTF-8');
+  {$ENDIF}
 end;
 
 procedure TPublicMethodsTestCase.TestSEPAModulo97;
@@ -217,37 +228,72 @@ end;
 
 procedure TPublicMethodsTestCase.TestSEPACleanString;
 const
-  numeric                = '01234567890';
-  alpha_lower            = 'abcdefghijklmnopqrstuvwxyz';
-  alpha_upper            = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  special                = ''':?,- (+.)/';
-  special_german         = 'äöüÄÖÜß&*$%';
-  special_german_transf  = 'aouAOUs+...';
-  special_invalid        = '!"§=#~_;{[]}\';
-  special_invalid_transf = '             ';
+  numeric               : RawByteString = '01234567890';
+  alpha_lower           : RawByteString = 'abcdefghijklmnopqrstuvwxyz';
+  alpha_upper           : RawByteString = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  special               : RawByteString = ''':?,- (+.)/';
+  special_german        : RawByteString = #228#246#252#196#214#220#223'&*$%';   // äöüÄÖÜß&*$%
+  special_german_transf : RawByteString = 'aouAOUs+...';
+  special_invalid       : RawByteString = '!"'#167'=#~_;{[]}\';                 // !"§=#~_;{[]}\
+  special_invalid_transf: RawByteString = '             ';
+  special_german_aou    : RawByteString = #228#246#252;                         // äöü
 begin
+  {$IFDEF FPC_HAS_CPSTRING}
+  // now set codepage of raw strings defined above
+  // (to make sure automatic conversions in FPC 3 work as needed)
+  SetCodePage(special_german, 1252, false);
+  SetCodePage(special_invalid, 1252, false);
+  SetCodePage(special_german_aou, 1252, false);
+  {$ENDIF}
+
   CheckEquals('', SEPACleanString(''),                     'Clean empty string check');
   CheckEquals(' ', SEPACleanString(' '),                   'Clean string is not trimmed check');
   CheckEquals(numeric, SEPACleanString(numeric),           'Clean string check for numbers');
   CheckEquals(alpha_lower, SEPACleanString(alpha_lower),   'Clean string check for lower case letters');
   CheckEquals(alpha_upper, SEPACleanString(alpha_upper),   'Clean string check for upper case letters');
-  CheckEquals(special, SEPACleanString(special),           'Clean string check for standard special characters');
-  CheckEquals(special_invalid_transf, SEPACleanString(special_invalid), 'Clean string check for standard special characters');
+  CheckEquals(special, SEPACleanString(special),           'Clean string check for allowed special characters');
+  CheckEquals(special_invalid_transf, SEPACleanString(special_invalid), 'Clean string check for disallowed special characters');
 
   CheckEquals(special_german_transf, SEPACleanString(special_german), 'Clean string check for German special characters');
+  {$IFDEF FPC_HAS_CPSTRING}
+  CheckEquals(special_german_transf, SEPACleanString(AnsiToUTF8(special_german)), 'Clean string check for German special characters as UTF-8');
+  {$ENDIF}
+
   SEPASupportSpecialChars := true;
+
   CheckEquals(special_german, SEPACleanString(special_german), 'Clean string check for German special characters (with German special characters allowed)');
+  {$IFDEF FPC_HAS_CPSTRING}
+  CheckEquals(special_german, SEPACleanString(AnsiToUTF8(special_german)), 'Clean string check for German special characters as UTF-8 (with German special characters allowed)');
+  {$ENDIF}
 
   CheckEquals('', SEPACleanString('', 0),                   'Clean string max-length for empty string check');
   CheckEquals('', SEPACleanString(' ', 0),                  'Clean string max-length for empty string (with truncation) check');
   CheckEquals('abc', SEPACleanString('abc', 3),             'Clean string max-length for string check');
   CheckEquals('abc', SEPACleanString('abcdef', 3),          'Clean string max-length for string (with truncation) check');
   CheckEquals('abc', SEPACleanString('abc', 4),             'Clean string max-length for string (without truncation) check');
-  CheckEquals('äöü', SEPACleanString('äöüÄÖÜ', 3),          'Clean string max-length for string with two-byte characters in UTF-8 check');
+  CheckEquals(special_german_aou, SEPACleanString(special_german_aou+special_german_aou, 3), 'Clean string max-length for string with two-byte characters in UTF-8 check');
+  {$IFDEF FPC_HAS_CPSTRING}
+  CheckEquals(special_german_aou, SEPACleanString(AnsiToUTF8(special_german_aou+special_german_aou), 3), 'Clean string max-length for string with two-byte characters in UTF-8 check');
+  {$ENDIF}
 end;
 
 procedure TPublicMethodsTestCase.TestSEPACheckString;
+const
+  // define bytes strings as raw values instead of standard string literals to
+  // avoid issues with file encoding and different interpretations of different
+  // compilers
+  CP1252_SpChar: RawByteString = #228; // ä
+  {$IFDEF FPC_HAS_CPSTRING}
+  UTF8_SpChar  : RawByteString = #195#164; // ä
+  {$ENDIF}
 begin
+  {$IFDEF FPC_HAS_CPSTRING}
+  // now set codepage of raw strings defined above
+  // (to make sure automatic conversions in FPC 3 work as needed)
+  SetCodePage(CP1252_SpChar, 1252, false);
+  SetCodePage(UTF8_SpChar, CP_UTF8, false);
+  {$ENDIF}
+
   CheckTrue(SEPACheckString(''),                            'Empty SEPA string check');
   CheckTrue(SEPACheckString('a'),                           'Simple SEPA string check');
   CheckTrue(SEPACheckString('a b'),                         'Simple SEPA string with space check');
@@ -255,9 +301,17 @@ begin
   CheckTrue(SEPACheckString('ab', 2),                       'Simple SEPA string with irrelvant max-length check');
   CheckFalse(SEPACheckString('abc', 2),                     'Simple SEPA string with relevant max-length check');
 
-  CheckFalse(SEPACheckString('ä'),                          'Simple SEPA string with German special character check');
+  CheckFalse(SEPACheckString(CP1252_SpChar),                'Simple SEPA string with German special character check');
+  {$IFDEF FPC_HAS_CPSTRING}
+  CheckFalse(SEPACheckString(UTF8_SpChar),                  'Simple SEPA string with German special character as UTF-8 check');
+  {$ENDIF}
+
   SEPASupportSpecialChars := true;
-  CheckTrue(SEPACheckString('ä'),                           'Simple SEPA string with German special character check (with German special characters allowed)');
+
+  CheckTrue(SEPACheckString(CP1252_SpChar),                 'Simple SEPA string with German special character check (with German special characters allowed)');
+  {$IFDEF FPC_HAS_CPSTRING}
+  CheckTrue(SEPACheckString(UTF8_SpChar),                   'Simple SEPA string with German special character as UTF-8 check (with German special characters allowed)');
+  {$ENDIF}
 end;
 
 procedure TPublicMethodsTestCase.TestSEPACheckRounded;
