@@ -1,6 +1,6 @@
 //
 //   Delphi unit for SEPA direct debit XML file creation
-//   (beta version 0.2.3, 2016-09-03)
+//   (beta version 0.2.4, 2016-10-01)
 //
 //   Copyright (C) 2013-2016 by Aaron Spettl
 //

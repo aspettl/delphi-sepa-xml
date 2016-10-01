@@ -1,3 +1,7 @@
+## 0.2.4 Beta (2016-10-01)
+
+  - Unterstützung für Lazarus 1.6 mit FPC 3.0 hinzugefügt.
+
 ## 0.2.3 Beta (2016-09-03)
 
   - Unit-Tests vervollständigt.
