@@ -60,9 +60,10 @@ type
   //
   // Note that all strings in these units are interpreted with respect to the
   // default behavior of the development environment, i.e.,
-  // a) for Delphi < 2009:  ANSI strings
-  // b) for Delphi >= 2009: Unicode strings
-  // c) for Lazarus:        no encoding specified, ANSI is assumed
+  // a) for Delphi < 2009:        ANSI strings
+  // b) for Delphi >= 2009:       Unicode strings
+  // c) for Lazarus with FPC 2.6: no encoding specified, ANSI is assumed
+  // d) for Lazarus with FPC 3.0: codepage-aware strings
 
   TAmendmentInformationDetails = class
   private
