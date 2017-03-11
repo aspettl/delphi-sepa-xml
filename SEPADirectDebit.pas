@@ -19,9 +19,6 @@
 //   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 //   Author:  Aaron Spettl
-//            Virchowstr. 26
-//            89075 Ulm
-//            Germany
 //   E-mail:  aaron@spettl.de
 //
 unit SEPADirectDebit;
