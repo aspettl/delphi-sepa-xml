@@ -578,7 +578,12 @@ begin
     Result.Append(Format(INVALID_LCL_INSTRM_CD, [PmtTpInfLclInstrmCd]));
 
   if (PmtTpInfLclInstrmCd = LCL_INSTRM_CD_COR1) and (schema <> SCHEMA_PAIN_008_003_02) then
-    Result.Append(INVALID_LCL_INSTRM_CD_COR1);
+  begin
+    if schema = SCHEMA_PAIN_008_002_02 then
+      Result.Append(INVALID_LCL_INSTRM_CD_COR1)
+    else
+      Result.Append(INVALID_LCL_INSTRM_CD_COR1_TO_CORE);
+  end;
 
   if (PmtTpInfSeqTp <> SEQ_TP_FRST) and
      (PmtTpInfSeqTp <> SEQ_TP_RCUR) and
@@ -586,7 +591,7 @@ begin
      (PmtTpInfSeqTp <> SEQ_TP_FNAL) then
     Result.Append(Format(INVALID_SEQ_TP, [PmtTpInfSeqTp]));
 
-  if Trunc(ReqdColltnDt) < SEPAEarliestCollectionDate(PmtTpInfLclInstrmCd, PmtTpInfSeqTp) then
+  if Trunc(ReqdColltnDt) < SEPAEarliestCollectionDate(PmtTpInfLclInstrmCd, PmtTpInfSeqTp, schema) then
     Result.Append(Format(INVALID_REQD_COLLTN_DT, [DateToStr(ReqdColltnDt)]));
 
   if PmtTpInfSvcLvlCd <> SEPA then

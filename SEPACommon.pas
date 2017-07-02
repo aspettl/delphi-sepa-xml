@@ -34,10 +34,13 @@ uses
   SysUtils, StrUtils, Math, Classes, DateUtils;
 
 const
-  SCHEMA_PAIN_001_002_03    = 'pain.001.002.03';
-  SCHEMA_PAIN_001_003_03    = 'pain.001.003.03';
-  SCHEMA_PAIN_008_002_02    = 'pain.008.002.02';
-  SCHEMA_PAIN_008_003_02    = 'pain.008.003.02';
+  SCHEMA_PAIN_001_002_03    = 'pain.001.002.03'; // Credit Transfer Initiation
+  SCHEMA_PAIN_001_003_03    = 'pain.001.003.03'; // - valid since 2013-11-04
+  SCHEMA_PAIN_001_001_03    = 'pain.001.001.03'; // - valid since 2016-11-20
+
+  SCHEMA_PAIN_008_002_02    = 'pain.008.002.02'; // Direct Debit Initiation
+  SCHEMA_PAIN_008_003_02    = 'pain.008.003.02'; // - valid since 2013-11-04
+  SCHEMA_PAIN_008_001_02    = 'pain.008.001.02'; // - valid since 2016-11-20
 
   SEPA                      = 'SEPA';
   FIN_INSTN_NOTPROVIDED     = 'NOTPROVIDED';
@@ -102,8 +105,9 @@ resourcestring
   EMPTY_CDTR_ID             = 'CdtrSchmeIdIdPrvtIdOthrId required.';
   INVALID_PMT_INF_ID        = 'PmtInfId "%s" not valid.';
   INVALID_PMT_MTD           = 'PmtMtd "%s" not valid (valid: DD).';
-  INVALID_LCL_INSTRM_CD     = 'PmtTpInfLclInstrmCd "%s" not valid (valid: CORE, COR1, B2B).';
-  INVALID_LCL_INSTRM_CD_COR1= 'PmtTpInfLclInstrmCd "COR1" only valid with schema "pain.008.003.02".';
+  INVALID_LCL_INSTRM_CD     = 'PmtTpInfLclInstrmCd "%s" not valid (valid: CORE, B2B and COR1 depending on schema).';
+  INVALID_LCL_INSTRM_CD_COR1= 'PmtTpInfLclInstrmCd "COR1" is not supported with schema "pain.008.002.02".';
+  INVALID_LCL_INSTRM_CD_COR1_TO_CORE = 'PmtTpInfLclInstrmCd "COR1" must be replaced by "CORE" for schema "pain.008.001.02".';
   INVALID_SEQ_TP            = 'PmtTpInfSeqTp "%s" not valid (valid: FRST, RCUR, OOFF, FNAL).';
   INVALID_REQD_EXCTN_DT     = 'ReqdExctnDt "%s" too early.';
   INVALID_REQD_COLLTN_DT    = 'ReqdColltnDt "%s" too early.';
@@ -179,7 +183,7 @@ function SEPAFormatAmount(const d: Currency; const digits: Integer = 2): String;
 function SEPAFormatBoolean(const b: Boolean): String;
 function SEPAFormatDate(const d: TDateTime): String;
 function SEPAFormatDateTime(const d: TDateTime): String;
-function SEPAEarliestCollectionDate(PmtTpInfLclInstrmCd: String; PmtTpInfSeqTp: String; BaseDate: TDateTime = 0): Cardinal;
+function SEPAEarliestCollectionDate(PmtTpInfLclInstrmCd: String; PmtTpInfSeqTp: String; const schema: String; BaseDate: TDateTime = 0): Cardinal;
 
 procedure SEPAWriteLine(const stream: TStream; const line: String);
 
@@ -527,7 +531,7 @@ begin
   Result := FormatDateTime('yyyy"-"mm"-"dd"T"hh":"nn":"ss"."zzz"Z"', d);
 end;
 
-function SEPAEarliestCollectionDate(PmtTpInfLclInstrmCd: String; PmtTpInfSeqTp: String; BaseDate: TDateTime = 0): Cardinal;
+function SEPAEarliestCollectionDate(PmtTpInfLclInstrmCd: String; PmtTpInfSeqTp: String; const schema: String; BaseDate: TDateTime = 0): Cardinal;
 var
   add_days, i: Integer;
 begin
@@ -538,7 +542,8 @@ begin
 
   // plan to add 1 or 2 or 5 days (seen from the current date), depending on the
   // local instrument code and the sequence type
-  if PmtTpInfLclInstrmCd = LCL_INSTRM_CD_CORE then
+  // (note that CORE behaves as COR1 with pain.008.001.02)
+  if (PmtTpInfLclInstrmCd = LCL_INSTRM_CD_CORE) and ((schema = SCHEMA_PAIN_008_002_02) or (schema = SCHEMA_PAIN_008_003_02)) then
   begin
     if (PmtTpInfSeqTp = SEQ_TP_FRST) or (PmtTpInfSeqTp = SEQ_TP_OOFF) then
       add_days := 5

@@ -594,7 +594,7 @@ begin
   // now generate object with all required fields
   fPaymentInfo.PmtTpInfLclInstrmCd := LCL_INSTRM_CD_CORE;
   fPaymentInfo.PmtTpInfSeqTp := SEQ_TP_FRST;
-  fPaymentInfo.ReqdColltnDt := SEPAEarliestCollectionDate(LCL_INSTRM_CD_CORE, SEQ_TP_FRST);
+  fPaymentInfo.ReqdColltnDt := SEPAEarliestCollectionDate(LCL_INSTRM_CD_CORE, SEQ_TP_FRST, SCHEMA_PAIN_008_003_02);
   fPaymentInfo.CdtrNm       := 'Creditor name';
   fPaymentInfo.CdtrSchmeIdIdPrvtIdOthrId := 'DE98ZZZ09999999999';
   CheckValidation([], fPaymentInfo.Validate(SCHEMA_PAIN_008_003_02));
@@ -620,9 +620,10 @@ begin
   CheckValidation([Format(INVALID_LCL_INSTRM_CD, ['TEST'])], fPaymentInfo.Validate(SCHEMA_PAIN_008_003_02));
   fPaymentInfo.PmtTpInfLclInstrmCd := LCL_INSTRM_CD_CORE;
 
-  // check local instrument code COR1 is only used with recent schema
+  // check local instrument code COR1 is only valid with schema "pain.008.003.02"
   fPaymentInfo.PmtTpInfLclInstrmCd := LCL_INSTRM_CD_COR1;
   CheckValidation([INVALID_LCL_INSTRM_CD_COR1], fPaymentInfo.Validate(SCHEMA_PAIN_008_002_02));
+  CheckValidation([INVALID_LCL_INSTRM_CD_COR1_TO_CORE], fPaymentInfo.Validate(SCHEMA_PAIN_008_001_02));
   fPaymentInfo.PmtTpInfLclInstrmCd := LCL_INSTRM_CD_CORE;
 
   // check sequence type (only whitelisted values allowed)
@@ -639,9 +640,9 @@ begin
   fPaymentInfo.PmtTpInfSeqTp := SEQ_TP_FRST;
 
   // check requested collection date
-  fPaymentInfo.ReqdColltnDt := SEPAEarliestCollectionDate(LCL_INSTRM_CD_CORE, SEQ_TP_FRST)-1;
+  fPaymentInfo.ReqdColltnDt := SEPAEarliestCollectionDate(LCL_INSTRM_CD_CORE, SEQ_TP_FRST, SCHEMA_PAIN_008_003_02)-1;
   CheckValidationContains([Format(INVALID_REQD_COLLTN_DT, [DateToStr(fPaymentInfo.ReqdColltnDt)])], fPaymentInfo.Validate(SCHEMA_PAIN_008_003_02));
-  fPaymentInfo.ReqdColltnDt := SEPAEarliestCollectionDate(LCL_INSTRM_CD_CORE, SEQ_TP_FRST);
+  fPaymentInfo.ReqdColltnDt := SEPAEarliestCollectionDate(LCL_INSTRM_CD_CORE, SEQ_TP_FRST, SCHEMA_PAIN_008_003_02);
 
   // checks for clean SEPA strings: name is automatically cleaned
   fPaymentInfo.CdtrNm := 'Creditor name! Test';
@@ -910,7 +911,7 @@ begin
   fPaymentInfo.PmtInfId      := 'PMTINFID';
   fPaymentInfo.PmtTpInfLclInstrmCd := LCL_INSTRM_CD_CORE;
   fPaymentInfo.PmtTpInfSeqTp := SEQ_TP_FRST;
-  fPaymentInfo.ReqdColltnDt  := SEPAEarliestCollectionDate(LCL_INSTRM_CD_CORE, SEQ_TP_FRST);
+  fPaymentInfo.ReqdColltnDt  := SEPAEarliestCollectionDate(LCL_INSTRM_CD_CORE, SEQ_TP_FRST, SCHEMA_PAIN_008_003_02);
   fPaymentInfo.CdtrNm        := 'Creditor name';
   fPaymentInfo.CdtrAgt.BIC   := 'SOMEFININST';
   fPaymentInfo.CdtrAcct.IBAN := 'DE58123456780123456789';
@@ -938,7 +939,7 @@ begin
   fPaymentInfo2.PmtInfId      := 'PMTINFID';
   fPaymentInfo2.PmtTpInfLclInstrmCd := LCL_INSTRM_CD_CORE;
   fPaymentInfo2.PmtTpInfSeqTp := SEQ_TP_RCUR;
-  fPaymentInfo2.ReqdColltnDt  := SEPAEarliestCollectionDate(LCL_INSTRM_CD_CORE, SEQ_TP_FRST);
+  fPaymentInfo2.ReqdColltnDt  := SEPAEarliestCollectionDate(LCL_INSTRM_CD_CORE, SEQ_TP_FRST, SCHEMA_PAIN_008_003_02);
   fPaymentInfo2.CdtrNm        := 'Creditor name';
   fPaymentInfo2.CdtrAgt.BIC   := 'SOMEFININST';
   fPaymentInfo2.CdtrAcct.IBAN := 'DE58123456780123456789';

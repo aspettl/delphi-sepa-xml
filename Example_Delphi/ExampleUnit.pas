@@ -173,7 +173,7 @@ begin
   CT_InstructedAmount_Edit.Text        := FloatToStr(123.45);
   CT_RemittanceInformation_Memo.Text   := Trim(DD_RemittanceInformation_Memo.Text);
 
-  DD_RequestedCollectionDate_Edit.Date := SEPAEarliestCollectionDate(DD_LocalInstrumentCode_ComboBox.Text, DD_SequenceType_ComboBox.Text);
+  DD_RequestedCollectionDate_Edit.Date := SEPAEarliestCollectionDate(DD_LocalInstrumentCode_ComboBox.Text, DD_SequenceType_ComboBox.Text, DD_ISOSchema_ComboBox.Text);
   DD_InstructedAmount_Edit.Text        := FloatToStr(123.45);
   DD_MandateDateOfSignature_Edit.Date  := Today-1;
   DD_RemittanceInformation_Memo.Text   := Trim(DD_RemittanceInformation_Memo.Text);

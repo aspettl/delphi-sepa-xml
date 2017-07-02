@@ -354,31 +354,36 @@ procedure TPublicMethodsTestCase.TestSEPAEarliestCollectionDate;
 begin
   // base date: today is default
   if (DayOfTheWeek(Now) = 5) then // Friday: need +3 days instead of +1
-    CheckEquals(Trunc(Now)+3, SEPAEarliestCollectionDate(LCL_INSTRM_CD_COR1, SEQ_TP_FRST))
+    CheckEquals(Trunc(Now)+3, SEPAEarliestCollectionDate(LCL_INSTRM_CD_COR1, SEQ_TP_FRST, SCHEMA_PAIN_008_003_02))
   else if (DayOfTheWeek(Now) = 6) then // Saturday: need +2 days instead of +1
-    CheckEquals(Trunc(Now)+2, SEPAEarliestCollectionDate(LCL_INSTRM_CD_COR1, SEQ_TP_FRST))
+    CheckEquals(Trunc(Now)+2, SEPAEarliestCollectionDate(LCL_INSTRM_CD_COR1, SEQ_TP_FRST, SCHEMA_PAIN_008_003_02))
   else
-    CheckEquals(Trunc(Now)+1, SEPAEarliestCollectionDate(LCL_INSTRM_CD_COR1, SEQ_TP_FRST));
+    CheckEquals(Trunc(Now)+1, SEPAEarliestCollectionDate(LCL_INSTRM_CD_COR1, SEQ_TP_FRST, SCHEMA_PAIN_008_003_02));
 
   // with fixed base date for easier testing:
   // - test skipping saturdays/sundays
-  CheckEquals(EncodeDate(2016, 9, 2), SEPAEarliestCollectionDate(LCL_INSTRM_CD_COR1, SEQ_TP_FRST, EncodeDate(2016, 9, 1)));
-  CheckEquals(EncodeDate(2016, 9, 5), SEPAEarliestCollectionDate(LCL_INSTRM_CD_COR1, SEQ_TP_FRST, EncodeDate(2016, 9, 2)));
-  CheckEquals(EncodeDate(2016, 9, 5), SEPAEarliestCollectionDate(LCL_INSTRM_CD_COR1, SEQ_TP_FRST, EncodeDate(2016, 9, 3)));
-  CheckEquals(EncodeDate(2016, 9, 5), SEPAEarliestCollectionDate(LCL_INSTRM_CD_COR1, SEQ_TP_FRST, EncodeDate(2016, 9, 4)));
-  // - test different variants of COR1/CORE/B2B, FRST/RCUR/FNAL/OOFF (which determines the number of days to add)
-  CheckEquals(EncodeDate(2016, 9, 6), SEPAEarliestCollectionDate(LCL_INSTRM_CD_COR1, SEQ_TP_FRST, EncodeDate(2016, 9, 5)));
-  CheckEquals(EncodeDate(2016, 9, 6), SEPAEarliestCollectionDate(LCL_INSTRM_CD_COR1, SEQ_TP_RCUR, EncodeDate(2016, 9, 5)));
-  CheckEquals(EncodeDate(2016, 9, 6), SEPAEarliestCollectionDate(LCL_INSTRM_CD_COR1, SEQ_TP_FNAL, EncodeDate(2016, 9, 5)));
-  CheckEquals(EncodeDate(2016, 9, 6), SEPAEarliestCollectionDate(LCL_INSTRM_CD_COR1, SEQ_TP_OOFF, EncodeDate(2016, 9, 5)));
-  CheckEquals(EncodeDate(2016, 9, 12), SEPAEarliestCollectionDate(LCL_INSTRM_CD_CORE, SEQ_TP_FRST, EncodeDate(2016, 9, 5)));
-  CheckEquals(EncodeDate(2016, 9, 7), SEPAEarliestCollectionDate(LCL_INSTRM_CD_CORE, SEQ_TP_RCUR, EncodeDate(2016, 9, 5)));
-  CheckEquals(EncodeDate(2016, 9, 7), SEPAEarliestCollectionDate(LCL_INSTRM_CD_CORE, SEQ_TP_FNAL, EncodeDate(2016, 9, 5)));
-  CheckEquals(EncodeDate(2016, 9, 12), SEPAEarliestCollectionDate(LCL_INSTRM_CD_CORE, SEQ_TP_OOFF, EncodeDate(2016, 9, 5)));
-  CheckEquals(EncodeDate(2016, 9, 6), SEPAEarliestCollectionDate(LCL_INSTRM_CD_B2B, SEQ_TP_FRST, EncodeDate(2016, 9, 5)));
-  CheckEquals(EncodeDate(2016, 9, 6), SEPAEarliestCollectionDate(LCL_INSTRM_CD_B2B, SEQ_TP_RCUR, EncodeDate(2016, 9, 5)));
-  CheckEquals(EncodeDate(2016, 9, 6), SEPAEarliestCollectionDate(LCL_INSTRM_CD_B2B, SEQ_TP_FNAL, EncodeDate(2016, 9, 5)));
-  CheckEquals(EncodeDate(2016, 9, 6), SEPAEarliestCollectionDate(LCL_INSTRM_CD_B2B, SEQ_TP_OOFF, EncodeDate(2016, 9, 5)));
+  CheckEquals(EncodeDate(2016, 9, 2), SEPAEarliestCollectionDate(LCL_INSTRM_CD_COR1, SEQ_TP_FRST, SCHEMA_PAIN_008_003_02, EncodeDate(2016, 9, 1)));
+  CheckEquals(EncodeDate(2016, 9, 5), SEPAEarliestCollectionDate(LCL_INSTRM_CD_COR1, SEQ_TP_FRST, SCHEMA_PAIN_008_003_02, EncodeDate(2016, 9, 2)));
+  CheckEquals(EncodeDate(2016, 9, 5), SEPAEarliestCollectionDate(LCL_INSTRM_CD_COR1, SEQ_TP_FRST, SCHEMA_PAIN_008_003_02, EncodeDate(2016, 9, 3)));
+  CheckEquals(EncodeDate(2016, 9, 5), SEPAEarliestCollectionDate(LCL_INSTRM_CD_COR1, SEQ_TP_FRST, SCHEMA_PAIN_008_003_02, EncodeDate(2016, 9, 4)));
+  // - pain.008.003.02: test different variants of COR1/CORE/B2B, FRST/RCUR/FNAL/OOFF (which determines the number of days to add)
+  CheckEquals(EncodeDate(2016, 9, 6), SEPAEarliestCollectionDate(LCL_INSTRM_CD_COR1, SEQ_TP_FRST, SCHEMA_PAIN_008_003_02, EncodeDate(2016, 9, 5)));
+  CheckEquals(EncodeDate(2016, 9, 6), SEPAEarliestCollectionDate(LCL_INSTRM_CD_COR1, SEQ_TP_RCUR, SCHEMA_PAIN_008_003_02, EncodeDate(2016, 9, 5)));
+  CheckEquals(EncodeDate(2016, 9, 6), SEPAEarliestCollectionDate(LCL_INSTRM_CD_COR1, SEQ_TP_FNAL, SCHEMA_PAIN_008_003_02, EncodeDate(2016, 9, 5)));
+  CheckEquals(EncodeDate(2016, 9, 6), SEPAEarliestCollectionDate(LCL_INSTRM_CD_COR1, SEQ_TP_OOFF, SCHEMA_PAIN_008_003_02, EncodeDate(2016, 9, 5)));
+  CheckEquals(EncodeDate(2016, 9, 12), SEPAEarliestCollectionDate(LCL_INSTRM_CD_CORE, SEQ_TP_FRST, SCHEMA_PAIN_008_003_02, EncodeDate(2016, 9, 5)));
+  CheckEquals(EncodeDate(2016, 9, 7), SEPAEarliestCollectionDate(LCL_INSTRM_CD_CORE, SEQ_TP_RCUR, SCHEMA_PAIN_008_003_02, EncodeDate(2016, 9, 5)));
+  CheckEquals(EncodeDate(2016, 9, 7), SEPAEarliestCollectionDate(LCL_INSTRM_CD_CORE, SEQ_TP_FNAL, SCHEMA_PAIN_008_003_02, EncodeDate(2016, 9, 5)));
+  CheckEquals(EncodeDate(2016, 9, 12), SEPAEarliestCollectionDate(LCL_INSTRM_CD_CORE, SEQ_TP_OOFF, SCHEMA_PAIN_008_003_02, EncodeDate(2016, 9, 5)));
+  CheckEquals(EncodeDate(2016, 9, 6), SEPAEarliestCollectionDate(LCL_INSTRM_CD_B2B, SEQ_TP_FRST, SCHEMA_PAIN_008_003_02, EncodeDate(2016, 9, 5)));
+  CheckEquals(EncodeDate(2016, 9, 6), SEPAEarliestCollectionDate(LCL_INSTRM_CD_B2B, SEQ_TP_RCUR, SCHEMA_PAIN_008_003_02, EncodeDate(2016, 9, 5)));
+  CheckEquals(EncodeDate(2016, 9, 6), SEPAEarliestCollectionDate(LCL_INSTRM_CD_B2B, SEQ_TP_FNAL, SCHEMA_PAIN_008_003_02, EncodeDate(2016, 9, 5)));
+  CheckEquals(EncodeDate(2016, 9, 6), SEPAEarliestCollectionDate(LCL_INSTRM_CD_B2B, SEQ_TP_OOFF, SCHEMA_PAIN_008_003_02, EncodeDate(2016, 9, 5)));
+  // - pain.008.001.02: test that CORE behaves as COR1 above
+  CheckEquals(EncodeDate(2016, 9, 6), SEPAEarliestCollectionDate(LCL_INSTRM_CD_CORE, SEQ_TP_FRST, SCHEMA_PAIN_008_001_02, EncodeDate(2016, 9, 5)));
+  CheckEquals(EncodeDate(2016, 9, 6), SEPAEarliestCollectionDate(LCL_INSTRM_CD_CORE, SEQ_TP_RCUR, SCHEMA_PAIN_008_001_02, EncodeDate(2016, 9, 5)));
+  CheckEquals(EncodeDate(2016, 9, 6), SEPAEarliestCollectionDate(LCL_INSTRM_CD_CORE, SEQ_TP_FNAL, SCHEMA_PAIN_008_001_02, EncodeDate(2016, 9, 5)));
+  CheckEquals(EncodeDate(2016, 9, 6), SEPAEarliestCollectionDate(LCL_INSTRM_CD_CORE, SEQ_TP_OOFF, SCHEMA_PAIN_008_001_02, EncodeDate(2016, 9, 5)));
 end;
 
 procedure TPublicMethodsTestCase.TestSEPAWriteLine;
