@@ -42,14 +42,14 @@ type
   //
   // Short explanation of XML file for direct debit transactions:
   //
-  // XML tags                      corresponding class
+  // XML tags                      corresponding class or interface
   // ---------------------------------------------------------------------------
   // <Document>                    TDirectDebitInitiation
   //   <CstmrDrctDbtInitn>         TDirectDebitInitiation
   //     <PmtInf>                  TDirectDebitPaymentInformation
   //       <DrctDbtTxInf>          TDirectDebitTransactionInformation
   //         <MndtRltdInf>         TMandateRelatedInformation
-  //           <AmdmntInfDtls>     TAmendmentInformationDetails
+  //           <AmdmntInfDtls>     IAmendmentInformationDetails
   //       <DrctDbtTxInf>          ...
   //         ...
   //     <PmtInf>
@@ -62,7 +62,12 @@ type
   // c) for Lazarus with FPC 2.6: no encoding specified, ANSI is assumed
   // d) for Lazarus with FPC 3.0: codepage-aware strings
 
-  TAmendmentInformationDetails = class
+  IAmendmentInformationDetails = interface
+    function Validate(const schema: String; const PmtTpInfSeqTp: String; const appendTo: TStringList = nil): TStringList;
+    procedure SaveToStream(const stream: TStream; const schema: String);
+  end;
+
+  TAmendmentInformationDetails26 = class(TInterfacedObject, IAmendmentInformationDetails)
   private
     fOrgnlMndtId: String;                              // original mandate identification
     fOrgnlCdtrSchmeIdNm: String;                       // original creditor name
@@ -83,8 +88,8 @@ type
     property OrgnlDbtrAcct: TAccountIdentification read fOrgnlDbtrAcct;
     property OrgnlDbtrAgtFinInstIdOthrId: String read fOrgnlDbtrAgtFinInstIdOthrId write fOrgnlDbtrAgtFinInstIdOthrId;
 
-    function Validate(const schema: String; const appendTo: TStringList = nil): TStringList;
-    procedure SaveToStream(const stream: TStream; const schema: String);
+    function Validate(const schema: String; const PmtTpInfSeqTp: String; const appendTo: TStringList = nil): TStringList;
+    procedure SaveToStream(const stream: TStream; const schema: String); 
   end;
 
   TMandateRelatedInformation = class
@@ -92,7 +97,7 @@ type
     fMndtId: String;                                   // mandate identification
     fDtOfSgntr: TDateTime;                             // date of signature
     fAmdmntInd: Boolean;                               // amendment indicator ("false" or "true")
-    fAmdmntInfDtls: TAmendmentInformationDetails;
+    fAmdmntInfDtls26: TAmendmentInformationDetails26;
   public
     constructor Create;
     destructor Destroy; override;
@@ -100,9 +105,10 @@ type
     property MndtId: String read fMndtId write fMndtId;
     property DtOfSgntr: TDateTime read fDtOfSgntr write fDtOfSgntr;
     property AmdmntInd: Boolean read fAmdmntInd write fAmdmntInd;
-    property AmdmntInfDtls: TAmendmentInformationDetails read fAmdmntInfDtls;
+    // Note: no property "AmdmntInfDtls" returning the interface because, then, reference counting interferes with explicit freeing
+    property AmdmntInfDtls26: TAmendmentInformationDetails26 read fAmdmntInfDtls26;
 
-    function Validate(const schema: String; const appendTo: TStringList = nil): TStringList;
+    function Validate(const schema: String; const PmtTpInfSeqTp: String; const appendTo: TStringList = nil): TStringList;
     procedure SaveToStream(const stream: TStream; const schema: String);
   end;
 
@@ -135,7 +141,7 @@ type
     property UltmtDbtrNm: String read fUltmtDbtrNm write SetUltmtDbtrNm;
     property RmtInfUstrd: String read fRmtInfUstrd write SetRmtInfUstrd;
 
-    function Validate(const schema: String; const appendTo: TStringList = nil): TStringList;
+    function Validate(const schema: String; const PmtTpInfSeqTp: String; const appendTo: TStringList = nil): TStringList;
     procedure SaveToStream(const stream: TStream; const schema: String);
   end;
 
@@ -224,27 +230,29 @@ type
 
 implementation
 
-// TAmendmentInformationDetails
+// TAmendmentInformationDetails26
 
-constructor TAmendmentInformationDetails.Create;
+constructor TAmendmentInformationDetails26.Create;
 begin
   inherited;
   fOrgnlCdtrSchmeIdIdPrvtIdOthrSchmeNmPrtry := SEPA;
   fOrgnlDbtrAcct                            := TAccountIdentification.Create;
 end;
 
-destructor TAmendmentInformationDetails.Destroy;
+destructor TAmendmentInformationDetails26.Destroy;
 begin
   FreeAndNil(fOrgnlDbtrAcct);
   inherited;
 end;
 
-procedure TAmendmentInformationDetails.SetOrgnlCdtrSchmeIdIdPrvtIdOthrId(const str: String);
+procedure TAmendmentInformationDetails26.SetOrgnlCdtrSchmeIdIdPrvtIdOthrId(const str: String);
 begin
   fOrgnlCdtrSchmeIdIdPrvtIdOthrId := SEPACleanIBANorBICorCI(str);
 end;
 
-function TAmendmentInformationDetails.Validate(const schema: String; const appendTo: TStringList = nil): TStringList;
+function TAmendmentInformationDetails26.Validate(const schema: String; const PmtTpInfSeqTp: String; const appendTo: TStringList = nil): TStringList;
+var
+  empty: Boolean;
 begin
   if appendTo <> nil then
     Result := appendTo
@@ -253,8 +261,9 @@ begin
 
   // check for empty fields
 
-  if (OrgnlMndtId = '') and (OrgnlCdtrSchmeIdNm = '') and (OrgnlCdtrSchmeIdIdPrvtIdOthrId = '') and
-     (OrgnlDbtrAcct.IBAN = '') and (OrgnlDbtrAgtFinInstIdOthrId = '') then
+  empty := (OrgnlMndtId = '') and (OrgnlCdtrSchmeIdNm = '') and (OrgnlCdtrSchmeIdIdPrvtIdOthrId = '') and
+           (OrgnlDbtrAcct.IBAN = '') and (OrgnlDbtrAgtFinInstIdOthrId = '');
+  if empty then
     Result.Append(EMPTY_AMDMNT_INF_DTLS);
 
   // check for invalid fields
@@ -274,13 +283,18 @@ begin
   if (OrgnlDbtrAgtFinInstIdOthrId <> '') and (OrgnlDbtrAgtFinInstIdOthrId <> ORGNL_DBTR_AGT_SMNDA) then
     Result.Append(Format(INVALID_ORGNL_FIN_INST_ID, [OrgnlDbtrAgtFinInstIdOthrId]));
 
+  if not empty and (PmtTpInfSeqTp = SEQ_TP_FRST) and (OrgnlDbtrAgtFinInstIdOthrId <> ORGNL_DBTR_AGT_SMNDA) then
+    Result.Append(INVALID_SEQ_TP_FRST_SMNDA1);
+  if (PmtTpInfSeqTp <> SEQ_TP_FRST) and (OrgnlDbtrAgtFinInstIdOthrId = ORGNL_DBTR_AGT_SMNDA) then
+    Result.Append(INVALID_SEQ_TP_FRST_SMNDA2);
+
   // delegate validations where possible
 
   if (OrgnlDbtrAcct.IBAN <> '') then
     OrgnlDbtrAcct.Validate(schema, Result);
 end;
 
-procedure TAmendmentInformationDetails.SaveToStream(const stream: TStream; const schema: String);
+procedure TAmendmentInformationDetails26.SaveToStream(const stream: TStream; const schema: String);
 begin
   SEPAWriteLine(stream, '<AmdmntInfDtls>');
 
@@ -318,16 +332,16 @@ end;
 constructor TMandateRelatedInformation.Create;
 begin
   inherited;
-  fAmdmntInfDtls := TAmendmentInformationDetails.Create;
+  fAmdmntInfDtls26 := TAmendmentInformationDetails26.Create;
 end;
 
 destructor TMandateRelatedInformation.Destroy;
 begin
-  FreeAndNil(fAmdmntInfDtls);
+  FreeAndNil(fAmdmntInfDtls26);
   inherited;
 end;
 
-function TMandateRelatedInformation.Validate(const schema: String; const appendTo: TStringList = nil): TStringList;
+function TMandateRelatedInformation.Validate(const schema: String; const PmtTpInfSeqTp: String; const appendTo: TStringList = nil): TStringList;
 begin
   if appendTo <> nil then
     Result := appendTo
@@ -353,7 +367,7 @@ begin
   // delegate validations where possible
 
   if AmdmntInd then
-    AmdmntInfDtls.Validate(schema, Result);
+    AmdmntInfDtls26.Validate(schema, PmtTpInfSeqTp, Result);
 end;
 
 procedure TMandateRelatedInformation.SaveToStream(const stream: TStream; const schema: String);
@@ -363,7 +377,7 @@ begin
   SEPAWriteLine(stream, '<DtOfSgntr>'+SEPAFormatDate(DtOfSgntr)+'</DtOfSgntr>');
   SEPAWriteLine(stream, '<AmdmntInd>'+SEPAFormatBoolean(AmdmntInd)+'</AmdmntInd>');
   if AmdmntInd then
-    AmdmntInfDtls.SaveToStream(stream, schema);
+    AmdmntInfDtls26.SaveToStream(stream, schema);
   SEPAWriteLine(stream, '</MndtRltdInf>');
 end;
 
@@ -402,7 +416,7 @@ begin
   fRmtInfUstrd := SEPACleanString(str);
 end;
 
-function TDirectDebitTransactionInformation.Validate(const schema: String; const appendTo: TStringList = nil): TStringList;
+function TDirectDebitTransactionInformation.Validate(const schema: String; const PmtTpInfSeqTp: String; const appendTo: TStringList = nil): TStringList;
 begin
   if appendTo <> nil then
     Result := appendTo
@@ -444,7 +458,7 @@ begin
 
   DbtrAgt.Validate(schema, Result);
   DbtrAcct.Validate(schema, Result);
-  DrctDbtTxMndtRltdInf.Validate(schema, Result);
+  DrctDbtTxMndtRltdInf.Validate(schema, PmtTpInfSeqTp, Result);
 
   // plausibility checks
 
@@ -615,41 +629,12 @@ begin
   CdtrAgt.Validate(schema, Result);
 
   for i := 0 to DrctDbtTxInfCount-1 do
-    DrctDbtTxInfEntry[i].Validate(schema, Result);
+    DrctDbtTxInfEntry[i].Validate(schema, PmtTpInfSeqTp, Result);
 
   // plausibility checks
 
   if not SEPAIsGermanIBAN(CdtrAcct.IBAN) then
     Result.Append(INVALID_CDTR_ACCT_NOT_DE);
-
-  if PmtTpInfSeqTp = SEQ_TP_FRST then
-  begin
-    for i := 0 to DrctDbtTxInfCount-1 do
-    begin
-      if DrctDbtTxInfEntry[i].DrctDbtTxMndtRltdInf.AmdmntInd then
-      begin
-        if DrctDbtTxInfEntry[i].DrctDbtTxMndtRltdInf.AmdmntInfDtls.OrgnlDbtrAgtFinInstIdOthrId <> ORGNL_DBTR_AGT_SMNDA then
-        begin
-          Result.Append(INVALID_SEQ_TP_FRST_SMNDA1);
-          Break;
-        end;
-      end;
-    end;
-  end
-  else
-  begin
-    for i := 0 to DrctDbtTxInfCount-1 do
-    begin
-      if DrctDbtTxInfEntry[i].DrctDbtTxMndtRltdInf.AmdmntInd then
-      begin
-        if DrctDbtTxInfEntry[i].DrctDbtTxMndtRltdInf.AmdmntInfDtls.OrgnlDbtrAgtFinInstIdOthrId = ORGNL_DBTR_AGT_SMNDA then
-        begin
-          Result.Append(INVALID_SEQ_TP_FRST_SMNDA2);
-          Break;
-        end;
-      end;
-    end;
-  end;
 
   // note: number of objects in DrctDbtTxInf is not checked - if empty, then this
   // object will be ignored by TDirectDebitInitiation; and TDirectDebitInitiation

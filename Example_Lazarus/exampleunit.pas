@@ -329,11 +329,11 @@ begin
   ti.DrctDbtTxMndtRltdInf.MndtId    := GUIStringToDefaultString(DD_MandateId_Edit.Text);
   ti.DrctDbtTxMndtRltdInf.DtOfSgntr := DD_MandateDateOfSignature_Edit.Date;
   ti.DrctDbtTxMndtRltdInf.AmdmntInd := DD_MandateAmendmentInformationDetails_CheckBox.Checked;
-  ti.DrctDbtTxMndtRltdInf.AmdmntInfDtls.OrgnlMndtId                    := GUIStringToDefaultString(DD_OriginalMandateId_Edit.Text);
-  ti.DrctDbtTxMndtRltdInf.AmdmntInfDtls.OrgnlCdtrSchmeIdNm             := GUIStringToDefaultString(DD_OriginalCreditorName_Edit.Text);
-  ti.DrctDbtTxMndtRltdInf.AmdmntInfDtls.OrgnlCdtrSchmeIdIdPrvtIdOthrId := GUIStringToDefaultString(DD_OriginalCreditorIdentifier_Edit.Text);
-  ti.DrctDbtTxMndtRltdInf.AmdmntInfDtls.OrgnlDbtrAcct.IBAN             := GUIStringToDefaultString(DD_OriginalDebtorAccountIBAN_Edit.Text);
-  ti.DrctDbtTxMndtRltdInf.AmdmntInfDtls.OrgnlDbtrAgtFinInstIdOthrId    := IfThen(DD_OriginalDebtorFinInstSMNDA_CheckBox.Checked, ORGNL_DBTR_AGT_SMNDA, '');
+  ti.DrctDbtTxMndtRltdInf.AmdmntInfDtls26.OrgnlMndtId                    := GUIStringToDefaultString(DD_OriginalMandateId_Edit.Text);
+  ti.DrctDbtTxMndtRltdInf.AmdmntInfDtls26.OrgnlCdtrSchmeIdNm             := GUIStringToDefaultString(DD_OriginalCreditorName_Edit.Text);
+  ti.DrctDbtTxMndtRltdInf.AmdmntInfDtls26.OrgnlCdtrSchmeIdIdPrvtIdOthrId := GUIStringToDefaultString(DD_OriginalCreditorIdentifier_Edit.Text);
+  ti.DrctDbtTxMndtRltdInf.AmdmntInfDtls26.OrgnlDbtrAcct.IBAN             := GUIStringToDefaultString(DD_OriginalDebtorAccountIBAN_Edit.Text);
+  ti.DrctDbtTxMndtRltdInf.AmdmntInfDtls26.OrgnlDbtrAgtFinInstIdOthrId    := IfThen(DD_OriginalDebtorFinInstSMNDA_CheckBox.Checked, ORGNL_DBTR_AGT_SMNDA, '');
   pi.AppendDrctDbtTxInfEntry(ti);
 
   // validate and save

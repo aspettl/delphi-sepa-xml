@@ -86,6 +86,8 @@ resourcestring
   INVALID_ORGNL_CRDTR_ID    = 'OrgnlCdtrSchmeIdIdPrvtIdOthrId "%s" not valid.';
   INVALID_ORGNL_CRDTR_PRTRY = 'OrgnlCdtrSchmeIdIdPrvtIdOthrSchmeNmPrtry "%s" not valid (valid: SEPA).';
   INVALID_ORGNL_FIN_INST_ID = 'OrgnlDbtrAgtFinInstIdOthrId "%s" not valid (valid: SMNDA).';
+  INVALID_SEQ_TP_FRST_SMNDA1= 'Mandate amendment details must be marked "SMNDA" (same mandate, new debtor agent) for sequence type "FRST".';
+  INVALID_SEQ_TP_FRST_SMNDA2= 'Mandate amendment details are marked "SMNDA" (same mandate, new debtor agent) but the sequence type is not "FRST".';
   EMPTY_MNDT_ID             = 'MndtId required.';
   EMPTY_DT_OF_SGNTR         = 'DtOfSgntr required.';
   INVALID_MNDT_ID           = 'MndtId "%s" not valid.';
@@ -119,8 +121,6 @@ resourcestring
   INVALID_CDTR_PRTRY        = 'CdtrSchmeIdIdPrvtIdOthrSchmeNmPrtry "%s" not valid (valid: SEPA).';
   INVALID_DBTR_ACCT_NOT_DE  = 'Debtor bank account should be of a German bank.';
   INVALID_CDTR_ACCT_NOT_DE  = 'Creditor bank account should be of a German bank.';
-  INVALID_SEQ_TP_FRST_SMNDA1= 'PmtTpInfSeqTp is "FRST", but there is a transaction with mandate amendment details, which is not marked "SMNDA" (same mandate, new debtor agent).';
-  INVALID_SEQ_TP_FRST_SMNDA2= 'PmtTpInfSeqTp is not "FRST", but there is a transaction with mandate amendment details marked "SMNDA" (same mandate, new debtor agent), which implies "FRST".';
   UNKNOWN_SCHEMA            = 'ISO schema "%s" not known or invalid for this type of XML file.';
   EMPTY_GRP_HDR_MSG_ID      = 'GrpHdrMsgId required.';
   EMPTY_INITG_PTY_NAME      = 'GrpHdrInitgPtyName required.';

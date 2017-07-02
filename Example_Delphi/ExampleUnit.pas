@@ -298,11 +298,11 @@ begin
   ti.DrctDbtTxMndtRltdInf.MndtId    := DD_MandateId_Edit.Text;
   ti.DrctDbtTxMndtRltdInf.DtOfSgntr := DD_MandateDateOfSignature_Edit.Date;
   ti.DrctDbtTxMndtRltdInf.AmdmntInd := DD_MandateAmendmentInformationDetails_CheckBox.Checked;
-  ti.DrctDbtTxMndtRltdInf.AmdmntInfDtls.OrgnlMndtId                    := DD_OriginalMandateId_Edit.Text;
-  ti.DrctDbtTxMndtRltdInf.AmdmntInfDtls.OrgnlCdtrSchmeIdNm             := DD_OriginalCreditorName_Edit.Text;
-  ti.DrctDbtTxMndtRltdInf.AmdmntInfDtls.OrgnlCdtrSchmeIdIdPrvtIdOthrId := DD_OriginalCreditorIdentifier_Edit.Text;
-  ti.DrctDbtTxMndtRltdInf.AmdmntInfDtls.OrgnlDbtrAcct.IBAN             := DD_OriginalDebtorAccountIBAN_Edit.Text;
-  ti.DrctDbtTxMndtRltdInf.AmdmntInfDtls.OrgnlDbtrAgtFinInstIdOthrId    := IfThen(DD_OriginalDebtorFinInstSMNDA_CheckBox.Checked, ORGNL_DBTR_AGT_SMNDA, '');
+  ti.DrctDbtTxMndtRltdInf.AmdmntInfDtls26.OrgnlMndtId                    := DD_OriginalMandateId_Edit.Text;
+  ti.DrctDbtTxMndtRltdInf.AmdmntInfDtls26.OrgnlCdtrSchmeIdNm             := DD_OriginalCreditorName_Edit.Text;
+  ti.DrctDbtTxMndtRltdInf.AmdmntInfDtls26.OrgnlCdtrSchmeIdIdPrvtIdOthrId := DD_OriginalCreditorIdentifier_Edit.Text;
+  ti.DrctDbtTxMndtRltdInf.AmdmntInfDtls26.OrgnlDbtrAcct.IBAN             := DD_OriginalDebtorAccountIBAN_Edit.Text;
+  ti.DrctDbtTxMndtRltdInf.AmdmntInfDtls26.OrgnlDbtrAgtFinInstIdOthrId    := IfThen(DD_OriginalDebtorFinInstSMNDA_CheckBox.Checked, ORGNL_DBTR_AGT_SMNDA, '');
   pi.AppendDrctDbtTxInfEntry(ti);
 
   // validate and save
