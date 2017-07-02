@@ -888,11 +888,11 @@ object ExampleForm: TExampleForm
       end
       object DD_Mandate_GroupBox: TGroupBox
         Left = 500
-        Height = 233
-        Top = 362
+        Height = 321
+        Top = 272
         Width = 393
         Caption = 'Mandate related information'
-        ClientHeight = 215
+        ClientHeight = 303
         ClientWidth = 389
         TabOrder = 3
         object Label17: TLabel
@@ -906,7 +906,7 @@ object ExampleForm: TExampleForm
         object Label18: TLabel
           Left = 8
           Height = 16
-          Top = 160
+          Top = 192
           Width = 124
           Caption = 'Debtor account (IBAN):'
           ParentColor = False
@@ -914,7 +914,7 @@ object ExampleForm: TExampleForm
         object Label19: TLabel
           Left = 8
           Height = 16
-          Top = 184
+          Top = 216
           Width = 85
           Caption = 'Debtor fin. inst.:'
           ParentColor = False
@@ -963,7 +963,7 @@ object ExampleForm: TExampleForm
         object DD_OriginalDebtorAccountIBAN_Edit: TEdit
           Left = 134
           Height = 23
-          Top = 160
+          Top = 192
           Width = 225
           MaxLength = 34
           TabOrder = 6
@@ -987,7 +987,7 @@ object ExampleForm: TExampleForm
         object DD_OriginalDebtorFinInstSMNDA_CheckBox: TCheckBox
           Left = 134
           Height = 19
-          Top = 184
+          Top = 216
           Width = 250
           Caption = 'SMNDA (same mandate, new debtor agent)'
           TabOrder = 7
@@ -1058,6 +1058,48 @@ object ExampleForm: TExampleForm
           NumGlyphs = 0
           MaxLength = 0
           TabOrder = 1
+        end
+        object Label52: TLabel
+          Left = 8
+          Height = 14
+          Top = 168
+          Width = 228
+          Caption = 'Only for "pain.008.002.02" / "pain.008.003.02":'
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = [fsUnderline]
+          ParentColor = False
+          ParentFont = False
+        end
+        object Label53: TLabel
+          Left = 8
+          Height = 14
+          Top = 248
+          Width = 130
+          Caption = 'Only for "pain.008.001.02":'
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = [fsUnderline]
+          ParentColor = False
+          ParentFont = False
+        end
+        object Label51: TLabel
+          Left = 8
+          Height = 16
+          Top = 272
+          Width = 86
+          Caption = 'Debtor account:'
+          ParentColor = False
+        end
+        object DD_OriginalDebtorAccountSMNDA_CheckBox: TCheckBox
+          Left = 134
+          Height = 19
+          Top = 270
+          Width = 263
+          Caption = 'SMNDA (same mandate, new debtor account)'
+          TabOrder = 8
         end
       end
       object DD_Tips_GroupBox: TGroupBox

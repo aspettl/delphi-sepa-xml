@@ -757,9 +757,9 @@ object ExampleForm: TExampleForm
       end
       object DD_Mandate_GroupBox: TGroupBox
         Left = 480
-        Top = 352
+        Top = 264
         Width = 377
-        Height = 233
+        Height = 321
         Caption = 'Mandate related information'
         TabOrder = 3
         object Label17: TLabel
@@ -771,14 +771,14 @@ object ExampleForm: TExampleForm
         end
         object Label18: TLabel
           Left = 8
-          Top = 176
+          Top = 208
           Width = 111
           Height = 13
           Caption = 'Debtor account (IBAN):'
         end
         object Label19: TLabel
           Left = 8
-          Top = 200
+          Top = 232
           Width = 74
           Height = 13
           Caption = 'Debtor fin. inst.:'
@@ -811,6 +811,39 @@ object ExampleForm: TExampleForm
           Height = 13
           Caption = 'Creditor identifier:'
         end
+        object Label51: TLabel
+          Left = 8
+          Top = 288
+          Width = 77
+          Height = 13
+          Caption = 'Debtor account:'
+        end
+        object Label52: TLabel
+          Left = 8
+          Top = 184
+          Width = 227
+          Height = 13
+          Caption = 'Only for "pain.008.002.02" / "pain.008.003.02":'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = [fsUnderline]
+          ParentFont = False
+        end
+        object Label53: TLabel
+          Left = 8
+          Top = 264
+          Width = 129
+          Height = 13
+          Caption = 'Only for "pain.008.001.02":'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = [fsUnderline]
+          ParentFont = False
+        end
         object DD_MandateId_Edit: TEdit
           Left = 128
           Top = 24
@@ -822,7 +855,7 @@ object ExampleForm: TExampleForm
         end
         object DD_OriginalDebtorAccountIBAN_Edit: TEdit
           Left = 128
-          Top = 176
+          Top = 208
           Width = 225
           Height = 21
           MaxLength = 34
@@ -860,8 +893,8 @@ object ExampleForm: TExampleForm
         end
         object DD_OriginalDebtorFinInstSMNDA_CheckBox: TCheckBox
           Left = 128
-          Top = 200
-          Width = 233
+          Top = 232
+          Width = 241
           Height = 17
           Caption = 'SMNDA (same mandate, new debtor agent)'
           TabOrder = 7
@@ -881,6 +914,14 @@ object ExampleForm: TExampleForm
           Height = 21
           MaxLength = 35
           TabOrder = 5
+        end
+        object DD_OriginalDebtorAccountSMNDA_CheckBox: TCheckBox
+          Left = 128
+          Top = 288
+          Width = 241
+          Height = 17
+          Caption = 'SMNDA (same mandate, new debtor account)'
+          TabOrder = 8
         end
       end
       object DD_Tips_GroupBox: TGroupBox

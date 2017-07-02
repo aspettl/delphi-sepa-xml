@@ -75,6 +75,7 @@ type
     DD_DebtorBICNotProvided_CheckBox: TCheckBox;
     DD_EndToEndId_ComboBox: TComboBox;
     CT_RequestedExecutionDate_Edit: TDateEdit;
+    DD_OriginalDebtorAccountSMNDA_CheckBox: TCheckBox;
     DD_Tips_GroupBox1: TGroupBox;
     DD_XMLFile_GroupBox: TGroupBox;
     DD_PaymentInformation_GroupBox: TGroupBox;
@@ -130,6 +131,9 @@ type
     Label49: TLabel;
     Label5: TLabel;
     Label50: TLabel;
+    Label51: TLabel;
+    Label52: TLabel;
+    Label53: TLabel;
     Label6: TLabel;
     Label7: TLabel;
     Label8: TLabel;
@@ -334,6 +338,10 @@ begin
   ti.DrctDbtTxMndtRltdInf.AmdmntInfDtls26.OrgnlCdtrSchmeIdIdPrvtIdOthrId := GUIStringToDefaultString(DD_OriginalCreditorIdentifier_Edit.Text);
   ti.DrctDbtTxMndtRltdInf.AmdmntInfDtls26.OrgnlDbtrAcct.IBAN             := GUIStringToDefaultString(DD_OriginalDebtorAccountIBAN_Edit.Text);
   ti.DrctDbtTxMndtRltdInf.AmdmntInfDtls26.OrgnlDbtrAgtFinInstIdOthrId    := IfThen(DD_OriginalDebtorFinInstSMNDA_CheckBox.Checked, ORGNL_DBTR_AGT_SMNDA, '');
+  ti.DrctDbtTxMndtRltdInf.AmdmntInfDtls30.OrgnlMndtId                    := DD_OriginalMandateId_Edit.Text;
+  ti.DrctDbtTxMndtRltdInf.AmdmntInfDtls30.OrgnlCdtrSchmeIdNm             := DD_OriginalCreditorName_Edit.Text;
+  ti.DrctDbtTxMndtRltdInf.AmdmntInfDtls30.OrgnlCdtrSchmeIdIdPrvtIdOthrId := DD_OriginalCreditorIdentifier_Edit.Text;
+  ti.DrctDbtTxMndtRltdInf.AmdmntInfDtls30.OrgnlDbtrAcct                  := IfThen(DD_OriginalDebtorAccountSMNDA_CheckBox.Checked, ORGNL_DBTR_ACCT_SMNDA, '');
   pi.AppendDrctDbtTxInfEntry(ti);
 
   // validate and save

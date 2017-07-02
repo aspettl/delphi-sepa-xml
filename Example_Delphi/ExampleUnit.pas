@@ -147,6 +147,10 @@ type
     Label41: TLabel;
     Label49: TLabel;
     Label50: TLabel;
+    DD_OriginalDebtorAccountSMNDA_CheckBox: TCheckBox;
+    Label51: TLabel;
+    Label52: TLabel;
+    Label53: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure CT_DebtorBICNotProvided_CheckBoxClick(Sender: TObject);
     procedure CT_CreditorBICNotProvided_CheckBoxClick(Sender: TObject);
@@ -303,6 +307,10 @@ begin
   ti.DrctDbtTxMndtRltdInf.AmdmntInfDtls26.OrgnlCdtrSchmeIdIdPrvtIdOthrId := DD_OriginalCreditorIdentifier_Edit.Text;
   ti.DrctDbtTxMndtRltdInf.AmdmntInfDtls26.OrgnlDbtrAcct.IBAN             := DD_OriginalDebtorAccountIBAN_Edit.Text;
   ti.DrctDbtTxMndtRltdInf.AmdmntInfDtls26.OrgnlDbtrAgtFinInstIdOthrId    := IfThen(DD_OriginalDebtorFinInstSMNDA_CheckBox.Checked, ORGNL_DBTR_AGT_SMNDA, '');
+  ti.DrctDbtTxMndtRltdInf.AmdmntInfDtls30.OrgnlMndtId                    := DD_OriginalMandateId_Edit.Text;
+  ti.DrctDbtTxMndtRltdInf.AmdmntInfDtls30.OrgnlCdtrSchmeIdNm             := DD_OriginalCreditorName_Edit.Text;
+  ti.DrctDbtTxMndtRltdInf.AmdmntInfDtls30.OrgnlCdtrSchmeIdIdPrvtIdOthrId := DD_OriginalCreditorIdentifier_Edit.Text;
+  ti.DrctDbtTxMndtRltdInf.AmdmntInfDtls30.OrgnlDbtrAcct                  := IfThen(DD_OriginalDebtorAccountSMNDA_CheckBox.Checked, ORGNL_DBTR_ACCT_SMNDA, '');
   pi.AppendDrctDbtTxInfEntry(ti);
 
   // validate and save
