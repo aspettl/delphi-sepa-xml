@@ -59,6 +59,7 @@ const
   INSTR_PRTY_HIGH           = 'HIGH';
   CHRG_BR_SLEV              = 'SLEV';
   ORGNL_DBTR_AGT_SMNDA      = 'SMNDA';
+  ORGNL_DBTR_ACCT_SMNDA     = 'SMNDA';
   SEPA_FALSE                = 'false';
   SEPA_TRUE                 = 'true';
 
@@ -81,13 +82,15 @@ resourcestring
   EMPTY_IBAN                = 'IBAN required.';
   INVALID_IBAN              = 'IBAN "%s" not valid.';
   EMPTY_AMDMNT_INF_DTLS     = 'Not all fields of mandate amendment information details may be empty at once.';
+  SCHEMA_AMDMNT_INF_DTLS_26 = 'Mandate amendment information details according to specification in version 2.6 to 2.9 does not apply for schema "%s".';
+  SCHEMA_AMDMNT_INF_DTLS_30 = 'Mandate amendment information details according to specification in version 3.0 does not apply for schema "%s".';
   INVALID_ORGNL_MNDT_ID     = 'OrgnlMndtId "%s" not valid.';
   INVALID_ORGNL_CRDTR_NM    = 'OrgnlCdtrSchmeIdNm "%s" not valid.';
   INVALID_ORGNL_CRDTR_ID    = 'OrgnlCdtrSchmeIdIdPrvtIdOthrId "%s" not valid.';
-  INVALID_ORGNL_CRDTR_PRTRY = 'OrgnlCdtrSchmeIdIdPrvtIdOthrSchmeNmPrtry "%s" not valid (valid: SEPA).';
   INVALID_ORGNL_FIN_INST_ID = 'OrgnlDbtrAgtFinInstIdOthrId "%s" not valid (valid: SMNDA).';
   INVALID_SEQ_TP_FRST_SMNDA1= 'Mandate amendment details must be marked "SMNDA" (same mandate, new debtor agent) for sequence type "FRST".';
   INVALID_SEQ_TP_FRST_SMNDA2= 'Mandate amendment details are marked "SMNDA" (same mandate, new debtor agent) but the sequence type is not "FRST".';
+  INVALID_ORGNL_DBTR_ACCT   = 'OrgnlDbtrAcct "%s" not valid (valid: SMNDA = same mandate, new debtor account).';
   EMPTY_MNDT_ID             = 'MndtId required.';
   EMPTY_DT_OF_SGNTR         = 'DtOfSgntr required.';
   INVALID_MNDT_ID           = 'MndtId "%s" not valid.';

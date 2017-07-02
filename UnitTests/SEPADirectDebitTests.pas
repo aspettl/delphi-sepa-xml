@@ -52,6 +52,18 @@ type
     procedure TestSaveToStream;
   end;
 
+  TAmendmentInformationDetails30Tests = class(TSEPATestCase)
+  private
+    fAmendmentInfo: TAmendmentInformationDetails30;
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+  published
+    procedure TestCreate;
+    procedure TestValidate;
+    procedure TestSaveToStream;
+  end;
+
   TMandateRelatedInformationTests = class(TSEPATestCase)
   private
     fMandateInfo: TMandateRelatedInformation;
@@ -130,7 +142,6 @@ begin
   CheckEquals('', fAmendmentInfo.OrgnlMndtId);
   CheckEquals('', fAmendmentInfo.OrgnlCdtrSchmeIdNm);
   CheckEquals('', fAmendmentInfo.OrgnlCdtrSchmeIdIdPrvtIdOthrId);
-  CheckEquals(SEPA, fAmendmentInfo.OrgnlCdtrSchmeIdIdPrvtIdOthrSchmeNmPrtry);
   CheckEquals('', fAmendmentInfo.OrgnlDbtrAgtFinInstIdOthrId);
 end;
 
@@ -138,6 +149,9 @@ procedure TAmendmentInformationDetails26Tests.TestValidate;
 begin
   // empty object
   CheckValidation([EMPTY_AMDMNT_INF_DTLS], fAmendmentInfo.Validate(SCHEMA_PAIN_008_003_02, SEQ_TP_FRST));
+
+  // wrong schema
+  CheckValidation([EMPTY_AMDMNT_INF_DTLS, Format(SCHEMA_AMDMNT_INF_DTLS_26, [SCHEMA_PAIN_008_001_02])], fAmendmentInfo.Validate(SCHEMA_PAIN_008_001_02, SEQ_TP_FRST));
 
   // now generate object with all required fields
   fAmendmentInfo.OrgnlMndtId                    := 'MNDTID';
@@ -160,11 +174,6 @@ begin
   fAmendmentInfo.OrgnlCdtrSchmeIdIdPrvtIdOthrId := 'DE98ZZZ09999999998';
   CheckValidationContains([Format(INVALID_ORGNL_CRDTR_ID, ['DE98ZZZ09999999998'])], fAmendmentInfo.Validate(SCHEMA_PAIN_008_003_02, SEQ_TP_FRST));
   fAmendmentInfo.OrgnlCdtrSchmeIdIdPrvtIdOthrId := 'DE98ZZZ09999999999';
-
-  // checks for "SEPA" as the only allowed value for creditor scheme name
-  fAmendmentInfo.OrgnlCdtrSchmeIdIdPrvtIdOthrSchmeNmPrtry := 'TEST';
-  CheckValidationContains([Format(INVALID_ORGNL_CRDTR_PRTRY, ['TEST'])], fAmendmentInfo.Validate(SCHEMA_PAIN_008_003_02, SEQ_TP_FRST));
-  fAmendmentInfo.OrgnlCdtrSchmeIdIdPrvtIdOthrSchmeNmPrtry := SEPA;
 
   // checks for "SMNDA" as the only allowed value for new debtor agent "other id"
   fAmendmentInfo.OrgnlDbtrAgtFinInstIdOthrId := 'TEST';
@@ -226,6 +235,94 @@ begin
                   '</AmdmntInfDtls>');
 end;
 
+// TAmendmentInformationDetails30Tests
+
+procedure TAmendmentInformationDetails30Tests.SetUp;
+begin
+  inherited;
+  fAmendmentInfo := TAmendmentInformationDetails30.Create;
+end;
+
+procedure TAmendmentInformationDetails30Tests.TearDown;
+begin
+  FreeAndNil(fAmendmentInfo);
+  inherited;
+end;
+
+procedure TAmendmentInformationDetails30Tests.TestCreate;
+begin
+  CheckEquals('', fAmendmentInfo.OrgnlMndtId);
+  CheckEquals('', fAmendmentInfo.OrgnlCdtrSchmeIdNm);
+  CheckEquals('', fAmendmentInfo.OrgnlCdtrSchmeIdIdPrvtIdOthrId);
+  CheckEquals('', fAmendmentInfo.OrgnlDbtrAcct);
+end;
+
+procedure TAmendmentInformationDetails30Tests.TestValidate;
+begin
+  // empty object
+  CheckValidation([EMPTY_AMDMNT_INF_DTLS], fAmendmentInfo.Validate(SCHEMA_PAIN_008_001_02, SEQ_TP_FRST));
+
+  // wrong schema
+  CheckValidation([EMPTY_AMDMNT_INF_DTLS, Format(SCHEMA_AMDMNT_INF_DTLS_30, [SCHEMA_PAIN_008_003_02])], fAmendmentInfo.Validate(SCHEMA_PAIN_008_003_02, SEQ_TP_FRST));
+
+  // now generate object with all required fields
+  fAmendmentInfo.OrgnlMndtId                    := 'MNDTID';
+  fAmendmentInfo.OrgnlCdtrSchmeIdNm             := 'Creditor name';
+  fAmendmentInfo.OrgnlCdtrSchmeIdIdPrvtIdOthrId := 'DE98ZZZ09999999999';
+  fAmendmentInfo.OrgnlDbtrAcct                  := ORGNL_DBTR_ACCT_SMNDA;
+  CheckValidation([], fAmendmentInfo.Validate(SCHEMA_PAIN_008_001_02, SEQ_TP_FRST));
+
+  // checks for clean SEPA strings: original mandate identifier is not automatically cleaned
+  fAmendmentInfo.OrgnlMndtId := 'test!';
+  CheckValidationContains([Format(INVALID_ORGNL_MNDT_ID, ['test!'])], fAmendmentInfo.Validate(SCHEMA_PAIN_008_001_02, SEQ_TP_FRST));
+  fAmendmentInfo.OrgnlMndtId := 'MNDTID';
+
+  // checks for clean SEPA strings: original mandate identifier is not automatically cleaned
+  fAmendmentInfo.OrgnlCdtrSchmeIdNm := 'test!';
+  CheckValidationContains([Format(INVALID_ORGNL_CRDTR_NM, ['test!'])], fAmendmentInfo.Validate(SCHEMA_PAIN_008_001_02, SEQ_TP_FRST));
+  fAmendmentInfo.OrgnlCdtrSchmeIdNm := 'Creditor name';
+
+  // checks for valid creditor identifier
+  fAmendmentInfo.OrgnlCdtrSchmeIdIdPrvtIdOthrId := 'DE98ZZZ09999999998';
+  CheckValidationContains([Format(INVALID_ORGNL_CRDTR_ID, ['DE98ZZZ09999999998'])], fAmendmentInfo.Validate(SCHEMA_PAIN_008_001_02, SEQ_TP_FRST));
+  fAmendmentInfo.OrgnlCdtrSchmeIdIdPrvtIdOthrId := 'DE98ZZZ09999999999';
+
+  // checks for "SMNDA" as the only allowed value for new debtor agent "other id"
+  fAmendmentInfo.OrgnlDbtrAcct := 'TEST';
+  CheckValidationContains([Format(INVALID_ORGNL_DBTR_ACCT, ['TEST'])], fAmendmentInfo.Validate(SCHEMA_PAIN_008_001_02, SEQ_TP_FRST));
+  fAmendmentInfo.OrgnlDbtrAcct := ORGNL_DBTR_ACCT_SMNDA;
+end;
+
+procedure TAmendmentInformationDetails30Tests.TestSaveToStream;
+begin
+  // empty object: first make sure that all fields are only saved when they are present
+  
+  fAmendmentInfo.SaveToStream(SaveStream, SCHEMA_PAIN_008_001_02);
+
+  CheckSaveStream('<AmdmntInfDtls>'+
+                  '</AmdmntInfDtls>');
+
+  // now test the appearance of all fields
+
+  fAmendmentInfo.OrgnlMndtId                    := 'MNDTID';
+  fAmendmentInfo.OrgnlCdtrSchmeIdNm             := 'Creditor name';
+  fAmendmentInfo.OrgnlCdtrSchmeIdIdPrvtIdOthrId := 'DE98ZZZ09999999999';
+  fAmendmentInfo.OrgnlDbtrAcct                  := ORGNL_DBTR_ACCT_SMNDA;
+
+  fAmendmentInfo.SaveToStream(SaveStream, SCHEMA_PAIN_008_001_02);
+
+  CheckSaveStream('<AmdmntInfDtls>'+
+                  '<OrgnlMndtId>MNDTID</OrgnlMndtId>'+
+                  '<OrgnlCdtrSchmeId>'+
+                  '<Nm>Creditor name</Nm>'+
+                  '<Id><PrvtId><Othr><Id>DE98ZZZ09999999999</Id><SchmeNm><Prtry>SEPA</Prtry></SchmeNm></Othr></PrvtId></Id>'+
+                  '</OrgnlCdtrSchmeId>'+
+                  '<OrgnlDbtrAcct>'+
+                  '<Id><Othr><Id>SMNDA</Id></Othr></Id>'+
+                  '</OrgnlDbtrAcct>'+
+                  '</AmdmntInfDtls>');
+end;
+
 // TMandateRelatedInformationTests
 
 procedure TMandateRelatedInformationTests.SetUp;
@@ -271,7 +368,13 @@ begin
 
   // checks that amendment information details are validated in case of specified amendment indicator
   fMandateInfo.AmdmntInd := true;
-  CheckValidation([EMPTY_AMDMNT_INF_DTLS], fMandateInfo.Validate(SCHEMA_PAIN_008_003_02, SEQ_TP_FRST));
+  fMandateInfo.AmdmntInfDtls26.OrgnlDbtrAcct.IBAN := 'INVALID';
+  fMandateInfo.AmdmntInfDtls30.OrgnlDbtrAcct := 'INVALID';
+  // - for 2.6-2.9 with pain.008.002.02/pain.008.003.02
+  CheckValidation([Format(INVALID_IBAN, ['INVALID'])], fMandateInfo.Validate(SCHEMA_PAIN_008_002_02, SEQ_TP_RCUR));
+  CheckValidation([Format(INVALID_IBAN, ['INVALID'])], fMandateInfo.Validate(SCHEMA_PAIN_008_003_02, SEQ_TP_RCUR));
+  // - for 3.0 with pain.008.001.02
+  CheckValidation([Format(INVALID_ORGNL_DBTR_ACCT, ['INVALID'])], fMandateInfo.Validate(SCHEMA_PAIN_008_001_02, SEQ_TP_RCUR));
 end;
 
 procedure TMandateRelatedInformationTests.TestSaveToStream;
@@ -287,16 +390,32 @@ begin
                   '<AmdmntInd>false</AmdmntInd>'+
                   '</MndtRltdInf>');
 
-  // now with (incomplete) mandate amendment information details
+  // now with mandate amendment information details
   fMandateInfo.AmdmntInd := true;
-
-  fMandateInfo.SaveToStream(SaveStream, SCHEMA_PAIN_008_003_02);
-
+  fMandateInfo.AmdmntInfDtls26.OrgnlMndtId := 'OLD';
+  fMandateInfo.AmdmntInfDtls30.OrgnlDbtrAcct := 'INVALID';
+  // - for 2.6-2.9 with pain.008.002.02/pain.008.003.02
+  fMandateInfo.SaveToStream(SaveStream, SCHEMA_PAIN_008_002_02);
   CheckSaveStream('<MndtRltdInf>'+
                   '<MndtId>MNDTID</MndtId>'+
                   '<DtOfSgntr>2016-09-01</DtOfSgntr>'+
                   '<AmdmntInd>true</AmdmntInd>'+
-                  '<AmdmntInfDtls></AmdmntInfDtls>'+
+                  '<AmdmntInfDtls><OrgnlMndtId>OLD</OrgnlMndtId></AmdmntInfDtls>'+
+                  '</MndtRltdInf>');
+  fMandateInfo.SaveToStream(SaveStream, SCHEMA_PAIN_008_003_02);
+  CheckSaveStream('<MndtRltdInf>'+
+                  '<MndtId>MNDTID</MndtId>'+
+                  '<DtOfSgntr>2016-09-01</DtOfSgntr>'+
+                  '<AmdmntInd>true</AmdmntInd>'+
+                  '<AmdmntInfDtls><OrgnlMndtId>OLD</OrgnlMndtId></AmdmntInfDtls>'+
+                  '</MndtRltdInf>');
+  // - for 3.0 with pain.008.001.02    
+  fMandateInfo.SaveToStream(SaveStream, SCHEMA_PAIN_008_001_02);
+  CheckSaveStream('<MndtRltdInf>'+
+                  '<MndtId>MNDTID</MndtId>'+
+                  '<DtOfSgntr>2016-09-01</DtOfSgntr>'+
+                  '<AmdmntInd>true</AmdmntInd>'+
+                  '<AmdmntInfDtls><OrgnlDbtrAcct><Id><Othr><Id>INVALID</Id></Othr></Id></OrgnlDbtrAcct></AmdmntInfDtls>'+
                   '</MndtRltdInf>');
 end;
 
@@ -1042,6 +1161,7 @@ end;
 
 initialization
   RegisterTest('SEPADirectDebitTests Suite', TAmendmentInformationDetails26Tests.Suite);
+  RegisterTest('SEPADirectDebitTests Suite', TAmendmentInformationDetails30Tests.Suite);
   RegisterTest('SEPADirectDebitTests Suite', TMandateRelatedInformationTests.Suite);
   RegisterTest('SEPADirectDebitTests Suite', TDirectDebitTransactionInformationTests.Suite);
   RegisterTest('SEPADirectDebitTests Suite', TDirectDebitPaymentInformationTests.Suite);

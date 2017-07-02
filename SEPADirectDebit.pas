@@ -72,7 +72,6 @@ type
     fOrgnlMndtId: String;                              // original mandate identification
     fOrgnlCdtrSchmeIdNm: String;                       // original creditor name
     fOrgnlCdtrSchmeIdIdPrvtIdOthrId: String;           // original creditor identifier
-    fOrgnlCdtrSchmeIdIdPrvtIdOthrSchmeNmPrtry: String; // (always "SEPA")
     fOrgnlDbtrAcct: TAccountIdentification;            // original debtor account identification
     fOrgnlDbtrAgtFinInstIdOthrId: String;              // "SMNDA" if same mandate + new debtor agent
 
@@ -84,9 +83,27 @@ type
     property OrgnlMndtId: String read fOrgnlMndtId write fOrgnlMndtId;
     property OrgnlCdtrSchmeIdNm: String read fOrgnlCdtrSchmeIdNm write fOrgnlCdtrSchmeIdNm;
     property OrgnlCdtrSchmeIdIdPrvtIdOthrId: String read fOrgnlCdtrSchmeIdIdPrvtIdOthrId write SetOrgnlCdtrSchmeIdIdPrvtIdOthrId;
-    property OrgnlCdtrSchmeIdIdPrvtIdOthrSchmeNmPrtry: String read fOrgnlCdtrSchmeIdIdPrvtIdOthrSchmeNmPrtry write fOrgnlCdtrSchmeIdIdPrvtIdOthrSchmeNmPrtry;
     property OrgnlDbtrAcct: TAccountIdentification read fOrgnlDbtrAcct;
     property OrgnlDbtrAgtFinInstIdOthrId: String read fOrgnlDbtrAgtFinInstIdOthrId write fOrgnlDbtrAgtFinInstIdOthrId;
+
+    function Validate(const schema: String; const PmtTpInfSeqTp: String; const appendTo: TStringList = nil): TStringList;
+    procedure SaveToStream(const stream: TStream; const schema: String);
+  end;
+
+  TAmendmentInformationDetails30 = class(TInterfacedObject, IAmendmentInformationDetails)
+  private
+    fOrgnlMndtId: String;                              // original mandate identification
+    fOrgnlCdtrSchmeIdNm: String;                       // original creditor name
+    fOrgnlCdtrSchmeIdIdPrvtIdOthrId: String;           // original creditor identifier
+    fOrgnlDbtrAcct: String;                            // original debtor account: "SMNDA" if same mandate + new debtor account
+                                                       // original debtor agent: not provided as it is always optional with "SMNDA"
+
+    procedure SetOrgnlCdtrSchmeIdIdPrvtIdOthrId(const str: String);
+  public
+    property OrgnlMndtId: String read fOrgnlMndtId write fOrgnlMndtId;
+    property OrgnlCdtrSchmeIdNm: String read fOrgnlCdtrSchmeIdNm write fOrgnlCdtrSchmeIdNm;
+    property OrgnlCdtrSchmeIdIdPrvtIdOthrId: String read fOrgnlCdtrSchmeIdIdPrvtIdOthrId write SetOrgnlCdtrSchmeIdIdPrvtIdOthrId;
+    property OrgnlDbtrAcct: String read fOrgnlDbtrAcct write fOrgnlDbtrAcct;
 
     function Validate(const schema: String; const PmtTpInfSeqTp: String; const appendTo: TStringList = nil): TStringList;
     procedure SaveToStream(const stream: TStream; const schema: String); 
@@ -98,6 +115,7 @@ type
     fDtOfSgntr: TDateTime;                             // date of signature
     fAmdmntInd: Boolean;                               // amendment indicator ("false" or "true")
     fAmdmntInfDtls26: TAmendmentInformationDetails26;
+    fAmdmntInfDtls30: TAmendmentInformationDetails30;
   public
     constructor Create;
     destructor Destroy; override;
@@ -105,8 +123,13 @@ type
     property MndtId: String read fMndtId write fMndtId;
     property DtOfSgntr: TDateTime read fDtOfSgntr write fDtOfSgntr;
     property AmdmntInd: Boolean read fAmdmntInd write fAmdmntInd;
-    // Note: no property "AmdmntInfDtls" returning the interface because, then, reference counting interferes with explicit freeing
+    // Note:
+    // - Depending on the schema, either amendment information details according to the
+    //   2.6-2.9 or 3.0 specification will be used.
+    // - We provide no property "AmdmntInfDtls" returning the interface because, then,
+    //   reference counting interferes with explicit freeing
     property AmdmntInfDtls26: TAmendmentInformationDetails26 read fAmdmntInfDtls26;
+    property AmdmntInfDtls30: TAmendmentInformationDetails30 read fAmdmntInfDtls30;
 
     function Validate(const schema: String; const PmtTpInfSeqTp: String; const appendTo: TStringList = nil): TStringList;
     procedure SaveToStream(const stream: TStream; const schema: String);
@@ -235,8 +258,7 @@ implementation
 constructor TAmendmentInformationDetails26.Create;
 begin
   inherited;
-  fOrgnlCdtrSchmeIdIdPrvtIdOthrSchmeNmPrtry := SEPA;
-  fOrgnlDbtrAcct                            := TAccountIdentification.Create;
+  fOrgnlDbtrAcct := TAccountIdentification.Create;
 end;
 
 destructor TAmendmentInformationDetails26.Destroy;
@@ -266,6 +288,11 @@ begin
   if empty then
     Result.Append(EMPTY_AMDMNT_INF_DTLS);
 
+  // check schema
+
+  if (schema <> SCHEMA_PAIN_008_002_02) and (schema <> SCHEMA_PAIN_008_003_02) then
+    Result.Append(Format(SCHEMA_AMDMNT_INF_DTLS_26, [schema]));
+
   // check for invalid fields
 
   if not SEPACheckString(OrgnlMndtId, MNDT_ID_MAX_LEN) then
@@ -276,9 +303,6 @@ begin
 
   if (OrgnlCdtrSchmeIdIdPrvtIdOthrId <> '') and not SEPACheckCI(OrgnlCdtrSchmeIdIdPrvtIdOthrId) then
     Result.Append(Format(INVALID_ORGNL_CRDTR_ID, [OrgnlCdtrSchmeIdIdPrvtIdOthrId]));
-
-  if OrgnlCdtrSchmeIdIdPrvtIdOthrSchmeNmPrtry <> SEPA then
-    Result.Append(Format(INVALID_ORGNL_CRDTR_PRTRY, [OrgnlCdtrSchmeIdIdPrvtIdOthrSchmeNmPrtry]));
 
   if (OrgnlDbtrAgtFinInstIdOthrId <> '') and (OrgnlDbtrAgtFinInstIdOthrId <> ORGNL_DBTR_AGT_SMNDA) then
     Result.Append(Format(INVALID_ORGNL_FIN_INST_ID, [OrgnlDbtrAgtFinInstIdOthrId]));
@@ -308,9 +332,9 @@ begin
       SEPAWriteLine(stream, '<Nm>'+SEPACleanString(OrgnlCdtrSchmeIdNm, CDTR_NM_MAX_LEN)+'</Nm>');
     if OrgnlCdtrSchmeIdIdPrvtIdOthrId <> '' then
       SEPAWriteLine(stream, '<Id><PrvtId><Othr>'+
-                          '<Id>'+SEPACleanString(OrgnlCdtrSchmeIdIdPrvtIdOthrId)+'</Id>'+
-                          '<SchmeNm><Prtry>'+SEPACleanString(OrgnlCdtrSchmeIdIdPrvtIdOthrSchmeNmPrtry)+'</Prtry></SchmeNm>'+
-                        '</Othr></PrvtId></Id>');
+                              '<Id>'+SEPACleanString(OrgnlCdtrSchmeIdIdPrvtIdOthrId)+'</Id>'+
+                              '<SchmeNm><Prtry>SEPA</Prtry></SchmeNm>'+
+                            '</Othr></PrvtId></Id>');
     SEPAWriteLine(stream, '</OrgnlCdtrSchmeId>');
   end;
 
@@ -327,17 +351,89 @@ begin
   SEPAWriteLine(stream, '</AmdmntInfDtls>');
 end;
 
+// TAmendmentInformationDetails30
+
+procedure TAmendmentInformationDetails30.SetOrgnlCdtrSchmeIdIdPrvtIdOthrId(const str: String);
+begin
+  fOrgnlCdtrSchmeIdIdPrvtIdOthrId := SEPACleanIBANorBICorCI(str);
+end;
+
+function TAmendmentInformationDetails30.Validate(const schema: String; const PmtTpInfSeqTp: String; const appendTo: TStringList = nil): TStringList;
+begin
+  if appendTo <> nil then
+    Result := appendTo
+  else
+    Result := TStringList.Create;
+
+  // check for empty fields
+
+  if (OrgnlMndtId = '') and (OrgnlCdtrSchmeIdNm = '') and (OrgnlCdtrSchmeIdIdPrvtIdOthrId = '') and
+     (OrgnlDbtrAcct = '') then
+    Result.Append(EMPTY_AMDMNT_INF_DTLS);
+
+  // check schema
+
+  if schema <> SCHEMA_PAIN_008_001_02 then
+    Result.Append(Format(SCHEMA_AMDMNT_INF_DTLS_30, [schema]));
+
+  // check for invalid fields
+
+  if not SEPACheckString(OrgnlMndtId, MNDT_ID_MAX_LEN) then
+    Result.Append(Format(INVALID_ORGNL_MNDT_ID, [OrgnlMndtId]));
+
+  if not SEPACheckString(OrgnlCdtrSchmeIdNm, CDTR_NM_MAX_LEN) then
+    Result.Append(Format(INVALID_ORGNL_CRDTR_NM, [OrgnlCdtrSchmeIdNm]));
+
+  if (OrgnlCdtrSchmeIdIdPrvtIdOthrId <> '') and not SEPACheckCI(OrgnlCdtrSchmeIdIdPrvtIdOthrId) then
+    Result.Append(Format(INVALID_ORGNL_CRDTR_ID, [OrgnlCdtrSchmeIdIdPrvtIdOthrId]));
+
+  if (OrgnlDbtrAcct <> '') and (OrgnlDbtrAcct <> ORGNL_DBTR_ACCT_SMNDA) then
+    Result.Append(Format(INVALID_ORGNL_DBTR_ACCT, [OrgnlDbtrAcct]));
+end;
+
+procedure TAmendmentInformationDetails30.SaveToStream(const stream: TStream; const schema: String);
+begin
+  SEPAWriteLine(stream, '<AmdmntInfDtls>');
+
+  if OrgnlMndtId <> '' then
+    SEPAWriteLine(stream, '<OrgnlMndtId>'+SEPACleanString(OrgnlMndtId)+'</OrgnlMndtId>');
+
+  if (OrgnlCdtrSchmeIdNm <> '') or (OrgnlCdtrSchmeIdIdPrvtIdOthrId <> '') then
+  begin
+    SEPAWriteLine(stream, '<OrgnlCdtrSchmeId>');
+    if OrgnlCdtrSchmeIdNm <> '' then
+      SEPAWriteLine(stream, '<Nm>'+SEPACleanString(OrgnlCdtrSchmeIdNm, CDTR_NM_MAX_LEN)+'</Nm>');
+    if OrgnlCdtrSchmeIdIdPrvtIdOthrId <> '' then
+      SEPAWriteLine(stream, '<Id><PrvtId><Othr>'+
+                              '<Id>'+SEPACleanString(OrgnlCdtrSchmeIdIdPrvtIdOthrId)+'</Id>'+
+                              '<SchmeNm><Prtry>SEPA</Prtry></SchmeNm>'+
+                            '</Othr></PrvtId></Id>');
+    SEPAWriteLine(stream, '</OrgnlCdtrSchmeId>');
+  end;
+
+  if OrgnlDbtrAcct <> '' then
+  begin
+    SEPAWriteLine(stream, '<OrgnlDbtrAcct>');
+    SEPAWriteLine(stream, '<Id><Othr><Id>'+SEPACleanString(OrgnlDbtrAcct)+'</Id></Othr></Id>');
+    SEPAWriteLine(stream, '</OrgnlDbtrAcct>');
+  end;
+
+  SEPAWriteLine(stream, '</AmdmntInfDtls>');
+end;
+
 // TMandateRelatedInformation
 
 constructor TMandateRelatedInformation.Create;
 begin
   inherited;
-  fAmdmntInfDtls26 := TAmendmentInformationDetails26.Create;
+  fAmdmntInfDtls26 := TAmendmentInformationDetails26.Create;  
+  fAmdmntInfDtls30 := TAmendmentInformationDetails30.Create;
 end;
 
 destructor TMandateRelatedInformation.Destroy;
 begin
   FreeAndNil(fAmdmntInfDtls26);
+  FreeAndNil(fAmdmntInfDtls30);
   inherited;
 end;
 
@@ -367,7 +463,12 @@ begin
   // delegate validations where possible
 
   if AmdmntInd then
-    AmdmntInfDtls26.Validate(schema, PmtTpInfSeqTp, Result);
+  begin
+    if (schema = SCHEMA_PAIN_008_002_02) or (schema = SCHEMA_PAIN_008_003_02) then
+      AmdmntInfDtls26.Validate(schema, PmtTpInfSeqTp, Result)
+    else
+      AmdmntInfDtls30.Validate(schema, PmtTpInfSeqTp, Result);
+  end;
 end;
 
 procedure TMandateRelatedInformation.SaveToStream(const stream: TStream; const schema: String);
@@ -377,7 +478,12 @@ begin
   SEPAWriteLine(stream, '<DtOfSgntr>'+SEPAFormatDate(DtOfSgntr)+'</DtOfSgntr>');
   SEPAWriteLine(stream, '<AmdmntInd>'+SEPAFormatBoolean(AmdmntInd)+'</AmdmntInd>');
   if AmdmntInd then
-    AmdmntInfDtls26.SaveToStream(stream, schema);
+  begin
+    if (schema = SCHEMA_PAIN_008_002_02) or (schema = SCHEMA_PAIN_008_003_02) then
+      AmdmntInfDtls26.SaveToStream(stream, schema)
+    else
+      AmdmntInfDtls30.SaveToStream(stream, schema);
+  end;
   SEPAWriteLine(stream, '</MndtRltdInf>');
 end;
 
