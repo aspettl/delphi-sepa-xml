@@ -104,7 +104,8 @@ object ExampleForm: TExampleForm
           TabOrder = 0
           Items.Strings = (
             'pain.001.002.03'
-            'pain.001.003.03')
+            'pain.001.003.03'
+            'pain.001.001.03')
         end
         object CT_SupportGermanSpecialChars_CheckBox: TCheckBox
           Left = 128
@@ -359,7 +360,7 @@ object ExampleForm: TExampleForm
           Top = 80
           Width = 277
           Height = 13
-          Caption = '- ISO schema pain.001.003.03 *should* be supported now.'
+          Caption = '- ISO schema pain.001.001.03 *should* be supported now.'
         end
         object Label49: TLabel
           Left = 8
@@ -465,7 +466,8 @@ object ExampleForm: TExampleForm
           TabOrder = 0
           Items.Strings = (
             'pain.008.002.02'
-            'pain.008.003.02')
+            'pain.008.003.02'
+            'pain.008.001.02')
         end
         object DD_SupportGermanSpecialChars_CheckBox: TCheckBox
           Left = 128
@@ -909,7 +911,7 @@ object ExampleForm: TExampleForm
           Top = 80
           Width = 277
           Height = 13
-          Caption = '- ISO schema pain.008.003.02 *should* be supported now.'
+          Caption = '- ISO schema pain.008.001.02 *should* be supported now.'
         end
         object Label28: TLabel
           Left = 8

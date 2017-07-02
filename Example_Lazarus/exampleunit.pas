@@ -284,8 +284,6 @@ begin
   FreeAndNil(messages);
   FreeAndNil(cti);
   // note that the objects referenced in "cti" are automatically destroyed
-  pi := nil;
-  ti := nil;
 end;
 
 procedure TExampleForm.DD_Save_ButtonClick(Sender: TObject);
@@ -348,8 +346,6 @@ begin
   FreeAndNil(messages);
   FreeAndNil(ddi);
   // note that the objects referenced in "ddi" are automatically destroyed
-  pi := nil;
-  ti := nil;
 end;
 
 end.
