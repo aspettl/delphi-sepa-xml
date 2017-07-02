@@ -857,9 +857,9 @@ begin
   else
     Result := TStringList.Create;
 
-  // check ISO schema
+  // check schema
 
-  if (Schema <> SCHEMA_PAIN_008_002_02) and (Schema <> SCHEMA_PAIN_008_003_02) then
+  if (Schema <> SCHEMA_PAIN_008_002_02) and (Schema <> SCHEMA_PAIN_008_003_02) and (Schema <> SCHEMA_PAIN_008_001_02) then
     Result.Append(Format(UNKNOWN_SCHEMA, [Schema]));
 
   // check for empty fields
