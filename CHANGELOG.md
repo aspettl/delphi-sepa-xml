@@ -1,3 +1,9 @@
+## 0.3.0 Beta (WIP, unveröffentlicht)
+
+  - Unterstützung für pain.001.001.03 und pain.008.001.02 nach Version 3.0 der Spezifikation.
+  - Ohne Angabe eines Schema ist der Standard weiterhin pain.001.003.03 und pain.008.003.02.
+  - Nicht abwärtskompatible Änderung: In TMandateRelatedInformation wurde AmdmntInfDtls zu AmdmntInfDtls26 umbenannt, zusätzlich existiert AmdmntInfDtls30. Je nach Schema wird dann gewählt, welche Daten für die XML-Datei verwendet werden.
+
 ## 0.2.4 Beta (2016-10-01)
 
   - Unterstützung für Lazarus 1.6 mit FPC 3.0 hinzugefügt.
