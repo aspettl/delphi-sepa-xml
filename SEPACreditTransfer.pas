@@ -142,6 +142,7 @@ type
     procedure SetGrpHdrInitgPtyName(const str: String);
 
     function GetGrpHdrNbOfTxs: Integer;
+    function GetGrpHdrCtrlSum: Currency;
     function GetPmtInfEntry(const i: Integer): TCreditTransferPaymentInformation;
     function GetPmtInfCount: Integer;
   public
@@ -153,6 +154,7 @@ type
     property GrpHdrMsgId: String read fGrpHdrMsgId write fGrpHdrMsgId;
     property GrpHdrCreDtTm: TDateTime read fGrpHdrCreDtTm write fGrpHdrCreDtTm;
     property GrpHdrNbOfTxs: Integer read GetGrpHdrNbOfTxs;
+    property GrpHdrCtrlSum: Currency read GetGrpHdrCtrlSum;
     property GrpHdrInitgPtyName: String read fGrpHdrInitgPtyName write SetGrpHdrInitgPtyName;
 
     procedure AppendPmtInfEntry(const instruction: TCreditTransferPaymentInformation);
@@ -462,6 +464,15 @@ begin
     Inc(Result, PmtInfEntry[i].NbOfTxs);
 end;
 
+function TCreditTransferInitiation.GetGrpHdrCtrlSum: Currency;
+var
+  i: Integer;
+begin
+  Result := 0.0;
+  for i := 0 to PmtInfCount-1 do
+    Result := Result + PmtInfEntry[i].CtrlSum;
+end;
+
 procedure TCreditTransferInitiation.AppendPmtInfEntry(const instruction: TCreditTransferPaymentInformation);
 var
   i: Integer;
@@ -478,7 +489,7 @@ end;
 
 function TCreditTransferInitiation.GetPmtInfCount: Integer;
 begin
-  Result := Length(fPmtInf);   
+  Result := Length(fPmtInf);
 end;
 
 function TCreditTransferInitiation.Validate(const appendTo: TStringList = nil): TStringList;
@@ -536,6 +547,7 @@ begin
   SEPAWriteLine(stream, '<MsgId>'+SEPACleanString(GrpHdrMsgId)+'</MsgId>');
   SEPAWriteLine(stream, '<CreDtTm>'+SEPAFormatDateTime(GrpHdrCreDtTm)+'</CreDtTm>');
   SEPAWriteLine(stream, '<NbOfTxs>'+IntToStr(GrpHdrNbOfTxs)+'</NbOfTxs>');
+  SEPAWriteLine(stream, '<CtrlSum>'+SEPAFormatAmount(GrpHdrCtrlSum)+'</CtrlSum>');
   SEPAWriteLine(stream, '<InitgPty><Nm>'+SEPACleanString(GrpHdrInitgPtyName, INITG_PTY_NAME_MAX_LEN)+'</Nm></InitgPty>');
   SEPAWriteLine(stream, '</GrpHdr>');
 

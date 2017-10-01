@@ -1101,6 +1101,7 @@ begin
                   '<MsgId>MSGID</MsgId>'+
                   '<CreDtTm>2016-09-01T12:00:01.100Z</CreDtTm>'+
                   '<NbOfTxs>0</NbOfTxs>'+
+                  '<CtrlSum>0.00</CtrlSum>'+
                   '<InitgPty><Nm>Initiating party name</Nm></InitgPty>'+
                   '</GrpHdr>'+
                   '</CstmrDrctDbtInitn>'+
@@ -1131,6 +1132,7 @@ begin
                   '<MsgId>MSGID</MsgId>'+
                   '<CreDtTm>2016-09-01T12:00:01.100Z</CreDtTm>'+
                   '<NbOfTxs>1</NbOfTxs>'+
+                  '<CtrlSum>0.01</CtrlSum>'+
                   '<InitgPty><Nm>Initiating party name</Nm></InitgPty>'+
                   '</GrpHdr>'+
                   xmlPmtInfEntry0+

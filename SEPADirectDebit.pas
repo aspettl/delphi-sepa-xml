@@ -229,6 +229,7 @@ type
     procedure SetGrpHdrInitgPtyName(const str: String);
 
     function GetGrpHdrNbOfTxs: Integer;
+    function GetGrpHdrCtrlSum: Currency;
     function GetPmtInfEntry(const i: Integer): TDirectDebitPaymentInformation;
     function GetPmtInfCount: Integer;
   public
@@ -239,7 +240,8 @@ type
 
     property GrpHdrMsgId: String read fGrpHdrMsgId write fGrpHdrMsgId;
     property GrpHdrCreDtTm: TDateTime read fGrpHdrCreDtTm write fGrpHdrCreDtTm;
-    property GrpHdrNbOfTxs: Integer read GetGrpHdrNbOfTxs;
+    property GrpHdrNbOfTxs: Integer read GetGrpHdrNbOfTxs; 
+    property GrpHdrCtrlSum: Currency read GetGrpHdrCtrlSum;
     property GrpHdrInitgPtyName: String read fGrpHdrInitgPtyName write SetGrpHdrInitgPtyName;
 
     procedure AppendPmtInfEntry(const instruction: TDirectDebitPaymentInformation);
@@ -826,6 +828,15 @@ begin
   Result := 0;
   for i := 0 to PmtInfCount-1 do
     Inc(Result, PmtInfEntry[i].NbOfTxs);
+end;       
+
+function TDirectDebitInitiation.GetGrpHdrCtrlSum: Currency;
+var
+  i: Integer;
+begin
+  Result := 0.0;
+  for i := 0 to PmtInfCount-1 do
+    Result := Result + PmtInfEntry[i].CtrlSum;
 end;
 
 procedure TDirectDebitInitiation.AppendPmtInfEntry(const instruction: TDirectDebitPaymentInformation);
@@ -916,6 +927,7 @@ begin
   SEPAWriteLine(stream, '<MsgId>'+SEPACleanString(GrpHdrMsgId)+'</MsgId>');
   SEPAWriteLine(stream, '<CreDtTm>'+SEPAFormatDateTime(GrpHdrCreDtTm)+'</CreDtTm>');
   SEPAWriteLine(stream, '<NbOfTxs>'+IntToStr(GrpHdrNbOfTxs)+'</NbOfTxs>');
+  SEPAWriteLine(stream, '<CtrlSum>'+SEPAFormatAmount(GrpHdrCtrlSum)+'</CtrlSum>');
   SEPAWriteLine(stream, '<InitgPty><Nm>'+SEPACleanString(GrpHdrInitgPtyName, INITG_PTY_NAME_MAX_LEN)+'</Nm></InitgPty>');
   SEPAWriteLine(stream, '</GrpHdr>');
 
