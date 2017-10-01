@@ -1,8 +1,8 @@
-## 0.3.0 Beta (WIP, unveröffentlicht)
+## 0.3.0 Beta (2017-10-01)
 
-  - Unterstützung für pain.001.001.03 und pain.008.001.02 nach Version 3.0 der Spezifikation.
-  - Ohne Angabe eines Schema ist der Standard weiterhin pain.001.003.03 und pain.008.003.02.
-  - Nicht abwärtskompatible Änderung: In TMandateRelatedInformation wurde AmdmntInfDtls zu AmdmntInfDtls26 umbenannt, zusätzlich existiert AmdmntInfDtls30. Je nach Schema wird dann gewählt, welche Daten für die XML-Datei verwendet werden.
+  - Unterstützung für pain.001.001.03 und pain.008.001.02 nach Version 3.0 bzw. 3.1 der Spezifikation.
+  - Standardschema ist nun pain.001.001.03 für Überweisungen bzw. pain.008.001.02 für Lastschriften.
+  - Nicht abwärtskompatible Änderung: In TMandateRelatedInformation wurde AmdmntInfDtls zu AmdmntInfDtls26 umbenannt, zusätzlich existiert AmdmntInfDtls30. Je nach Schema wird dann gewählt, welches Feld für die XML-Datei verwendet wird.
 
 ## 0.2.4 Beta (2016-10-01)
 
