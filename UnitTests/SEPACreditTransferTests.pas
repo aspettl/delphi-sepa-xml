@@ -472,7 +472,7 @@ end;
 
 procedure TCreditTransferInitiationTests.TestCreate;
 begin
-  CheckEquals(SCHEMA_PAIN_001_003_03, fCreditTransfer.Schema);  // internal fSchema should be empty, but we cannot see that here
+  CheckEquals(SCHEMA_PAIN_001_001_03, fCreditTransfer.Schema);  // internal fSchema should be empty, but we cannot see that here
 
   CheckNotEquals(0, Length(fCreditTransfer.GrpHdrMsgId));
   Check((fCreditTransfer.GrpHdrCreDtTm >= fSetUpTime) and (fCreditTransfer.GrpHdrCreDtTm <= Now), 'Timestamp of created file must be between test setup and now');
@@ -483,8 +483,8 @@ end;
 
 procedure TCreditTransferInitiationTests.TestGetAndSetSchema;
 begin
-  // empty schema and no contents => should use standard version 2.7
-  CheckEquals(SCHEMA_PAIN_001_003_03, fCreditTransfer.Schema);
+  // empty schema and no contents => should use standard version 3.0
+  CheckEquals(SCHEMA_PAIN_001_001_03, fCreditTransfer.Schema);
 
   // set schema manually => should return that one
   fCreditTransfer.Schema := SCHEMA_PAIN_001_002_03;
@@ -609,9 +609,9 @@ begin
   fCreditTransfer.SaveToStream(SaveStream);
 
   CheckSaveStream('<?xml version="1.0" encoding="UTF-8"?>'+
-                  '<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.003.03"'+
+                  '<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.001.03"'+
                   ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"'+
-                  ' xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:pain.001.003.03 pain.001.003.03.xsd">'+
+                  ' xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:pain.001.001.03 pain.001.001.03.xsd">'+
                   '<CstmrCdtTrfInitn>'+
                   '<GrpHdr>'+
                   '<MsgId>MSGID</MsgId>'+
@@ -643,9 +643,9 @@ begin
   fCreditTransfer.SaveToStream(SaveStream);
 
   CheckSaveStream('<?xml version="1.0" encoding="UTF-8"?>'+
-                  '<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.003.03"'+
+                  '<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.001.03"'+
                   ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"'+
-                  ' xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:pain.001.003.03 pain.001.003.03.xsd">'+
+                  ' xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:pain.001.001.03 pain.001.001.03.xsd">'+
                   '<CstmrCdtTrfInitn>'+
                   '<GrpHdr>'+
                   '<MsgId>MSGID</MsgId>'+

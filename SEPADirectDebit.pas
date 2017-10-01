@@ -813,7 +813,7 @@ function TDirectDebitInitiation.GetSchema: String;
 begin
   Result := fSchema;
   if Result = '' then
-    Result := SCHEMA_PAIN_008_003_02;
+    Result := SCHEMA_PAIN_008_001_02;
 end;
 
 procedure TDirectDebitInitiation.SetGrpHdrInitgPtyName(const str: String);

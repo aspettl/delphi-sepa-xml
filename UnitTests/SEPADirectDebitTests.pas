@@ -905,7 +905,7 @@ end;
 
 procedure TDirectDebitInitiationTests.TestCreate;
 begin
-  CheckEquals(SCHEMA_PAIN_008_003_02, fDirectDebit.Schema);  // internal fSchema should be empty, but we cannot see that here
+  CheckEquals(SCHEMA_PAIN_008_001_02, fDirectDebit.Schema);  // internal fSchema should be empty, but we cannot see that here
 
   CheckNotEquals(0, Length(fDirectDebit.GrpHdrMsgId));
   Check((fDirectDebit.GrpHdrCreDtTm >= fSetUpTime) and (fDirectDebit.GrpHdrCreDtTm <= Now), 'Timestamp of created file must be between test setup and now');
@@ -916,8 +916,8 @@ end;
 
 procedure TDirectDebitInitiationTests.TestGetAndSetSchema;
 begin
-  // empty schema and no contents => should use standard version 2.7
-  CheckEquals(SCHEMA_PAIN_008_003_02, fDirectDebit.Schema);
+  // empty schema and no contents => should use standard version 3.0
+  CheckEquals(SCHEMA_PAIN_008_001_02, fDirectDebit.Schema);
 
   // set schema manually => should return that one
   fDirectDebit.Schema := SCHEMA_PAIN_008_002_02;
@@ -1037,6 +1037,8 @@ begin
   CheckValidation([], fDirectDebit.Validate);
 
   // check detection of mixed payment information contents
+  // - switch to old schema for availability of COR1
+  fDirectDebit.Schema := SCHEMA_PAIN_008_003_02;
   // - create second payment information entry
   fPaymentInfo2 := TDirectDebitPaymentInformation.Create;
   fPaymentInfo2.PmtInfId      := 'PMTINFID';
@@ -1093,9 +1095,9 @@ begin
   fDirectDebit.SaveToStream(SaveStream);
 
   CheckSaveStream('<?xml version="1.0" encoding="UTF-8"?>'+
-                  '<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.008.003.02"'+
+                  '<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.008.001.02"'+
                   ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"'+
-                  ' xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:pain.008.003.02 pain.008.003.02.xsd">'+
+                  ' xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:pain.008.001.02 pain.008.001.02.xsd">'+
                   '<CstmrDrctDbtInitn>'+
                   '<GrpHdr>'+
                   '<MsgId>MSGID</MsgId>'+
@@ -1124,9 +1126,9 @@ begin
   fDirectDebit.SaveToStream(SaveStream);
 
   CheckSaveStream('<?xml version="1.0" encoding="UTF-8"?>'+
-                  '<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.008.003.02"'+
+                  '<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.008.001.02"'+
                   ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"'+
-                  ' xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:pain.008.003.02 pain.008.003.02.xsd">'+
+                  ' xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:pain.008.001.02 pain.008.001.02.xsd">'+
                   '<CstmrDrctDbtInitn>'+
                   '<GrpHdr>'+
                   '<MsgId>MSGID</MsgId>'+

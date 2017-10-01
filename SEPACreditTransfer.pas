@@ -447,7 +447,7 @@ function TCreditTransferInitiation.GetSchema: String;
 begin
   Result := fSchema;
   if Result = '' then
-    Result := SCHEMA_PAIN_001_003_03
+    Result := SCHEMA_PAIN_001_001_03
 end;
 
 procedure TCreditTransferInitiation.SetGrpHdrInitgPtyName(const str: String);
