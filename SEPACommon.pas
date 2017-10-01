@@ -1,8 +1,8 @@
 //
 //   Delphi unit with helper methods etc. for SEPA XML file creation
-//   (beta version 0.2.4, 2016-10-01)
+//   (beta version 0.3.0, 2017-10-01)
 //
-//   Copyright (C) 2013-2016 by Aaron Spettl
+//   Copyright (C) 2013-2017 by Aaron Spettl
 //
 //   This program is free software; you can redistribute it and/or modify
 //   it under the terms of the GNU General Public License as published by
