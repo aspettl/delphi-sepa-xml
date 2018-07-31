@@ -41,7 +41,6 @@ type
     procedure TestSEPACheckIBAN;
     procedure TestSEPACheckBIC;
     procedure TestSEPACheckCI;
-    procedure TestSEPAIsGermanIBAN;
 
     procedure TestSEPACleanString;
     procedure TestSEPACheckString;
@@ -106,7 +105,7 @@ begin
   //       bank_code must have 8 characters - but we do not check this because
   //       we want to generate IBANs with invalid length in the tests below
 
-  country := COUNTRY_CODE_DE;
+  country := 'DE';
   bban    := bank_code+account_number;
   check   := ComputeIBANChecksum(country, bban);
 
@@ -204,15 +203,6 @@ begin
   CheckTrue(SEPACheckCI('DE98ZZZ09999999999'),             'Valid CI without spaces check');
   CheckTrue(SEPACheckCI('DE98 ZZZ 09999999999'),           'Valid CI with spaces check');
   CheckFalse(SEPACheckCI('DE97ZZZ09999999999'),            'Invalid checksum in CI check');
-end;
-
-procedure TPublicMethodsTestCase.TestSEPAIsGermanIBAN;
-begin
-  CheckTrue(SEPAIsGermanIBAN('DE58123456780123456789'),    'Valid German IBAN check');
-  CheckTrue(SEPAIsGermanIBAN('DE'),                        'Valid German IBAN check does not require IBAN validation');
-  CheckTrue(SEPAIsGermanIBAN(' de '),                      'Valid German IBAN check accepts also non-clean strings');
-  CheckFalse(SEPAIsGermanIBAN(''),                         'Empty string is not a valid German IBAN check');
-  CheckFalse(SEPAIsGermanIBAN('CH'),                       'German IBAN really checks country code');
 end;
 
 procedure TPublicMethodsTestCase.TestSEPACleanString;

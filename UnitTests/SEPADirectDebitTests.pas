@@ -513,13 +513,6 @@ begin
   fTransaction.DrctDbtTxMndtRltdInf.MndtId := '';
   CheckValidationContains([EMPTY_MNDT_ID], fTransaction.Validate(SCHEMA_PAIN_008_003_02, SEQ_TP_FRST));
   fTransaction.DrctDbtTxMndtRltdInf.MndtId := 'MNDTID';
-
-  // check that IBAN-only only allowed for German accounts
-  fTransaction.DbtrAgt.BIC     := '';
-  fTransaction.DbtrAgt.OthrID  := FIN_INSTN_NOTPROVIDED;
-  CheckValidation([], fTransaction.Validate(SCHEMA_PAIN_008_003_02, SEQ_TP_FRST));
-  fTransaction.DbtrAcct.IBAN   := 'CH';
-  CheckValidationContains([INVALID_IBAN_NOT_DE], fTransaction.Validate(SCHEMA_PAIN_008_003_02, SEQ_TP_FRST));
 end;
 
 procedure TDirectDebitTransactionInformationTests.TestSaveToStream;
@@ -791,11 +784,6 @@ begin
   CheckEquals('', fPaymentInfo.Validate(SCHEMA_PAIN_008_003_02).Text);
   fPaymentInfo.AppendDrctDbtTxInfEntry(TDirectDebitTransactionInformation.Create);
   CheckNotEquals('', fPaymentInfo.Validate(SCHEMA_PAIN_008_003_02).Text);
-
-  // check that creditor has a German account
-  fPaymentInfo.CdtrAcct.IBAN := 'CH';
-  CheckValidationContains([INVALID_CDTR_ACCT_NOT_DE], fPaymentInfo.Validate(SCHEMA_PAIN_008_003_02));
-  fPaymentInfo.CdtrAcct.IBAN := 'DE58123456780123456789';
 end;
 
 procedure TDirectDebitPaymentInformationTests.TestSaveToStream;

@@ -559,11 +559,6 @@ begin
   DbtrAgt.Validate(schema, Result);
   DbtrAcct.Validate(schema, Result);
   DrctDbtTxMndtRltdInf.Validate(schema, PmtTpInfSeqTp, Result);
-
-  // plausibility checks
-
-  if (DbtrAgt.OthrID = FIN_INSTN_NOTPROVIDED) and not SEPAIsGermanIBAN(DbtrAcct.IBAN) then
-      Result.Append(INVALID_IBAN_NOT_DE);
 end;
 
 procedure TDirectDebitTransactionInformation.SaveToStream(const stream: TStream; const schema: String);
@@ -730,11 +725,6 @@ begin
 
   for i := 0 to DrctDbtTxInfCount-1 do
     DrctDbtTxInfEntry[i].Validate(schema, PmtTpInfSeqTp, Result);
-
-  // plausibility checks
-
-  if not SEPAIsGermanIBAN(CdtrAcct.IBAN) then
-    Result.Append(INVALID_CDTR_ACCT_NOT_DE);
 
   // note: number of objects in DrctDbtTxInf is not checked - if empty, then this
   // object will be ignored by TDirectDebitInitiation; and TDirectDebitInitiation

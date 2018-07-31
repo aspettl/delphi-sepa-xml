@@ -233,11 +233,6 @@ begin
   CdtrAgt.Validate(schema, Result);
 
   CdtrAcct.Validate(schema, Result);
-
-  // plausibility checks
-
-  if (CdtrAgt.OthrID = FIN_INSTN_NOTPROVIDED) and not SEPAIsGermanIBAN(CdtrAcct.IBAN) then
-    Result.Append(INVALID_IBAN_NOT_DE);
 end;
 
 procedure TCreditTransferTransactionInformation.SaveToStream(const stream: TStream; const schema: String);
@@ -369,11 +364,6 @@ begin
 
   for i := 0 to CdtTrfTxInfCount-1 do
     CdtTrfTxInfEntry[i].Validate(schema, Result);
-
-  // plausibility checks
-
-  if not SEPAIsGermanIBAN(DbtrAcct.IBAN) then
-    Result.Append(INVALID_DBTR_ACCT_NOT_DE);
 
   // note: number of objects in DrctDbtTxInf is not checked - if empty, then this
   // object will be ignored by TCreditTransferInitiation; and TCreditTransferInitiation

@@ -55,8 +55,6 @@ const
   SEPA_FALSE                = 'false';
   SEPA_TRUE                 = 'true';
 
-  COUNTRY_CODE_DE           = 'DE';
-
   ID_MAX_LEN                = 35;
   INITG_PTY_NAME_MAX_LEN    = 70;
   CDTR_NM_MAX_LEN           = 70;
@@ -96,7 +94,6 @@ resourcestring
   INVALID_DBTR_NM           = 'DbtrNm "%s" not valid.';
   INVALID_ULTMT_DBTR_NM     = 'UltmtDbtrNm "%s" not valid.';
   INVALID_RMT_INF_USTRD     = 'RmtInfUstrd "%s" not valid.';
-  INVALID_IBAN_NOT_DE       = 'Only German bank accounts are allowed for IBAN-only (no BIC given).';
   EMPTY_PMT_INF_ID          = 'PmtInfId required.';
   EMPTY_CDTR_NM             = 'CdtrNm required.';
   EMPTY_CDTR_ID             = 'CdtrSchmeIdIdPrvtIdOthrId required.';
@@ -114,8 +111,6 @@ resourcestring
   INVALID_CDTR_NM           = 'CdtrNm "%s" not valid.';
   INVALID_CDTR_ID           = 'CdtrSchmeIdIdPrvtIdOthrId "%s" not valid.';
   INVALID_CDTR_PRTRY        = 'CdtrSchmeIdIdPrvtIdOthrSchmeNmPrtry "%s" not valid (valid: SEPA).';
-  INVALID_DBTR_ACCT_NOT_DE  = 'Debtor bank account should be of a German bank.';
-  INVALID_CDTR_ACCT_NOT_DE  = 'Creditor bank account should be of a German bank.';
   UNKNOWN_SCHEMA            = 'ISO schema "%s" not known or invalid for this type of XML file.';
   EMPTY_GRP_HDR_MSG_ID      = 'GrpHdrMsgId required.';
   EMPTY_INITG_PTY_NAME      = 'GrpHdrInitgPtyName required.';
@@ -168,7 +163,6 @@ function SEPAModulo97(const str: String): Integer;
 function SEPACheckIBAN(const iban: String): Boolean;
 function SEPACheckBIC(const bic: String): Boolean;
 function SEPACheckCI(const ci: String): Boolean;
-function SEPAIsGermanIBAN(const iban: String): Boolean;
 
 function SEPACleanString(const s: String; const maxlen: Integer = -1): String;
 function SEPACheckString(const s: String; const maxlen: Integer = -1): Boolean;
@@ -378,11 +372,6 @@ begin
     // invalid characters detected
     Result := false;
   end;
-end; 
-
-function IsGermanIBAN(const cleanIBAN: String): Boolean;
-begin
-  Result := (Copy(cleanIBAN, 1, 2) = COUNTRY_CODE_DE);
 end;
 
 procedure WriteString(const stream: TStream; const str: String);
@@ -442,11 +431,6 @@ end;
 function SEPACheckCI(const ci: String): Boolean;
 begin
   Result := CheckCleanCI(SEPACleanIBANorBICorCI(ci));
-end;
-
-function SEPAIsGermanIBAN(const iban: String): Boolean;
-begin
-  Result := IsGermanIBAN(SEPACleanIBANorBICorCI(iban));
 end;
 
 function SEPACleanString(const s: String; const maxlen: Integer = -1): String;

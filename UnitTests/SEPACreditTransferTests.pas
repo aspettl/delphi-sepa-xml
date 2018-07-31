@@ -165,13 +165,6 @@ begin
   fTransaction.CdtrAcct.IBAN   := '';
   CheckValidationContains([EMPTY_IBAN], fTransaction.Validate(SCHEMA_PAIN_001_003_03));
   fTransaction.CdtrAcct.IBAN   := 'DE58123456780123456789';
-
-  // check that IBAN-only only allowed for German accounts
-  fTransaction.CdtrAgt.BIC     := '';
-  fTransaction.CdtrAgt.OthrID  := FIN_INSTN_NOTPROVIDED;
-  CheckValidation([], fTransaction.Validate(SCHEMA_PAIN_001_003_03));
-  fTransaction.CdtrAcct.IBAN   := 'CH';
-  CheckValidationContains([INVALID_IBAN_NOT_DE], fTransaction.Validate(SCHEMA_PAIN_001_003_03));
 end;
 
 procedure TCreditTransferTransactionInformationTests.TestSaveToStream;
@@ -352,10 +345,6 @@ begin
   CheckEquals('', fPaymentInfo.Validate(SCHEMA_PAIN_001_003_03).Text);
   fPaymentInfo.AppendCdtTrfTxInfEntry(TCreditTransferTransactionInformation.Create);
   CheckNotEquals('', fPaymentInfo.Validate(SCHEMA_PAIN_001_003_03).Text);
-
-  // check that debtor has a German account
-  fPaymentInfo.DbtrAcct.IBAN := 'CH';
-  CheckValidationContains([INVALID_DBTR_ACCT_NOT_DE], fPaymentInfo.Validate(SCHEMA_PAIN_001_003_03));
 end;
 
 procedure TCreditTransferPaymentInformationTests.TestSaveToStream;
