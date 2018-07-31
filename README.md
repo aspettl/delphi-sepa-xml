@@ -12,7 +12,7 @@ Soweit gesetzlich zulässig ist jegliche Haftung ausgeschlossen! Für mehr Details
 ## Autor / Lizenz:
 
   - Autor: Aaron Spettl (aaron@spettl.de)
-  - Lizenz: [GPL (General Public License), Version 2](http://www.gnu.de/documents/gpl-2.0.de.html) oder höher
+  - Lizenz: wahlweise [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0) *oder* [GPL (General Public License), Version 2](http://www.gnu.de/documents/gpl-2.0.de.html) oder höher
 
 ## Homepage:
 
