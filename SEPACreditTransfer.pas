@@ -83,6 +83,7 @@ type
   TCreditTransferPaymentInformation = class
   private
     fPmtInfId: String;                                 // payment information identification
+    fBtchBookg:boolean;                                // Batchbooking parameter (at Sepa level default true if not defined)
     fPmtMtd: String;                                   // payment method (always "TRF")
     fPmtTpInfSvcLvlCd: String;                         // payment type, service level code (always "SEPA")
     fPmtTpInfInstrPrty: String;                        // payment type, instruction priority ("NORM" or "HIGH")
@@ -104,6 +105,7 @@ type
 
     property PmtInfId: String read fPmtInfId write fPmtInfId;
     property PmtMtd: String read fPmtMtd write fPmtMtd;
+    property BtchBookg: boolean read fBtchBookg write fBtchBookg;
     property NbOfTxs: Integer read GetCdtTrfTxInfCount;
     property CtrlSum: Currency read GetCtrlSum;
     property PmtTpInfSvcLvlCd: String read fPmtTpInfSvcLvlCd write fPmtTpInfSvcLvlCd;
@@ -271,6 +273,8 @@ begin
   fChrgBr           := CHRG_BR_SLEV;
   fDbtrAcct         := TAccountIdentification.Create;
   fDbtrAgt          := TFinancialInstitution.Create;
+
+  fBtchBookg    :=  false; // Set it default to false, we want to have details
 end;
 
 destructor TCreditTransferPaymentInformation.Destroy;
@@ -373,11 +377,18 @@ end;
 procedure TCreditTransferPaymentInformation.SaveToStream(const stream: TStream; const schema: String);
 var
   i: Integer;
+    function _Boolean2Xml(_value:boolean):string;
+    begin
+        if _value then result:='true' else result:='false';
+    end;
 begin
   SEPAWriteLine(stream, '<PmtInf>');
 
   SEPAWriteLine(stream, '<PmtInfId>'+SEPACleanString(PmtInfId)+'</PmtInfId>');
   SEPAWriteLine(stream, '<PmtMtd>'+SEPACleanString(PmtMtd)+'</PmtMtd>');
+
+  SEPAWriteLine(stream, '<BtchBookg>'+_Boolean2Xml(fBtchBookg)+'</BtchBookg>');
+
   SEPAWriteLine(stream, '<NbOfTxs>'+IntToStr(NbOfTxs)+'</NbOfTxs>');
   SEPAWriteLine(stream, '<CtrlSum>'+SEPAFormatAmount(CtrlSum)+'</CtrlSum>');
 
