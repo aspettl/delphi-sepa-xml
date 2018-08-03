@@ -245,6 +245,9 @@ begin
             (c = '''') or (c = ':') or (c = '?') or
             (c = ',') or (c = '-') or (c = ' ') or
             (c = '(') or (c = '+') or (c = '.') or
+
+            (c = ';') or   // We allow the ; char so we can use XML-Escapes like &amp;
+
             (c = ')') or (c = '/');
 end;
 
