@@ -798,12 +798,14 @@ begin
   fPaymentInfo.CdtrAgt.BIC   := 'SOMEFININST';
   fPaymentInfo.CdtrAcct.IBAN := 'DE58123456780123456789';
   fPaymentInfo.CdtrSchmeIdIdPrvtIdOthrId := 'DE98ZZZ09999999999';
+  fPaymentInfo.BtchBookg:=false;
 
   fPaymentInfo.SaveToStream(SaveStream, SCHEMA_PAIN_008_003_02);
 
   CheckSaveStream('<PmtInf>'+
                   '<PmtInfId>PMTINFID</PmtInfId>'+
                   '<PmtMtd>DD</PmtMtd>'+
+                  '<BtchBookg>false</BtchBookg>'+
                   '<NbOfTxs>0</NbOfTxs>'+
                   '<CtrlSum>0.00</CtrlSum>'+
                   '<PmtTpInf>'+
@@ -844,6 +846,7 @@ begin
   CheckSaveStream('<PmtInf>'+
                   '<PmtInfId>PMTINFID</PmtInfId>'+
                   '<PmtMtd>DD</PmtMtd>'+
+                  '<BtchBookg>false</BtchBookg>'+
                   '<NbOfTxs>1</NbOfTxs>'+
                   '<CtrlSum>0.01</CtrlSum>'+
                   '<PmtTpInf>'+
