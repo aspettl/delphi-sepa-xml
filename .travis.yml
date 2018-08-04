@@ -6,11 +6,11 @@ services:
   - docker
 
 before_install:
-  - "docker pull frolvlad/alpine-fpc"
+  - "docker pull aspettl/alpine-fpc:full-fcl-2.6"
 
 script:
   # compile unit tests
-  - "docker run --rm -v `pwd`:/data frolvlad/alpine-fpc fpc -B -Fu/data -FU/data/UnitTests/lib -o/data/UnitTests/lib/FPCConsoleUnitTests /data/UnitTests/FPCConsoleUnitTests.pas"
+  - "docker run --rm -v `pwd`:/data aspettl/alpine-fpc:full-fcl-2.6 fpc -B -Fu/data -FU/data/UnitTests/lib -o/data/UnitTests/lib/FPCConsoleUnitTests /data/UnitTests/FPCConsoleUnitTests.pas"
   # execute tests: show results on console and create log file
   # (note: exit code is always zero)
   - "./UnitTests/lib/FPCConsoleUnitTests --all --format=plain --skiptiming | tee tests.log"
