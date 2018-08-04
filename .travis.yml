@@ -1,0 +1,20 @@
+sudo: required
+
+language: c
+
+services:
+  - docker
+
+before_install:
+  - "docker pull frolvlad/alpine-fpc"
+
+script:
+  # compile unit tests
+  - "docker run --rm -v `pwd`:/data frolvlad/alpine-fpc fpc -B -Fu/data -FU/data/UnitTests/lib -o/data/UnitTests/lib/FPCConsoleUnitTests /data/UnitTests/FPCConsoleUnitTests.pas"
+  # execute tests: show results on console and create log file
+  # (note: exit code is always zero)
+  - "./UnitTests/lib/FPCConsoleUnitTests --all --format=plain --skiptiming | tee tests.log"
+  # test that there were no errors
+  - "grep -E '^Number of errors:[ ]+0$' tests.log"
+  # test that there were no failed tests
+  - "grep -E '^Number of failures:[ ]+0$' tests.log"
