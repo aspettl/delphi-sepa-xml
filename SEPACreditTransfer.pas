@@ -83,6 +83,7 @@ type
   TCreditTransferPaymentInformation = class
   private
     fPmtInfId: String;                                 // payment information identification
+    fBtchBookg: Boolean;                               // Batchbooking parameter (at Sepa level default true if not defined)
     fPmtMtd: String;                                   // payment method (always "TRF")
     fPmtTpInfSvcLvlCd: String;                         // payment type, service level code (always "SEPA")
     fPmtTpInfInstrPrty: String;                        // payment type, instruction priority ("NORM" or "HIGH")
@@ -104,6 +105,7 @@ type
 
     property PmtInfId: String read fPmtInfId write fPmtInfId;
     property PmtMtd: String read fPmtMtd write fPmtMtd;
+    property BtchBookg: Boolean read fBtchBookg write fBtchBookg;
     property NbOfTxs: Integer read GetCdtTrfTxInfCount;
     property CtrlSum: Currency read GetCtrlSum;
     property PmtTpInfSvcLvlCd: String read fPmtTpInfSvcLvlCd write fPmtTpInfSvcLvlCd;
@@ -271,6 +273,8 @@ begin
   fChrgBr           := CHRG_BR_SLEV;
   fDbtrAcct         := TAccountIdentification.Create;
   fDbtrAgt          := TFinancialInstitution.Create;
+
+  fBtchBookg :=  true;
 end;
 
 destructor TCreditTransferPaymentInformation.Destroy;
@@ -378,6 +382,9 @@ begin
 
   SEPAWriteLine(stream, '<PmtInfId>'+SEPACleanString(PmtInfId)+'</PmtInfId>');
   SEPAWriteLine(stream, '<PmtMtd>'+SEPACleanString(PmtMtd)+'</PmtMtd>');
+
+  SEPAWriteLine(stream, '<BtchBookg>'+SEPABoolean2Xml(fBtchBookg)+'</BtchBookg>');
+
   SEPAWriteLine(stream, '<NbOfTxs>'+IntToStr(NbOfTxs)+'</NbOfTxs>');
   SEPAWriteLine(stream, '<CtrlSum>'+SEPAFormatAmount(CtrlSum)+'</CtrlSum>');
 

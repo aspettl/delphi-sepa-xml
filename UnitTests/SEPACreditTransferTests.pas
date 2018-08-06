@@ -356,12 +356,14 @@ begin
   fPaymentInfo.DbtrNm        := 'Debtor name';
   fPaymentInfo.DbtrAgt.BIC   := 'SOMEFININST';
   fPaymentInfo.DbtrAcct.IBAN := 'DE58123456780123456789';
+  fPaymentInfo.BtchBookg     := false;
 
   fPaymentInfo.SaveToStream(SaveStream, SCHEMA_PAIN_001_003_03);
 
   CheckSaveStream('<PmtInf>'+
                   '<PmtInfId>PMTINFID</PmtInfId>'+
                   '<PmtMtd>TRF</PmtMtd>'+
+                  '<BtchBookg>false</BtchBookg>'+
                   '<NbOfTxs>0</NbOfTxs>'+
                   '<CtrlSum>0.00</CtrlSum>'+
                   '<PmtTpInf>'+
@@ -385,6 +387,7 @@ begin
   CheckSaveStream('<PmtInf>'+
                   '<PmtInfId>PMTINFID</PmtInfId>'+
                   '<PmtMtd>TRF</PmtMtd>'+
+                  '<BtchBookg>false</BtchBookg>'+
                   '<NbOfTxs>0</NbOfTxs>'+
                   '<CtrlSum>0.00</CtrlSum>'+
                   '<PmtTpInf>'+
@@ -418,6 +421,7 @@ begin
   CheckSaveStream('<PmtInf>'+
                   '<PmtInfId>PMTINFID</PmtInfId>'+
                   '<PmtMtd>TRF</PmtMtd>'+
+                  '<BtchBookg>false</BtchBookg>'+
                   '<NbOfTxs>1</NbOfTxs>'+
                   '<CtrlSum>0.01</CtrlSum>'+
                   '<PmtTpInf>'+

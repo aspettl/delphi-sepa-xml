@@ -210,11 +210,11 @@ const
   numeric               : RawByteString = '01234567890';
   alpha_lower           : RawByteString = 'abcdefghijklmnopqrstuvwxyz';
   alpha_upper           : RawByteString = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  special               : RawByteString = ''':?,- (+.)/';
+  special               : RawByteString = ''':?,- (+.)/;';
   special_german        : RawByteString = #228#246#252#196#214#220#223'&*$%';   // äöüÄÖÜß&*$%
   special_german_transf : RawByteString = 'aouAOUs+...';
-  special_invalid       : RawByteString = '!"'#167'=#~_;{[]}\';                 // !"§=#~_;{[]}\
-  special_invalid_transf: RawByteString = '             ';
+  special_invalid       : RawByteString = '!"'#167'=#~_{[]}\';                 // !"§=#~_;{[]}\
+  special_invalid_transf: RawByteString = '            ';
   special_german_aou    : RawByteString = #228#246#252;                         // äöü
 begin
   {$IFDEF FPC_HAS_CPSTRING}
