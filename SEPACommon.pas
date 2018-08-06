@@ -174,7 +174,7 @@ function SEPAFormatDate(const d: TDateTime): String;
 function SEPAFormatDateTime(const d: TDateTime): String;
 function SEPAEarliestCollectionDate(PmtTpInfLclInstrmCd: String; PmtTpInfSeqTp: String; const schema: String; BaseDate: TDateTime = 0): Cardinal;
 
-function SEPABoolean2Xml(const value:boolean):string;
+function SEPABoolean2Xml(const value: Boolean):string;
 procedure SEPAWriteLine(const stream: TStream; const line: String);
 
 var
@@ -547,9 +547,12 @@ begin
   end;
 end;
 
-function SEPABoolean2Xml(const value:boolean):string;
+function SEPABoolean2Xml(const value: Boolean):string;
 begin
-	if value then result:='true' else result:='false';
+  if value then 
+    result:='true' 
+  else 
+    result:='false';
 end;
 
 procedure SEPAWriteLine(const stream: TStream; const line: String);
