@@ -1,4 +1,4 @@
-# Delphi-Unit zur Erstellung von SEPA-XML - Dateien
+# Delphi-Unit zur Erstellung von SEPA-XML-Dateien
 
 Ziel dieses Projekts ist eine einzelne Delphi-Unit, mit deren Hilfe man relativ einfach SEPA-XML-Dateien erstellen kann, speziell für Überweisungen und Lastschriftaufträge in Deutschland. Die Pascal-Datei hat (außer einigen wenigen Standardbibliotheken von Delphi) keinerlei Abhängigkeiten, auch die XML-Datei wird mit einfachsten Mitteln erzeugt. Einfach gehaltene Validierungsmöglichkeiten sind enthalten. Derzeit unterstützt sind Version 2.6 (pain.001.002.03, pain.008.002.02), 2.7 bis 2.9 (pain.001.003.03, pain.008.003.02) und 3.0 bis 3.2 (pain.001.001.03, pain.008.001.02) nach [EBICS: Spezifikation der Datenformate](http://www.ebics.de/index.php?id=77) veröffentlicht von der Deutschen Kreditwirtschaft.
 

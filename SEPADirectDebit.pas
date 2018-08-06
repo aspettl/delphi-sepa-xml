@@ -164,7 +164,7 @@ type
   private
     fPmtInfId: String;                                 // payment information identification
     fPmtMtd: String;                                   // payment method (always "DD")
-    fBtchBookg:boolean;                                // Batchbooking parameter (at Sepa level default true if not defined)
+    fBtchBookg: Boolean;                               // Batchbooking parameter (at Sepa level default true if not defined)
     fPmtTpInfSvcLvlCd: String;                         // payment type, service level code (always "SEPA")
     fPmtTpInfLclInstrmCd: String;                      // payment type, local instrument code ("CORE", "COR1" or "B2B")
     fPmtTpInfSeqTp: String;                            // payment type, sequence type ("FRST", "RCUR", "OOFF" or "FNAL")
@@ -189,7 +189,7 @@ type
 
     property PmtInfId: String read fPmtInfId write fPmtInfId;
     property PmtMtd: String read fPmtMtd write fPmtMtd;
-    property BtchBookg: boolean read fBtchBookg write fBtchBookg;
+    property BtchBookg: Boolean read fBtchBookg write fBtchBookg;
     property NbOfTxs: Integer read GetDrctDbtTxInfCount;
     property CtrlSum: Currency read GetCtrlSum;
     property PmtTpInfSvcLvlCd: String read fPmtTpInfSvcLvlCd write fPmtTpInfSvcLvlCd;
@@ -605,7 +605,7 @@ begin
   fCdtrAcct                            := TAccountIdentification.Create;
   fCdtrAgt                             := TFinancialInstitution.Create;
 
-  fBtchBookg    :=  false; // Set it default to false, we want to have details
+  fBtchBookg :=  true;
 end;
 
 destructor TDirectDebitPaymentInformation.Destroy;
@@ -738,17 +738,13 @@ end;
 procedure TDirectDebitPaymentInformation.SaveToStream(const stream: TStream; const schema: String);
 var
   i: Integer;
-    function _Boolean2Xml(_value:boolean):string;
-    begin
-        if _value then result:='true' else result:='false';
-    end;
 begin
   SEPAWriteLine(stream, '<PmtInf>');
 
   SEPAWriteLine(stream, '<PmtInfId>'+SEPACleanString(PmtInfId)+'</PmtInfId>');
   SEPAWriteLine(stream, '<PmtMtd>'+SEPACleanString(PmtMtd)+'</PmtMtd>');
 
-  SEPAWriteLine(stream, '<BtchBookg>'+_Boolean2Xml(fBtchBookg)+'</BtchBookg>');
+  SEPAWriteLine(stream, '<BtchBookg>'+SEPABoolean2Xml(fBtchBookg)+'</BtchBookg>');
 
   SEPAWriteLine(stream, '<NbOfTxs>'+IntToStr(NbOfTxs)+'</NbOfTxs>');
   SEPAWriteLine(stream, '<CtrlSum>'+SEPAFormatAmount(CtrlSum)+'</CtrlSum>');
