@@ -1,3 +1,11 @@
+## WIP
+
+  - Keine Änderungen notwendig für Version 3.2 der Spezifikation - Readme angepasst.
+  - Mehr Lizenzoptionen: statt GPLv2 oder höher steht wahlweise die Apache License 2.0 zur Verfügung.
+  - Setze ";" auf Whitelist erlaubter Zeichen, um XML-Kodierung wie z.B. `&aml;` zu ermöglichen, [GitHub-Issue #1](https://github.com/aspettl/delphi-sepa-xml/issues/1).
+  - Unterstützung für `<BtchBookg>`-Option zur Buchung von Einzelposten, [GitHub-Issue #2](https://github.com/aspettl/delphi-sepa-xml/issues/2).
+  - Keine Überprüfung mehr auf deutsche IBANs im Validierungsschritt, [GitHub-Issue #3](https://github.com/aspettl/delphi-sepa-xml/issues/3).
+
 ## 0.3.0 Beta (2017-10-01)
 
   - Unterstützung für pain.001.001.03 und pain.008.001.02 nach Version 3.0 bzw. 3.1 der Spezifikation.
