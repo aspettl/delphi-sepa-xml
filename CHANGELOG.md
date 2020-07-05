@@ -1,6 +1,6 @@
-## WIP
+## 0.4.0 Beta (2020-07-05)
 
-  - Keine Änderungen notwendig für Version 3.2 der Spezifikation - Readme angepasst.
+  - Keine Änderungen notwendig für Version 3.2 bis 3.4 der Spezifikation - Readme angepasst.
   - Mehr Lizenzoptionen: statt GPLv2 oder höher steht wahlweise die Apache License 2.0 zur Verfügung.
   - Setze ";" auf Whitelist erlaubter Zeichen, um XML-Kodierung wie z.B. `&aml;` zu ermöglichen, [GitHub-Issue #1](https://github.com/aspettl/delphi-sepa-xml/issues/1).
   - Unterstützung für `<BtchBookg>`-Option zur Buchung von Einzelposten, [GitHub-Issue #2](https://github.com/aspettl/delphi-sepa-xml/issues/2).

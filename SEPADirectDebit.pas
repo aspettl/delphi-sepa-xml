@@ -29,8 +29,8 @@ type
   // In the following, all necessary classes to create direct debit transactions
   // for SEPA XML files are introduced. Please have a look at the specification
   // of the XML data format at
-  //   http://www.ebics.de/index.php?id=77
-  // (section 2.2.2, "Anlage3_Datenformate_V2.7.pdf" by EBICS, Die Deutsche Kreditwirtschaft).
+  //   https://www.ebics.de/de/datenformate
+  // (section 2.2.2, "Anlage_3_Datenformate_V3.4.pdf" by EBICS, Die Deutsche Kreditwirtschaft).
   //
   // Short explanation of XML file for direct debit transactions:
   //
