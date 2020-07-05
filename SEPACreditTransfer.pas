@@ -1,6 +1,6 @@
 //
 //   Delphi unit for SEPA credit transfer XML file creation
-//   (beta version 0.3.0, 2017-10-01)
+//   (beta version 0.4.0, 2020-07-05)
 //
 //   Copyright (C) 2013-2018 by Aaron Spettl
 //
