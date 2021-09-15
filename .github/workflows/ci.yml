@@ -1,0 +1,26 @@
+name: Docker
+
+on: [push, pull_request]
+
+jobs:
+  tests:
+    name: Run tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@v2
+      - name: Login to DockerHub
+        uses: docker/login-action@v1 
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Pull docker image with compiler
+        run: "docker pull aspettl/alpine-fpc:full-fcl-2.6"
+      - name: Compile tests
+        run: "docker run --rm -v `pwd`:/data aspettl/alpine-fpc:full-fcl-2.6 fpc -B -Fu/data -FU/data/UnitTests/lib -o/data/UnitTests/lib/FPCConsoleUnitTests /data/UnitTests/FPCConsoleUnitTests.pas"
+      - name: Execute tests
+        run: "docker run --rm -v `pwd`:/data aspettl/alpine-fpc:full-fcl-2.6 /data/UnitTests/lib/FPCConsoleUnitTests --all --format=plain --skiptiming | tee tests.log"
+      - name: Check that there were no errors
+        run: "grep -E '^Number of errors:[ ]+0$' tests.log"
+      - name: Check that there were no failed tests
+        run: "grep -E '^Number of failures:[ ]+0$' tests.log"
